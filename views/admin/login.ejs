@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Admin Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f9f5f0 0%, #e8dfd3 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .login-container {
+            display: flex;
+            width: 900px;
+            height: 500px;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(139, 109, 82, 0.2);
+        }
+        
+        .brand-section {
+            flex: 1;
+            background: linear-gradient(to bottom right, #8B6B4D 0%, #C2A783 100%);
+            color: white;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .brand-section::before {
+            content: '';
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            top: -50px;
+            left: -50px;
+        }
+        
+        .brand-section::after {
+            content: '';
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            bottom: -50px;
+            right: -50px;
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            z-index: 1;
+        }
+        
+        .logo i {
+            font-size: 36px;
+        }
+        
+        .brand-text {
+            text-align: center;
+            z-index: 1;
+        }
+        
+        .brand-text h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+        
+        .brand-text p {
+            font-size: 14px;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+        
+        .login-section {
+            flex: 1;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .login-header {
+            margin-bottom: 30px;
+        }
+        
+        .login-header h2 {
+            color: #8B6B4D;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .login-header p {
+            color: #888;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .form-group label {
+            display: block;
+            color: #8B6B4D;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .input-with-icon {
+            position: relative;
+        }
+        
+        .input-with-icon i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8B6B4D;
+        }
+        
+        .input-with-icon input {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            border: 1px solid #e0d6c8;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #5a4a3a;
+            transition: all 0.3s;
+        }
+        
+        .input-with-icon input:focus {
+            outline: none;
+            border-color: #8B6B4D;
+            box-shadow: 0 0 0 2px rgba(139, 107, 77, 0.2);
+        }
+        
+        .remember-forgot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .remember {
+            display: flex;
+            align-items: center;
+        }
+        
+        .remember input {
+            margin-right: 8px;
+            accent-color: #8B6B4D;
+        }
+        
+        .remember label {
+            color: #8B6B4D;
+        }
+        
+        .forgot a {
+            color: #8B6B4D;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .forgot a:hover {
+            text-decoration: underline;
+        }
+        
+        .login-button {
+            width: 100%;
+            padding: 12px;
+            background: #8B6B4D;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .login-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0.2), rgba(255,255,255,0.4));
+            transform: translateX(-100%);
+            transition: transform 0.4s ease;
+            z-index: -1;
+        }
+        
+        .login-button:hover {
+            background: #7a5d42;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(139, 107, 77, 0.3);
+        }
+        
+        .login-button:hover::before {
+            transform: translateX(0);
+        }
+        
+        .login-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(139, 107, 77, 0.3);
+        }
+        
+        .login-button.touch-effect::before {
+            transform: translateX(0);
+            background: linear-gradient(to right, rgba(255,255,255,0.3), rgba(255,255,255,0.5));
+        }
+        
+        .divider {
+            text-align: center;
+            margin: 25px 0;
+            position: relative;
+        }
+        
+        .divider::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 100%;
+            height: 1px;
+            background: #e0d6c8;
+        }
+        
+        .divider span {
+            background: white;
+            padding: 0 15px;
+            color: #8B6B4D;
+            font-size: 14px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .social-login {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .social-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f5f2ed;
+            color: #8B6B4D;
+            border: 1px solid #e0d6c8;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .social-btn:hover {
+            background: #8B6B4D;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 768px) {
+            .login-container {
+                flex-direction: column;
+                height: auto;
+                width: 100%;
+            }
+            
+            .brand-section {
+                padding: 30px;
+            }
+            
+            .login-section {
+                padding: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="brand-section">
+            <div class="logo">
+                <i class="fas fa-crown"></i>
+            </div>
+            <div class="brand-text">
+                <h1>Admin Portal</h1>
+                <p>Access your premium dashboard to manage your website content, users, and settings with ease and precision.</p>
+            </div>
+        </div>
+        
+        <div class="login-section">
+            <div class="login-header">
+                <h2>Sign In</h2>
+                <p>Enter your credentials to access the admin panel</p>
+            </div>
+            <% if (message) { %>
+    <p style="color:red; text-align:center;"><%= message %></p>
+<% } %>
+
+           <form id="loginpage" method="post" action="/admin/login">
+    <div class="form-group">
+        <label for="email">Email</label>
+        <div class="input-with-icon">
+            <i class="fas fa-user"></i>
+            <input type="text" id="email" name="email" placeholder="Enter your email" required>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="password">Password</label>
+        <div class="input-with-icon">
+            <i class="fas fa-lock"></i>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+        </div>
+    </div>
+
+    <button type="submit" class="login-button" id="loginBtn">Sign In</button>
+</form>
+
+        </div>
+    </div>
+
+    <script>
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
+
+        if (!username) {
+            e.preventDefault(); // stop only if invalid
+            alert('Please enter your username');
+            return;
+        }
+
+        if (!password) {
+            e.preventDefault(); // stop only if invalid
+            alert('Please enter your password');
+            return;
+        }
+
+        // ✅ if both are filled, let the form submit normally to /login
+    });
+
+    // Keep the touch effect for mobile
+    const loginBtn = document.getElementById('loginBtn');
+    loginBtn.addEventListener('touchstart', function() {
+        this.classList.add('touch-effect');
+    });
+    loginBtn.addEventListener('touchend', function() {
+        this.classList.remove('touch-effect');
+    });
+</script>
+
+</body>
+</html>

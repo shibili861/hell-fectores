@@ -1,0 +1,38 @@
+
+
+
+
+<nav class="navbar">
+  <a href="/" class="logo">LuxeStore<span>É</span></a>
+
+  <ul class="nav-links">
+    <li><a href="/">Home</a></li>
+    <li><a href="/collections">Collections</a></li>
+    <li><a href="/about">About</a></li>
+    <li><a href="/contact">Contact</a></li>
+  </ul>
+
+  <div class="nav-right">
+    <div class="icons">
+      <i class="fas fa-search"></i>
+      <i class="fas fa-user"></i>
+      <i class="fas fa-shopping-bag"></i>
+    </div>
+
+    <div class="auth-buttons">
+    <% if (locals.user) { %>
+  <div class="dropdown">
+    <a href="#" class="sign-in-link"><%= locals.user.name %></a>
+    <div class="dropdown-content">
+      <a href="/userprofile">Profile</a>
+      <a href="/logout">Logout</a>
+    </div>
+  </div>
+<% } else { %>
+  <a href="/login" class="btn login-btn">Login</a>
+  <a href="/signup" class="btn signup-btn">Sign Up</a>
+<% } %>
+
+    </div>
+  </div>
+</nav>

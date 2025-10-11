@@ -1,0 +1,149 @@
+
+<%- include('../partials/admin/sidebar') %>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Category</title>
+  <style>
+    :root {
+      --primary: #1a1a1a;
+      --secondary: #f5f5f5;
+      --accent: #c19a6b;
+      --light: #ffffff;
+    }
+
+    body {
+      background-color: var(--secondary);
+      color: var(--primary);
+      padding-top: 20px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .content-main {
+      margin-left: 280px;
+      padding: 20px;
+    }
+
+    .content-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .content-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--primary);
+      position: relative;
+      padding-bottom: 10px;
+    }
+
+    .content-title:after {
+      content: '';
+      position: absolute;
+      width: 60px;
+      height: 3px;
+      background-color: var(--accent);
+      bottom: 0;
+      left: 0;
+    }
+
+    .card {
+      background: var(--light);
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      overflow: hidden;
+      margin-bottom: 30px;
+    }
+
+    .card-body {
+      padding: 30px;
+    }
+
+    .form-container {
+      background: var(--light);
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+
+    .form-label {
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--primary);
+      display: block;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 8px rgba(193,154,107,0.2);
+    }
+
+    textarea.form-control {
+      min-height: 150px;
+      resize: vertical;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: var(--light);
+      border: none;
+      padding: 12px 25px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      width: 100%;
+      font-size: 16px;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary);
+    }
+
+    @media (max-width: 992px) {
+      .content-main {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="content-main">
+    <div class="content-header">
+      <h1 class="content-title">Edit Category</h1>
+      <button class="btn-primary">Save Category</button>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <form action="/admin/editcategory/<%= category._id %>" method="POST" class="form-container">
+  <label class="form-label" for="categoryName">Category Name</label>
+  <input type="text" id="categoryName" name="categoryName" class="form-control" value="<%= category.name %>" required>
+
+  <label class="form-label" for="description">Category Description</label>
+  <textarea id="description" name="description" class="form-control" required><%= category.description %></textarea>
+
+  <button type="submit" class="btn-primary">Update Category</button>
+</form>
+
+      </div>
+    </div>
+  </div>
+</body>
+</html>

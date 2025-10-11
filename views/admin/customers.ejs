@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Customer Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #8B572A;
+            --primary-light: #D4A574;
+            --primary-extra-light: #FEFCF8;
+            --primary-dark: #5D4037;
+            --text-dark: #3E2723;
+            --text-light: #8D6E63;
+            --white: #ffffff;
+            --gold: #D4AF37;
+            --shadow: 0 15px 40px rgba(139, 87, 42, 0.12);
+            --shadow-light: 0 8px 25px rgba(139, 87, 42, 0.08);
+            --transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --success: #8AAE5C;
+            --danger: #C46B5E;
+            --border-radius: 16px;
+        }
+
+        body {
+            display: flex;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary-extra-light) 0%, #F8F4E6 100%);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            padding: 50px;
+            flex: 1;
+            width: calc(100% - 280px);
+        }
+
+        .content-header {
+            margin-bottom: 50px;
+        }
+
+        .content-header h2 {
+            font-size: 42px;
+            font-weight: 800;
+            color: var(--primary-dark);
+            margin-bottom: 15px;
+            position: relative;
+            display: inline-block;
+            letter-spacing: -0.5px;
+        }
+
+        .content-header h2:after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 0;
+            width: 80px;
+            height: 5px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--gold) 100%);
+            border-radius: 5px;
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+        }
+
+        /* Search Section */
+        .card-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .input-group {
+            display: flex;
+            max-width: 700px;
+            margin: 0 auto;
+            border-radius: 50px;
+            overflow: hidden;
+            border: 2px solid #F0E6DC;
+            box-shadow: var(--shadow-light);
+            transition: var(--transition);
+            background: var(--white);
+            backdrop-filter: blur(10px);
+        }
+
+        .input-group:focus-within {
+            box-shadow: 0 12px 35px rgba(139, 87, 42, 0.2);
+            border-color: var(--gold);
+            transform: translateY(-3px);
+        }
+
+        .form-control {
+            flex: 1;
+            padding: 20px 30px;
+            border: none;
+            outline: none;
+            font-size: 17px;
+            color: var(--text-dark);
+            background: transparent;
+            font-weight: 500;
+        }
+
+        .form-control::placeholder {
+            color: var(--text-light);
+            font-weight: 400;
+        }
+
+        .btn {
+            padding: 20px 35px;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            position: relative;
+            overflow: hidden;
+            font-size: 16px;
+        }
+
+        .btn-search {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            box-shadow: 0 6px 20px rgba(139, 87, 42, 0.4);
+        }
+
+        .btn-search:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(139, 87, 42, 0.5);
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+        }
+
+        .btn-clear {
+            background: linear-gradient(135deg, #A1887F 0%, #8D6E63 100%);
+            color: var(--white);
+            box-shadow: 0 6px 20px rgba(141, 110, 99, 0.3);
+        }
+
+        .btn-clear:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(141, 110, 99, 0.4);
+        }
+
+        /* Table Styling */
+        .table-container {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-top: 30px;
+            border: 1px solid rgba(139, 87, 42, 0.08);
+            backdrop-filter: blur(10px);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 25px;
+            text-align: left;
+            font-weight: 700;
+            font-size: 17px;
+            letter-spacing: 0.8px;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            font-size: 15px;
+        }
+
+        th:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--gold), transparent);
+        }
+
+        td {
+            padding: 25px;
+            text-align: left;
+            border-bottom: 1px solid rgba(139, 87, 42, 0.06);
+            color: var(--text-dark);
+            font-weight: 600;
+            transition: var(--transition);
+            font-size: 16px;
+        }
+
+        tr {
+            background: var(--white);
+            transition: var(--transition);
+            position: relative;
+        }
+
+        tr:hover {
+            background: linear-gradient(135deg, rgba(212, 175, 116, 0.08) 0%, rgba(254, 252, 248, 0.4) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139, 87, 42, 0.1);
+        }
+
+        /* Action Buttons */
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger) 0%, #B35446 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 14px 28px;
+            box-shadow: 0 6px 20px rgba(196, 107, 94, 0.4);
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            letter-spacing: 0.8px;
+            font-size: 15px;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(196, 107, 94, 0.5);
+            background: linear-gradient(135deg, #B35446 0%, var(--danger) 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success) 0%, #7A9A4D 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 14px 28px;
+            box-shadow: 0 6px 20px rgba(138, 174, 92, 0.4);
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            letter-spacing: 0.8px;
+            font-size: 15px;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(138, 174, 92, 0.5);
+            background: linear-gradient(135deg, #7A9A4D 0%, var(--success) 100%);
+        }
+
+        /* Premium Pagination */
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 60px;
+        }
+
+        .pagination {
+            display: flex;
+            list-style: none;
+            border-radius: 50px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            background: var(--white);
+            border: 1px solid rgba(139, 87, 42, 0.1);
+            padding: 8px;
+            gap: 8px;
+        }
+
+        .page-item {
+            margin: 0;
+        }
+
+        .page-link {
+            padding: 16px 24px;
+            background: transparent;
+            color: var(--text-dark);
+            text-decoration: none;
+            font-weight: 700;
+            transition: var(--transition);
+            border: 2px solid transparent;
+            min-width: 55px;
+            text-align: center;
+            border-radius: 12px;
+            font-size: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-link:hover {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 87, 42, 0.3);
+        }
+
+        .page-item.active .page-link {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            border-color: var(--primary);
+            box-shadow: 0 6px 20px rgba(139, 87, 42, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* Button Ripple Effect */
+        .btn-danger, .btn-success, .btn-search, .btn-clear, .page-link {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-danger:after, .btn-success:after, .btn-search:after, .btn-clear:after, .page-link:after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.8);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+
+        .btn-danger:hover:after, .btn-success:hover:after, .btn-search:hover:after, .btn-clear:hover:after, .page-link:hover:after {
+            animation: ripple 1s ease-out;
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(25, 25);
+                opacity: 0;
+            }
+        }
+
+        /* Status Indicators */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border-radius: 50px;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: var(--transition);
+        }
+
+        .status-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+        }
+
+        .status-active {
+            background: linear-gradient(135deg, rgba(138, 174, 92, 0.15) 0%, rgba(138, 174, 92, 0.25) 100%);
+            color: var(--success);
+            border: 2px solid rgba(138, 174, 92, 0.3);
+        }
+
+        .status-blocked {
+            background: linear-gradient(135deg, rgba(196, 107, 94, 0.15) 0%, rgba(196, 107, 94, 0.25) 100%);
+            color: var(--danger);
+            border: 2px solid rgba(196, 107, 94, 0.3);
+        }
+
+        /* Customer Count */
+        .customer-count {
+            background: linear-gradient(135deg, var(--white) 0%, var(--primary-extra-light) 100%);
+            padding: 20px 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            border-left: 5px solid var(--gold);
+            font-size: 18px;
+            transition: var(--transition);
+        }
+
+        .customer-count:hover {
+            transform: translateX(10px);
+            box-shadow: 0 10px 30px rgba(139, 87, 42, 0.15);
+        }
+
+        .customer-count i {
+            color: var(--gold);
+            font-size: 24px;
+        }
+
+        /* Table Row Separator */
+        .table tbody tr {
+            position: relative;
+        }
+
+        .table tbody tr:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 25px;
+            right: 25px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, rgba(139, 87, 42, 0.08) 50%, transparent 100%);
+        }
+
+        /* Icons in table */
+        td i {
+            color: var(--primary-light);
+            font-size: 18px;
+            width: 25px;
+            text-align: center;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 40px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .main-content {
+                padding: 30px;
+            }
+
+            .content-header h2 {
+                font-size: 36px;
+            }
+
+            .input-group {
+                width: 100%;
+                flex-direction: column;
+                border-radius: var(--border-radius);
+            }
+
+            .form-control {
+                border-radius: var(--border-radius) var(--border-radius) 0 0;
+            }
+
+            .btn-search, .btn-clear {
+                border-radius: 0 0 var(--border-radius) var(--border-radius);
+                width: 100%;
+            }
+
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+
+            th {
+                display: none;
+            }
+
+            td {
+                display: flex;
+                justify-content: space-between;
+                padding: 20px;
+                border-bottom: 1px solid rgba(139, 87, 42, 0.1);
+            }
+
+            td::before {
+                content: attr(data-label);
+                font-weight: 700;
+                color: var(--primary-dark);
+                margin-right: 15px;
+            }
+
+            .btn-danger, .btn-success {
+                width: 100%;
+                text-align: center;
+                margin-top: 15px;
+                justify-content: center;
+            }
+        }
+
+        /* Premium Scrollbar */
+        .table-container::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        .table-container::-webkit-scrollbar-track {
+            background: var(--primary-extra-light);
+            border-radius: 10px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+            border-radius: 10px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        }
+    </style>
+</head>
+<body>
+    <%- include('../partials/admin/sidebar') %>
+
+    <div class="main-content">
+        <div class="content-header">
+            <h2>Customer Management</h2>
+            <div class="customer-count">
+                <i class="fas fa-users"></i> Total Customers: <%= data.length %>
+            </div>
+        </div>
+
+        <div class="card-header">
+            <form action="/admin/users" method="get">
+                <div class="input-group">
+                    <input type="text" class="form-control" name="search" 
+                           value="<%= search %>" placeholder="Search customers by name or email...">
+                    <button class="btn btn-search" type="submit">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                    <% if(search && search.length > 0) { %>
+                        <a href="/admin/users" class="btn btn-clear">
+                            <i class="fas fa-times"></i> Clear
+                        </a>
+                    <% } %>
+                </div>
+            </form>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone No</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% for(let i=0;i<data.length;i++){ %>
+                    <tr>
+                        <td data-label="Name">
+                            <i class="fas fa-user"></i>
+                            <%= data[i].name %>
+                        </td>
+                        <td data-label="Email">
+                            <i class="fas fa-envelope"></i>
+                            <%= data[i].email %>
+                        </td>
+                        <td data-label="Phone">
+                            <i class="fas fa-phone"></i>
+                            <%= data[i].phone %>
+                        </td>
+                        <td data-label="Status">
+                            <% if(data[i].isBlocked === false) { %>
+                                <span class="status-badge status-active">
+                                    <i class="fas fa-check-circle"></i> Active
+                                </span>
+                            <% } else { %>
+                                <span class="status-badge status-blocked">
+                                    <i class="fas fa-ban"></i> Blocked
+                                </span>
+                            <% } %>
+                        </td>
+                        <td data-label="Action">
+                            <% if(data[i].isBlocked === false) { %>
+                                <a href="/admin/blockcustomer?id=<%= data[i]._id %>" 
+                                   class="btn-danger"
+                                   onclick="return confirm('Are you sure you want to block this user?');">
+                                   <i class="fas fa-user-slash"></i> Block
+                                </a>
+                            <% } else { %>
+                                <a href="/admin/unblockcustomer?id=<%= data[i]._id %>" 
+                                   class="btn-success"
+                                   onclick="return confirm('Are you sure you want to unblock this user?');">
+                                   <i class="fas fa-user-check"></i> Unblock
+                                </a>
+                            <% } %>
+                        </td>
+                    </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination-container">
+            <ul class="pagination">
+                <% for(let i = 1; i <= totalPages; i++) { %>
+                    <li class="page-item <%= (i === currentPage) ? 'active' : '' %>">
+                        <a class="page-link" href="?page=<%= i %>&search=<%= search %>"><%= i %></a>
+                    </li>
+                <% } %>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Add subtle animations to page elements
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate table rows on load
+            const tableRows = document.querySelectorAll('tbody tr');
+            tableRows.forEach((row, index) => {
+                row.style.opacity = '0';
+                row.style.transform = 'translateY(30px)';
+                
+                setTimeout(() => {
+                    row.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                    row.style.opacity = '1';
+                    row.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+            
+            // Add premium hover effects
+            const cards = document.querySelectorAll('.table-container, .customer-count');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

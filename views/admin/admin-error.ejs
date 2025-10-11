@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Error</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #2c1e19 0%, #3a2b25 100%);
+            color: #e9dcc9;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .admin-header {
+            background-color: #3a2b25;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid #5d4b43;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo i {
+            color: #d9534f;
+            font-size: 24px;
+        }
+        
+        .logo h1 {
+            font-weight: 600;
+            font-size: 22px;
+        }
+        
+        .admin-nav {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .admin-nav a {
+            color: #c8b8a7;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+        
+        .admin-nav a:hover {
+            color: #e9dcc9;
+        }
+        
+        .admin-container {
+            display: flex;
+            flex: 1;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background-color: #2c1e19;
+            padding: 2rem 1rem;
+            border-right: 1px solid #5d4b43;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+        }
+        
+        .sidebar-menu li {
+            margin-bottom: 8px;
+        }
+        
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #c8b8a7;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+        
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background-color: #3a2b25;
+            color: #e9dcc9;
+        }
+        
+        .sidebar-menu i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .error-card {
+            background-color: #3a2b25;
+            border-radius: 12px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid #5d4b43;
+            text-align: center;
+        }
+        
+        .error-icon {
+            font-size: 64px;
+            color: #d9534f;
+            margin-bottom: 1.5rem;
+        }
+        
+        .error-title {
+            color: #d9534f;
+            font-size: 28px;
+            margin-bottom: 1rem;
+        }
+        
+        .error-description {
+            color: #c8b8a7;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+        
+        .error-details {
+            background-color: #2c1e19;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: left;
+            margin-bottom: 2rem;
+            font-family: monospace;
+            font-size: 14px;
+            color: #e9dcc9;
+            border-left: 4px solid #d9534f;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background-color: #8B4513;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #6b3410;
+        }
+        
+        .btn-secondary {
+            background-color: transparent;
+            color: #c8b8a7;
+            border: 1px solid #5d4b43;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #2c1e19;
+            color: #e9dcc9;
+        }
+        
+        .admin-footer {
+            background-color: #2c1e19;
+            padding: 1rem 2rem;
+            text-align: center;
+            color: #8a7569;
+            font-size: 14px;
+            border-top: 1px solid #5d4b43;
+        }
+        
+        @media (max-width: 768px) {
+            .admin-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                padding: 1rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="admin-header">
+        <div class="logo">
+            <i class="fas fa-shield-alt"></i>
+            <h1>AdminPanel</h1>
+        </div>
+        <nav class="admin-nav">
+            <a href="#"><i class="fas fa-user-circle"></i> Administrator</a>
+            <a href="#"><i class="fas fa-cog"></i> Settings</a>
+            <a href="#"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </header>
+    
+    <div class="admin-container">
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="#"><i class="fas fa-users"></i> Users</a></li>
+                <li><a href="#"><i class="fas fa-box"></i> Products</a></li>
+                <li><a href="#"><i class="fas fa-shopping-cart"></i> Orders</a></li>
+                <li><a href="#"><i class="fas fa-chart-bar"></i> Analytics</a></li>
+                <li><a href="#" class="active"><i class="fas fa-exclamation-triangle"></i> Errors</a></li>
+                <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+            </ul>
+        </aside>
+        
+        <main class="main-content">
+            <div class="error-card">
+                <div class="error-icon">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <h2 class="error-title">Page Not Found</h2>
+                <p class="error-description">
+                    The page you are looking for might have been removed, had its name changed, 
+                    or is temporarily unavailable. Please check the URL and try again.
+                </p>
+                
+                <div class="error-details">
+                    Error Code: 404<br>
+                    Requested URL: /admin/reports/sales-q3<br>
+                    Timestamp: 2023-10-15 14:32:18 UTC<br>
+                    Request ID: 8a7f6d-45e2-89c1-b3d5-72f6e8a9c0d1
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-primary">
+                        <i class="fas fa-home"></i> Go to Dashboard
+                    </button>
+                    <button class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Go Back
+                    </button>
+                    <button class="btn btn-secondary">
+                        <i class="fas fa-question-circle"></i> Support
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <footer class="admin-footer">
+        <p>© 2023 AdminPanel v3.2 • Server: us-west-2a • Load: 24%</p>
+    </footer>
+</body>
+</html>

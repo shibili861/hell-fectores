@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | ELITEMAN</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a1a1a;
+            --secondary: #e8e8e8;
+            --accent: #c19a6b;
+            --light: #ffffff;
+            --dark: #121212;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        body {
+            background-color: var(--secondary);
+            color: var(--primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 5%;
+            background-color: var(--light);
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            letter-spacing: 1px;
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        .login-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 20px;
+            background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .login-box {
+            background-color: var(--light);
+            padding: 50px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            border-top: 4px solid var(--accent);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .login-header h2 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+            color: var(--primary);
+        }
+
+        .login-header p {
+            color: #777;
+            font-size: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--primary);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(193, 154, 107, 0.2);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--accent);
+            color: var(--light);
+            border: 2px solid var(--accent);
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            background-color: transparent;
+            color: var(--accent);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 30px 0;
+            color: #777;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background-color: #ddd;
+        }
+
+        .divider span {
+            padding: 0 15px;
+            font-size: 14px;
+        }
+
+        .social-login {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .social-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background-color: #f5f5f5;
+            border-radius: 50%;
+            color: var(--primary);
+            transition: 0.3s;
+        }
+
+        .social-btn:hover {
+            background-color: var(--accent);
+            color: var(--light);
+            transform: translateY(-3px);
+        }.google-login-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    padding: 14px;
+    background-color: #ffffff;
+    color: #3c4043;
+    border: 1px solid #dadce0;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+    text-decoration: none;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.google-login-btn:hover {
+    background-color: #f8f9fa;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    transform: translateY(-1px);
+}
+
+.google-login-btn img {
+    width: 22px;
+    height: 22px;
+}
+
+
+        .login-footer {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .login-footer a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        .login-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Error message style */
+.error-message {
+    color: #e74c3c;          /* red text */
+    font-size: 0.9rem;       /* slightly smaller */
+    margin-top: 5px;         /* spacing below input */
+    font-weight: 500;        /* medium weight */
+    display: block;          /* full line */
+    transition: all 0.3s ease;
+}
+
+/* Backend error message */
+.alert {
+    color: #e74c3c;          /* red text */
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+
+
+        @media (max-width: 768px) {
+            .login-box {
+                padding: 30px;
+            }
+            
+            .navbar {
+                padding: 20px 5%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="logo">LuxeStor<span>E</span></a>
+    </nav>
+
+    <div class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <h2>Welcome Back</h2>
+                <p>Sign in to access your exclusive account</p>
+            </div>
+            
+   <a href="/auth/google" class="google-login-btn">
+    <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo">
+    <span>Continue with Google</span>
+</a>
+
+
+            
+            <div class="divider">
+                <span>Or sign in with email</span>
+            </div>
+            
+         <form id="loginpage" method="POST" action="/login">
+
+  <% if (message && message.length > 0) { %>
+  <div class="alert" id="backend-error"><%= message %></div>
+<% } %>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="Enter your email">
+        <div class="error-message"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="Enter your password">
+        <div class="error-message"></div>
+      </div>
+
+      <button type="submit" class="login-btn">LOG IN</button>
+    </form>
+            
+            <div class="login-footer">
+                <p>Don't have an account? <a href="#">Create account</a></p>
+                <p><a href="#">Forgot your password?</a></p>
+            </div>
+        </div>
+    </div>
+
+   <script>
+   const form = document.querySelector("#loginpage");
+
+form.addEventListener("submit", function(e) {
+  let isValid = true;
+  const email = form.email.value.trim();
+  const password = form.password.value.trim();
+
+  // clear previous errors
+  document.querySelectorAll(".error-message").forEach(el => el.textContent = "");
+
+  // email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email) {
+    form.email.nextElementSibling.textContent = "Email is required";
+    isValid = false;
+  } else if (!emailRegex.test(email)) {
+    form.email.nextElementSibling.textContent = "Enter a valid email address";
+    isValid = false;
+  }
+
+  // password validation
+  if (!password) {
+    form.password.nextElementSibling.textContent = "Password is required";
+    isValid = false;
+  } else if (password.length < 6) {
+    form.password.nextElementSibling.textContent = "Password must be at least 6 characters";
+    isValid = false;
+  }
+
+  // Remove error messages after 3 seconds
+  if (!isValid) {
+    e.preventDefault(); // stop submission
+    setTimeout(() => {
+      document.querySelectorAll(".error-message").forEach(el => el.textContent = "");
+    }, 6000);
+  }
+});
+window.addEventListener("DOMContentLoaded", () => {
+  const backendError = document.getElementById("backend-error");
+  if (backendError) {
+    setTimeout(() => {
+      backendError.style.display = "none";
+    }, 6000); // disappears after 3 seconds
+  }
+});
+  </script>
+
+</body>
+</html>

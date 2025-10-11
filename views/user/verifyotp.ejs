@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Verification | Luxury Brand</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- jQuery (needed for $.ajax) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        :root {
+            --primary: #1a1a1a;
+            --secondary: #e8e8e8;
+            --accent: #c19a6b;
+            --light: #ffffff;
+            --dark: #121212;
+            --error: #e74c3c;
+            --success: #2ecc71;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        body {
+            background-color: var(--secondary);
+            color: var(--primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 5%;
+            background-color: var(--light);
+            position: fixed;
+            width: 100%;
+            z-index: 100;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            letter-spacing: 1px;
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        .verification-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 100px 5% 80px;
+            background-color: var(--secondary);
+        }
+
+        .verification-box {
+            background-color: var(--light);
+            padding: 50px;
+            border-radius: 10px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .verification-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background-color: var(--accent);
+        }
+
+        .verification-icon {
+            font-size: 60px;
+            color: var(--accent);
+            margin-bottom: 20px;
+        }
+
+        .verification-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .verification-subtitle {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .otp-input-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            gap: 10px;
+        }
+
+        .otp-input {
+            width: 50px;
+            height: 60px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            color: var(--primary);
+        }
+
+        .otp-input:focus {
+            border-color: var(--accent);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(193, 154, 107, 0.2);
+        }
+
+        .otp-input.error {
+            border-color: var(--error);
+        }
+
+        .verify-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--accent);
+            color: var(--light);
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .verify-btn:hover {
+            background-color: #b08a5a;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(193, 154, 107, 0.3);
+        }
+
+        .verify-btn:active {
+            transform: translateY(0);
+        }
+
+        .resend-link {
+            color: #666;
+            font-size: 14px;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .resend-link:hover {
+            color: var(--accent);
+            text-decoration: underline;
+        }
+
+        .verification-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .verification-message.error {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--error);
+            border: 1px solid rgba(231, 76, 60, 0.2);
+            display: block;
+        }
+
+        .verification-message.success {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(46, 204, 113, 0.2);
+            display: block;
+        }
+
+        .timer {
+            color: #666;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        footer {
+            background-color: var(--primary);
+            color: var(--light);
+            padding: 30px 5%;
+            text-align: center;
+        }
+
+        .copyright {
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .verification-box {
+                padding: 30px 20px;
+            }
+            
+            .otp-input-container {
+                gap: 5px;
+            }
+            
+            .otp-input {
+                width: 40px;
+                height: 50px;
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .otp-input {
+                width: 35px;
+                height: 45px;
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="#" class="logo">LUXE<span>VERSE</span></a>
+    </nav>
+
+    <div class="verification-container">
+        <div class="verification-box">
+            <div class="verification-icon">
+                <i class="fas fa-lock"></i>
+            </div>
+            <h1 class="verification-title">Verify Your Account</h1>
+            <p class="verification-subtitle">
+                We've sent a 6-digit verification code to your email address.<br>
+                Please enter the code below to verify your account.
+            </p>
+            
+            <form id="otp" action="/verifyotp" method="post" onsubmit="return validateOTPForm()">
+                <div class="otp-input-container">
+                    <input type="text" class="otp-input" maxlength="1" data-index="1" autocomplete="off">
+                    <input type="text" class="otp-input" maxlength="1" data-index="2" autocomplete="off">
+                    <input type="text" class="otp-input" maxlength="1" data-index="3" autocomplete="off">
+                    <input type="text" class="otp-input" maxlength="1" data-index="4" autocomplete="off">
+                    <input type="text" class="otp-input" maxlength="1" data-index="5" autocomplete="off">
+                    <input type="text" class="otp-input" maxlength="1" data-index="6" autocomplete="off">
+                </div>
+                
+                <div class="verification-message error" id="errorMessage">
+                    Please enter a valid 6-digit code.
+                </div>
+                
+                <button type="submit" class="verify-btn">Verify Account </button>
+                
+                <button type="button" onclick="return resendotp()" class="timer" id="timer">Resend Otp</button>
+
+                  
+                
+                <a href="#" class="resend-link" id="resendLink" style="display: none;">Resend Verification Code</a>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p class="copyright">&copy; 2023 LUXEVERSE. All rights reserved.</p>
+    </footer>
+
+<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const otpInputs = document.querySelectorAll('.otp-input');
+            const form = document.getElementById('otp'); // Changed from 'verificationForm' to 'otp'
+            const errorMessage = document.getElementById('errorMessage');
+            const timerElement = document.getElementById('timer');
+            const resendLink = document.getElementById('resendLink');
+            
+            let timeLeft = 60; // 2 minutes in seconds
+            
+            // Start the timer
+            const timer = setInterval(() => {
+                timeLeft--;
+                
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                
+                timerElement.textContent = `Resend code in ${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    timerElement.style.display = 'none';
+                    resendLink.style.display = 'block';
+                }
+            }, 1000);
+            
+            // Handle OTP input navigation
+            otpInputs.forEach((input, index) => {
+                input.addEventListener('input', (e) => {
+                    // Auto-focus next input
+                    if (e.target.value.length === 1 && index < otpInputs.length - 1) {
+                        otpInputs[index + 1].focus();
+                    }
+                    
+                    // Hide error message when typing
+                    errorMessage.style.display = 'none';
+                    input.classList.remove('error');
+                });
+                
+                input.addEventListener('keydown', (e) => {
+                    // Handle backspace to move to previous input
+                    if (e.key === 'Backspace' && e.target.value.length === 0 && index > 0) {
+                        otpInputs[index - 1].focus();
+                    }
+                    
+                    // Allow only numbers
+                    if (e.key.length === 1 && !/\d/.test(e.key)) {
+                        e.preventDefault();
+                    }
+                });
+            });
+            
+            // Resend code functionality
+            resendLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                // Reset timer
+                timeLeft = 120;
+                timerElement.style.display = 'block';
+                resendLink.style.display = 'none';
+                
+                // Here you would typically call your API to resend the OTP
+                console.log('Resending OTP...');
+                
+                // Show temporary message
+                const tempMessage = document.createElement('div');
+                tempMessage.className = 'verification-message success';
+                tempMessage.textContent = 'New verification code sent!';
+                form.insertBefore(tempMessage, form.firstChild);
+                
+                setTimeout(() => {
+                    tempMessage.remove();
+                }, 3000);
+            });
+        });
+
+
+
+
+
+
+        function validateOTPForm() {
+            // Collect OTP from the 6 input boxes
+            let otpCode = '';
+            document.querySelectorAll('.otp-input').forEach(input => {
+                otpCode += input.value;
+
+            });
+             
+            if (otpCode.length !== 6) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Invalid OTP",
+                    text: "Please enter all 6 digits."
+                });
+                return false;
+            }
+
+            alert(otpCode)
+
+            // Update this URL to match 
+            $.ajax({
+                type: "POST",
+                contentType: "application/json",
+                url: "/verifyotp", 
+                data: JSON.stringify({ otp: otpCode }),
+                success: function (response) {
+                    try {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: "success",
+                                title: "OTP Verified",
+                                text: "Redirecting...",
+                                showConfirmButton: false,
+                                timer: 1500
+                            }).then(() => {
+                                window.location.href = response.redirectUrl ||'user/home';
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Verification Failed",
+                                text: response.message || "Invalid code. Please try again."
+                            });
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error",
+                            text: "An unexpected error occurred."
+                        });
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('AJAX Error:', status, error);
+                    Swal.fire({
+                        icon: "error",
+                        title: "Server Error",
+                        text: error || "Something went wrong. Please try again."
+                    });
+                }
+            });
+
+            return false; // Prevent normal form submission
+        }
+
+
+
+
+       function resendotp(){
+    // reset countdown timer
+    timeLeft = 60; 
+    document.getElementById('timer').style.display = 'block';
+    document.getElementById('resendLink').style.display = 'none';
+
+    
+    clearInterval(timer);
+    timer = setInterval(() => {
+        timeLeft--;
+
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+
+        document.getElementById('timer').textContent =
+          `Resend code in ${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            document.getElementById('timer').style.display = 'none';
+            document.getElementById('resendLink').style.display = 'block';
+        }
+    }, 1000);
+
+    // call backend to resend OTP
+    $.ajax({
+        type:"POST",
+        url:"/resendotp",
+        success:function (response){
+            if(response.success){
+                Swal.fire({
+                    icon:"success",
+                    title:"OTP Resent Successfully",
+                    showConfirmButton:false,
+                    timer:1500,
+                });
+            }else{
+                Swal.fire({
+                    icon:"error",
+                    title:"Error",
+                    text:"An error occurred while resending OTP. Please try again",
+                });
+            }
+        },
+       error: function (xhr, status, error) {
+    if (xhr.status === 400) {   // wrong OTP case
+        Swal.fire({
+            icon: "error",
+            title: "Invalid OTP",
+            text: xhr.responseJSON?.message || "Please try again."
+        });
+    } else {  
+        Swal.fire({
+            icon: "error",
+            title: "Server Error",
+            text: error || "Something went wrong. Please try again."
+        });
+    }
+}
+
+    });
+
+    return false; // prevent form submit
+}
+
+
+    </script>
+</body>
+</html>

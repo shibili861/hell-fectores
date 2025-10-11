@@ -1,0 +1,320 @@
+
+/* Signup Container Styles */
+.signup-container {
+    display: flex;
+    max-width: 1000px;
+    margin: 100px auto;
+    background-color: var(--light);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+/* Image Section Styles */
+.signup-image {
+    flex: 1;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+                      url('https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
+    background-size: cover;
+    background-position: center;
+    padding: 60px 40px;
+    display: flex;
+    flex-direction: column;
+    color: rgba(255, 255, 255, 0.6); /* softer light white */
+}
+
+
+
+.signup-image h2 {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+}
+
+.signup-image p {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    opacity: 0.9;
+}
+
+.signup-image-footer {
+    margin-top: auto;
+}
+
+.signin-link {
+    color: var(--light);
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border-bottom: 1px solid transparent;
+}
+
+.signin-link:hover {
+    color: var(--accent);
+    border-bottom: 1px solid var(--accent);
+}
+
+/* Form Section Styles */
+.signup-form-container {
+    flex: 1;
+    padding: 60px 50px;
+    background-color: var(--light);
+}
+
+.signup-header {
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.signup-header h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 10px;
+    letter-spacing: 0.5px;
+}
+
+.signup-header p {
+    color: #666;
+    font-size: 15px;
+}
+
+/* Form Styles */
+.form-group {
+    margin-bottom: 25px;
+    position: relative;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    background-color: var(--secondary);
+    color: var(--primary);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(193, 154, 107, 0.2);
+}
+
+.password-group {
+    position: relative;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 15px;
+    top: 40px;
+    cursor: pointer;
+    color: #999;
+    transition: all 0.3s ease;
+}
+
+.password-toggle:hover {
+    color: var(--accent);
+}
+
+.error-message {
+    color: #e74c3c;
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.error-messages {
+    color: #e74c3c;
+    font-size: 18px;
+    margin-top: 10px;
+    display: block;
+    opacity: 1;
+    transition: all 0.3s ease;
+}
+
+.btn-signup {
+    width: 100%;
+    padding: 14px;
+    background-color: var(--accent);
+    color: var(--light);
+    border: 2px solid var(--accent);
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+
+    /* Add a subtle shadow for depth */
+    box-shadow: 0 4px 10px rgba(193, 154, 107, 0.2);
+}
+
+.btn-signup:hover {
+    background-color: rgba(193, 154, 107, 0.1); /* Semi-transparent version of accent color */
+    backdrop-filter: blur(8px); /* This creates the blur effect */
+    -webkit-backdrop-filter: blur(8px); /* Safari support */
+    color: var(--accent);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 20px rgba(193, 154, 107, 0.4);
+    border-color: rgba(193, 154, 107, 0.5); /* Lighter border for better blend */
+}
+
+/* Optional: add a little "click" animation */
+.btn-signup:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: 0 4px 10px rgba(193, 154, 107, 0.2);
+    backdrop-filter: blur(0); /* Remove blur on click */
+    -webkit-backdrop-filter: blur(0);
+}
+.btn-signup {
+    width: 100%;
+    padding: 14px;
+    background-color: var(--accent);
+    color: var(--light);
+    border: 2px solid var(--accent);
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+
+    /* Add a subtle shadow for depth */
+    box-shadow: 0 4px 10px rgba(193, 154, 107, 0.2);
+}
+
+.btn-signup:hover {
+    background-color: rgba(193, 154, 107, 0.1); /* Semi-transparent version of accent color */
+    backdrop-filter: blur(8px); /* This creates the blur effect */
+    -webkit-backdrop-filter: blur(8px); /* Safari support */
+    color: var(--accent);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 20px rgba(193, 154, 107, 0.4);
+    border-color: rgba(193, 154, 107, 0.5); /* Lighter border for better blend */
+}
+
+/* Optional: add a little "click" animation */
+.btn-signup:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: 0 4px 10px rgba(193, 154, 107, 0.2);
+    backdrop-filter: blur(0); /* Remove blur on click */
+    -webkit-backdrop-filter: blur(0);
+}
+
+/* Google Login Button */
+.btn-google {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #444;
+    background-color: #fff;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+}
+
+.btn-google svg {
+    flex-shrink: 0;
+}
+
+.btn-google:hover {
+    background-color: #f9f9f9;
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(193, 154, 107, 0.2);
+}
+
+/* Divider between Google login and form */
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.divider::before, .divider::after {
+    content: "";
+    flex: 1;
+    border-bottom: 1px solid #ddd;
+}
+
+.divider span {
+    padding: 0 10px;
+    font-size: 14px;
+    color: #999;
+}
+
+.error-message {
+    color: #e74c3c;
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+
+.error-message.show {
+    opacity: 1;
+}
+
+.error-messages.show {
+    opacity: 1;
+}
+.alert {
+    color: #e74c3c;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 15px;
+}
+.error-message {
+    color: #e74c3c;   /* red */
+    font-size: 0.9rem;
+    margin-top: 5px;
+    font-weight: 500;
+    display: block;
+}
+
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .signup-container {
+        flex-direction: column;
+        margin: 50px 20px;
+    }
+    
+    .signup-image {
+        padding: 40px 30px;
+    }
+    
+    .signup-form-container {
+        padding: 40px 30px;
+    }
+}
+
+

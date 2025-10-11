@@ -1,0 +1,792 @@
+<%- include('../partials/admin/sidebar') %>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Premium Category Management</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary: #3A2618;
+      --secondary: #F9F5F0;
+      --accent: #8B5A2B;
+      --accent-light: #C19A6B;
+      --accent-dark: #2D1B0F;
+      --light: #FFFFFF;
+      --dark: #121212;
+      --success: #27AE60;
+      --danger: #E74C3C;
+      --info: #3498DB;
+      --warning: #F39C12;
+      --gray: #8C8C8C;
+      --gray-light: #E8E8E8;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      --shadow-light: 0 5px 15px rgba(0, 0, 0, 0.05);
+      --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, var(--secondary) 0%, #F0E6D6 100%);
+      color: var(--primary);
+      min-height: 100vh;
+      padding-top: 20px;
+    }
+
+    /* Content Layout */
+    .content-main {
+      margin-left: 280px;
+      padding: 30px;
+    }
+
+    /* Header */
+    .content-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+    }
+
+    .content-title {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--primary);
+      position: relative;
+      padding-bottom: 12px;
+      letter-spacing: 0.5px;
+    }
+
+    .content-title:after {
+      content: '';
+      position: absolute;
+      width: 80px;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent) 0%, var(--accent-light) 100%);
+      bottom: 0;
+      left: 0;
+      border-radius: 4px;
+    }
+
+    /* Search Bar */
+    .card-header {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 40px;
+    }
+
+    .input-group {
+      width: 500px;
+      background: var(--light);
+      border-radius: 50px;
+      padding: 8px;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: var(--transition);
+      border: 1px solid transparent;
+    }
+
+    .input-group:focus-within {
+      box-shadow: 0 5px 20px rgba(139, 90, 43, 0.2);
+      border-color: var(--accent-light);
+    }
+
+    .form-control {
+      flex: 1;
+      border: none;
+      outline: none;
+      padding: 12px 20px;
+      border-radius: 50px;
+      font-size: 15px;
+      color: var(--primary);
+      background: none;
+      font-weight: 500;
+    }
+
+    .btn-search {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+      color: var(--light);
+      border-radius: 50px;
+      padding: 12px 28px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 4px 10px rgba(139, 90, 43, 0.3);
+      letter-spacing: 0.5px;
+    }
+
+    .btn-search:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(139, 90, 43, 0.4);
+    }
+
+    /* Cards */
+    .card {
+      background: var(--light);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      margin-bottom: 40px;
+      border: 1px solid rgba(139, 90, 43, 0.1);
+      transition: var(--transition);
+    }
+
+    .card:hover {
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-body {
+      padding: 40px;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      margin: 0 -15px;
+    }
+
+    .col-md-3,
+    .col-md-8 {
+      padding: 0 15px;
+    }
+
+    .col-md-3 {
+      flex: 0 0 25%;
+      max-width: 25%;
+    }
+
+    .col-md-8 {
+      flex: 0 0 66.666667%;
+      max-width: 66.666667%;
+    }
+
+    /* Form Container */
+    .form-container {
+      background: var(--light);
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: var(--shadow-light);
+      border: 1px solid rgba(139, 90, 43, 0.1);
+      height: 100%;
+    }
+
+    .form-label {
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--primary);
+      display: block;
+      font-size: 15px;
+      letter-spacing: 0.3px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 14px 18px;
+      border: 2px solid var(--gray-light);
+      border-radius: 10px;
+      font-size: 15px;
+      color: var(--primary);
+      background: var(--light);
+      transition: var(--transition);
+      margin-bottom: 5px;
+    }
+
+    .form-control:focus {
+      border-color: var(--accent-light);
+      box-shadow: 0 0 0 3px rgba(139, 90, 43, 0.1);
+    }
+
+    textarea.form-control {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+      color: var(--light);
+      border: none;
+      padding: 16px 25px;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      width: 100%;
+      font-size: 16px;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 10px rgba(139, 90, 43, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(139, 90, 43, 0.4);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    /* Table */
+    .table-responsive {
+      overflow-x: auto;
+      border-radius: 12px;
+      box-shadow: var(--shadow-light);
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .table th {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+      color: var(--light);
+      font-weight: 600;
+      padding: 18px 20px;
+      text-align: left;
+      font-size: 15px;
+      letter-spacing: 0.5px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .table th:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .table td {
+      padding: 18px 20px;
+      border-bottom: 1px solid rgba(139, 90, 43, 0.1);
+      vertical-align: middle;
+      font-weight: 500;
+      color: var(--primary);
+    }
+
+    .table tbody tr {
+      transition: var(--transition);
+    }
+
+    .table tbody tr:hover {
+      background: rgba(193, 154, 107, 0.08);
+      transform: translateY(-1px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Badges & Buttons */
+    .badge {
+      padding: 8px 16px;
+      border-radius: 50px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      display: inline-block;
+      text-align: center;
+      min-width: 90px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .alert-success {
+      background: linear-gradient(135deg, rgba(46, 204, 113, 0.15) 0%, rgba(39, 174, 96, 0.2) 100%);
+      color: var(--success);
+      border: 1px solid rgba(39, 174, 96, 0.2);
+    }
+
+    .alert-danger {
+      background: linear-gradient(135deg, rgba(231, 76, 60, 0.15) 0%, rgba(192, 57, 43, 0.2) 100%);
+      color: var(--danger);
+      border: 1px solid rgba(231, 76, 60, 0.2);
+    }
+
+    .btn-action {
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: var(--transition);
+      display: inline-block;
+      text-align: center;
+      letter-spacing: 0.3px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      margin: 2px;
+    }
+
+    .btn-info { 
+      background: linear-gradient(135deg, var(--info) 0%, #2980B9 100%);
+      color: #fff;
+    }
+
+    .btn-danger { 
+      background: linear-gradient(135deg, var(--danger) 0%, #C0392B 100%);
+      color: #fff;
+    }
+
+    .btn-success { 
+      background: linear-gradient(135deg, var(--success) 0%, #219653 100%);
+      color: #fff;
+    }
+
+    .btn-action:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-action:active {
+      transform: translateY(0);
+    }
+
+    /* Pagination */
+    .pagination-container {
+      text-align: center;
+      margin-top: 40px;
+    }
+
+    .pagination {
+      display: inline-flex;
+      border-radius: 50px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      background: var(--light);
+    }
+
+    .page-item {
+      list-style: none;
+    }
+
+    .page-link {
+      display: block;
+      padding: 12px 20px;
+      background: var(--light);
+      color: var(--primary);
+      border: 1px solid rgba(139, 90, 43, 0.1);
+      text-decoration: none;
+      font-weight: 600;
+      transition: var(--transition);
+      min-width: 50px;
+    }
+
+    .page-link:hover {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+      color: var(--light);
+    }
+
+    .page-item.active .page-link {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+      color: var(--light);
+      border-color: var(--accent);
+      font-weight: 600;
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.15);
+    }
+
+    .page-item.disabled .page-link {
+      background: var(--gray-light);
+      color: var(--gray);
+      pointer-events: none;
+      border-color: #ddd;
+    }
+
+    /* Error Message & Animation */
+    .error-message {
+      color: var(--danger);
+      font-size: 13px;
+      margin-top: 5px;
+      display: none;
+      font-weight: 500;
+    }
+
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+    }
+
+    .shake {
+      animation: shake 0.3s;
+      border-color: var(--danger) !important;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .content-main {
+        margin-left: 0;
+      }
+    }
+
+    @media (max-width: 992px) {
+      .col-md-3, .col-md-8 {
+        max-width: 100%;
+        flex: 0 0 100%;
+        margin-bottom: 30px;
+      }
+      
+      .input-group {
+        width: 100%;
+      }
+    }
+
+    /* Additional Premium Elements */
+    .table tbody tr {
+      position: relative;
+    }
+
+    .table tbody tr:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 20px;
+      right: 20px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, rgba(139, 90, 43, 0.1) 50%, transparent 100%);
+    }
+
+    .btn-primary, .btn-search, .btn-action {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary:after, .btn-search:after, .btn-action:after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 5px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.5);
+      opacity: 0;
+      border-radius: 100%;
+      transform: scale(1, 1) translate(-50%);
+      transform-origin: 50% 50%;
+    }
+
+    .btn-primary:hover:after, .btn-search:hover:after, .btn-action:hover:after {
+      animation: ripple 1s ease-out;
+    }
+
+    @keyframes ripple {
+      0% {
+        transform: scale(0, 0);
+        opacity: 0.5;
+      }
+      100% {
+        transform: scale(20, 20);
+        opacity: 0;
+      }
+    }
+
+    /* Text Center Utility */
+    .text-center {
+      text-align: center;
+    }
+
+    .text-start {
+      text-align: left;
+    }
+
+    .mb-4 {
+      margin-bottom: 24px;
+    }
+
+    .mb-20 {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar include -->
+
+  <!-- Main Content -->
+  <section class="content-main">
+    <div class="content-header">
+      <h2 class="content-title card-title">Premium Category Management</h2>
+    </div>
+    
+    <header class="card-header text-center mb-20">
+      <form action="/admin/category/" method="get" class="d-inline">
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="Search categories..." name="search" value="<%= search %>"/>
+          <button class="btn-search" type="submit">
+            <i class="fas fa-search"></i> Search
+          </button>
+        </div>
+      </form>
+    </header>
+    
+    <div class="card">
+      <div class="card-body">
+        <div class="row">
+          <!-- Add Category Form -->
+          <div class="col-md-3">
+            <div class="form-container">
+              <form method="post" action="/admin/addCategory" onsubmit="return handleformsubmit(event)">
+                <div class="mb-4">
+                  <label class="form-label">Category Name</label>
+                  <input type="text" id="name" name="name" placeholder="Type category name" class="form-control"/>
+                  <small id="name-error" class="error-message"></small>
+                </div>
+                <div class="mb-4">
+                  <label class="form-label">Description</label>
+                  <textarea id="descriptionId" name="description" placeholder="Type category description" class="form-control"></textarea>
+                  <small id="description-error" class="error-message"></small>
+                </div>
+                <button class="btn btn-primary" type="submit">
+                  <i class="fas fa-plus-circle"></i> Create Category
+                </button>
+              </form>
+            </div>
+          </div>
+          
+          <!-- Categories Table -->
+          <div class="col-md-8">
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th class="text-center">#</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Offer Price</th>
+                    <th>Offer</th>
+                    <th>Status</th>
+                    <th>List/Unlist</th>
+                    <th class="text-start">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% cat.reverse().forEach((category,index)=>{ %>
+                  <tr>
+                    <td class="text-center"><%= index+1 %></td>
+                    <td><b><%= category.name %></b></td>
+                    <td><%= category.description %></td>
+                    <td>--</td>
+                    <td>
+                      <button class="btn-action btn-info">
+                        <i class="fas fa-tag"></i> Add Offer
+                      </button>
+                      <button class="btn-action btn-info">
+                        <i class="fas fa-times"></i> Remove
+                      </button>
+                    </td>
+                    <td>
+                      <span class="badge <%= category.isListed ? 'alert-success' : 'alert-danger' %>">
+                        <i class="fas <%= category.isListed ? 'fa-eye' : 'fa-eye-slash' %>"></i>
+                        <%= category.isListed ? 'Listed' : 'Unlisted' %>
+                      </span>
+                    </td>
+                    <td>
+                 <% if(category.isListed){ %>
+              <button class="btn-action btn-danger list-toggle" 
+            data-id="<%= category._id %>" data-action="unlist">
+            <i class="fas fa-eye-slash"></i> Unlist
+            </button>
+           <% } else { %>
+
+         <button class="btn-action btn-success list-toggle" 
+            data-id="<%= category._id %>" data-action="list">
+            <i class="fas fa-eye"></i> List
+       </button>
+           <% } %>
+        </td>
+
+                    <td>
+                      <a href="/admin/editCategory?id=<%= category.id %>" class="btn-action btn-info">
+                        <i class="fas fa-edit"></i> Edit
+                      </a>
+                    </td>
+                  </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="pagination-container">
+      <ul class="pagination">
+        <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+          <a class="page-link" href="?page=<%= currentPage - 1 %>&search=<%= search %>">
+            <i class="fas fa-chevron-left"></i> Prev
+          </a>
+        </li>
+        <% for(let i = 1; i <= totalPages; i++) { %>
+          <li class="page-item <%= (i === currentPage) ? 'active' : '' %>">
+            <a class="page-link" href="?page=<%= i %>&search=<%= search %>"><%= i %></a>
+          </li>
+        <% } %>
+        <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+          <a class="page-link" href="?page=<%= currentPage + 1 %>&search=<%= search %>">
+            Next <i class="fas fa-chevron-right"></i>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script>
+    function handleformsubmit(event) {
+      event.preventDefault();
+      if (!validateform()) return;
+
+      const name = document.getElementById("name").value.trim();
+      const description = document.getElementById("descriptionId").value.trim();
+
+      fetch('/admin/addCategory', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, description })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.error === "Category already exists") {
+          Swal.fire({ icon: 'error', title: 'Oops', text: data.error });
+        } else if (data.message) {
+          Swal.fire({ icon: 'success', title: 'Success', text: data.message })
+            .then(() => location.reload());
+        }
+      })
+      .catch(() => Swal.fire({ icon: 'error', title: 'Oops', text: "An unexpected error occurred" }));
+    }
+
+    function validateform() {
+      clearErrorMessages();
+      const name = document.getElementById("name").value.trim();
+      const description = document.getElementById("descriptionId").value.trim();
+      let isValid = true;
+
+      if (name === '') {
+        displayErrorMessage("name-error", "Please enter a name"); isValid = false;
+      } else if (name.length < 3) {
+        displayErrorMessage("name-error", "Name must be at least 3 characters"); isValid = false;
+      }
+
+      if (description === '') {
+        displayErrorMessage("description-error", "Please enter a description"); isValid = false;
+      } else if (description.length < 10) {
+        displayErrorMessage("description-error", "Description must be at least 10 characters"); isValid = false;
+      }
+
+      return isValid;
+    }
+
+    function displayErrorMessage(elementId, message) {
+      const errorElement = document.getElementById(elementId);
+      if (errorElement) {
+        errorElement.innerText = message;
+        errorElement.style.display = "block";
+        const inputField = errorElement.previousElementSibling;
+        if (inputField) {
+          inputField.classList.add("shake");
+          setTimeout(() => inputField.classList.remove("shake"), 400);
+        }
+      }
+    }
+
+    function clearErrorMessages() {
+      document.querySelectorAll(".error-message").forEach(el => {
+        el.style.display = "none";
+        el.innerText = "";
+      });
+    }
+
+    $(document).ready(function() {
+      $('.list-toggle').click(function() {
+        const btn = $(this);
+        const categoryId = btn.data('id');
+        const action = btn.data('action');
+        const url = action === 'list' ? '/admin/listCategory' : '/admin/unlistCategory';
+        const actionText = action === 'list' ? 'list' : 'unlist';
+
+        Swal.fire({
+          title: `Are you sure you want to ${actionText} this category?`,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Yes',
+          cancelButtonText: 'Cancel',
+          confirmButtonColor: '#8B5A2B'
+        }).then((result) => {
+          if(result.isConfirmed) {
+            $.ajax({
+              url: url,
+              type: 'POST',  
+              contentType: 'application/json',
+              data: JSON.stringify({ id: categoryId }),
+              success: function(response) {
+                console.log("Server responded:", response);
+                if(response.success) {
+                  if(action === 'list') {
+                    btn.html('<i class="fas fa-eye-slash"></i> Unlist')
+                       .removeClass('btn-success')
+                       .addClass('btn-danger')
+                       .data('action', 'unlist');
+                    btn.closest('tr').find('.badge')
+                       .html('<i class="fas fa-eye"></i> Listed')
+                       .removeClass('alert-danger')
+                       .addClass('alert-success');
+                  } else {
+                    btn.html('<i class="fas fa-eye"></i> List')
+                       .removeClass('btn-danger')
+                       .addClass('btn-success')
+                       .data('action', 'list');
+                    btn.closest('tr').find('.badge')
+                       .html('<i class="fas fa-eye-slash"></i> Unlisted')
+                       .removeClass('alert-success')
+                       .addClass('alert-danger');
+                  }
+                  Swal.fire({
+                    title: 'Success',
+                    text: `Category ${actionText}ed successfully`,
+                    icon: 'success',
+                    confirmButtonColor: '#8B5A2B'
+                  });
+                } else {
+                  Swal.fire({
+                    title: 'Error',
+                    text: response.message,
+                    icon: 'error',
+                    confirmButtonColor: '#8B5A2B'
+                  });
+                }
+              },
+              error: function() {
+                Swal.fire({
+                  title: 'Error',
+                  text: 'Something went wrong',
+                  icon: 'error',
+                  confirmButtonColor: '#8B5A2B'
+                });
+              }
+            });
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

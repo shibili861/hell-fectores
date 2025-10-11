@@ -1,0 +1,447 @@
+
+<%- include('../partials/admin/sidebar') %>
+<!DOCTYPE html>
+<html lang="en">
+    
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary: #8B6B4D;
+            --primary-light: #C2A783;
+            --primary-extra-light: #f9f5f0;
+            --primary-dark: #5a4a3a;
+            --text-dark: #333333;
+            --text-light: #888888;
+            --white: #ffffff;
+            --shadow: 0 5px 15px rgba(139, 107, 77, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            background-color: #f8f5f2;
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+        }
+        
+       
+        
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 30px;
+            transition: var(--transition);
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e8e1d8;
+        }
+        
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .search-box {
+            position: relative;
+        }
+        
+        .search-box input {
+            padding: 12px 15px 12px 45px;
+            border: 1px solid #e0d6c8;
+            border-radius: 6px;
+            font-size: 14px;
+            color: var(--primary-dark);
+            transition: var(--transition);
+            width: 250px;
+            background: var(--white);
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-light);
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(139, 107, 77, 0.2);
+        }
+        
+        .notification-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--white);
+            color: var(--primary);
+            border: 1px solid #e0d6c8;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+        
+        .notification-btn:hover {
+            background: var(--primary-extra-light);
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        
+        /* Logout Button */
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 10px rgba(139, 107, 77, 0.3);
+        }
+        
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(139, 107, 77, 0.4);
+            background: linear-gradient(to right, var(--primary-dark), var(--primary));
+        }
+        
+        /* Dashboard Cards */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .dashboard-card {
+            background: linear-gradient(to bottom right, var(--white), var(--primary-extra-light));
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            border: 1px solid #e8e1d8;
+            transition: var(--transition);
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(139, 107, 77, 0.15);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+        
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: var(--primary-extra-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 20px;
+        }
+        
+        .card-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        
+        .card-label {
+            font-size: 14px;
+            color: var(--primary-light);
+        }
+        
+        /* Charts and Tables */
+        .chart-container {
+            background: var(--white);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            border: 1px solid #e8e1d8;
+            margin-bottom: 30px;
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .chart-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+        
+        .chart-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .chart-btn {
+            padding: 8px 15px;
+            background: var(--primary-extra-light);
+            color: var(--primary);
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .chart-btn:hover {
+            background: var(--primary-light);
+            color: var(--white);
+        }
+        
+        .chart-placeholder {
+            height: 300px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-light);
+            font-style: italic;
+        }
+        
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 250px;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .menu-toggle {
+                display: block;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .search-box input {
+                width: 100%;
+            }
+            
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+        
+        /* Menu Toggle Button (for mobile) */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+        }
+        
+        /* EJS-specific styling for partials */
+        .ejs-comment {
+            background: #fff9eb;
+            border-left: 4px solid #ffcc80;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+            color: #5a4a3a;
+        }
+    </style>
+</head>
+<body>
+    <!-- Menu Toggle Button (visible on mobile only) -->
+    <div class="menu-toggle" id="menuToggle">
+        <i class="fas fa-bars"></i>
+    </div>
+  <!-- Main Content -->
+    <main class="main-content">
+        <div class="header">
+            <h1 class="page-title">Dashboard Overview</h1>
+            <div class="header-actions">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search...">
+                </div>
+                <div class="notification-btn">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">3</span>
+                </div>
+             <button class="logout-btn" onclick="window.location.href='/admin/logout'">
+  <i class="fas fa-sign-out-alt"></i>
+  Logout
+</button>
+
+
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3 class="card-title">Total Revenue</h3>
+                    <div class="card-icon">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                </div>
+                <div class="card-value">$24,265</div>
+                <div class="card-label">+12% from last month</div>
+            </div>
+            
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3 class="card-title">Orders</h3>
+                    <div class="card-icon">
+                        <i class="fas fa-shopping-bag"></i>
+                    </div>
+                </div>
+                <div class="card-value">1,258</div>
+                <div class="card-label">+8% from last month</div>
+            </div>
+            
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3 class="card-title">Customers</h3>
+                    <div class="card-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+                <div class="card-value">8,452</div>
+                <div class="card-label">+5% from last month</div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-header">
+                <h3 class="chart-title">Revenue Analytics</h3>
+                <div class="chart-actions">
+                    <button class="chart-btn">Week</button>
+                    <button class="chart-btn active">Month</button>
+                    <button class="chart-btn">Year</button>
+                </div>
+            </div>
+            <div class="chart-placeholder">
+                Revenue Chart Area (would be replaced with a real chart)
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // Toggle sidebar on mobile
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('active');
+        });
+
+        // // Add active class to clicked menu items
+        // document.querySelectorAll('.menu-link').forEach(link => {
+        //     link.addEventListener('click', function(e) {
+        //         e.preventDefault();
+                
+        //         document.querySelectorAll('.menu-link').forEach(item => {
+        //             item.classList.remove('active');
+        //         });
+                
+        //         this.classList.add('active');
+        //     });
+        // });
+
+        // // Chart buttons active state
+        // document.querySelectorAll('.chart-btn').forEach(btn => {
+        //     btn.addEventListener('click', function() {
+        //         document.querySelectorAll('.chart-btn').forEach(b => {
+        //             b.classList.remove('active');
+        //         });
+        //         this.classList.add('active');
+        //     });
+        // });
+
+    </script>
+   
+
+</body>
+</html>
