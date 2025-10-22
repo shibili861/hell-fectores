@@ -48,7 +48,7 @@ const customerBlocked = async (req, res) => {
     try {
         let id = req.query.id;
         await User.updateOne({ _id: id }, { $set: { isBlocked: true } });
-        console.log("Blocking user:", id);   // <-- debug log
+        console.log("Blocking user:", id);   
         res.redirect("/admin/users");
     } catch (error) {
         res.redirect("/admin-error");
@@ -59,7 +59,7 @@ const customerunBlocked = async (req, res) => {
     try {
         let id = req.query.id;
         await User.updateOne({ _id: id }, { $set: { isBlocked: false } });
-        console.log("unBlocking user:", id);   // <-- debug log
+        console.log("unBlocking user:", id);   
         res.redirect("/admin/users");
     } catch (error) {
         res.redirect("/adimin/admin-error");

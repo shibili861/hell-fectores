@@ -28,7 +28,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// 🔑 Sync Passport user into session + make available in EJS
+//  Sync Passport user into session + make available in EJS
 app.use(async (req, res, next) => {
  if (req.isAuthenticated() && !req.session.userId) {
   req.session.userId = req.user._id;

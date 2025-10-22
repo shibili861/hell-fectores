@@ -1,53 +1,156 @@
+<!-- Footer -->
 <footer>
-  <div class="footer-grid">
-    <div class="footer-col">
-      <h3>LuxeStore</h3>
-      <p>Premium menswear for the modern gentleman. Timeless style with contemporary craftsmanship.</p>
-      <div class="social-links">
-        <a href="#"><i class="fab fa-facebook-f"></i></a>
-        <a href="#"><i class="fab fa-twitter"></i></a>
-        <a href="#"><i class="fab fa-instagram"></i></a>
-        <a href="#"><i class="fab fa-pinterest"></i></a>
-      </div>
+    <div class="footer-main">
+        <div class="footer-brand">
+            <h3>ÉLÉGANCE</h3>
+            <p>Premium linen and cotton clothing crafted for the modern gentleman. Quality, elegance, and timeless style in every piece.</p>
+            <div class="social-links">
+                <a href="#">📘</a>
+                <a href="#">📷</a>
+                <a href="#">🐦</a>
+                <a href="#">📌</a>
+            </div>
+        </div>
+        <div class="footer-section">
+            <h4>SHOP</h4>
+            <ul>
+                <li><a href="#">New Arrivals</a></li>
+                <li><a href="#">Linen Shirts</a></li>
+                <li><a href="#">Linen Pants</a></li>
+                <li><a href="#">Cotton Shirts</a></li>
+                <li><a href="#">Cotton Pants</a></li>
+                <li><a href="#">Sale</a></li>
+            </ul>
+        </div>
+        <div class="footer-section">
+            <h4>SUPPORT</h4>
+            <ul>
+                <li><a href="#">Contact Us</a></li>
+                <li><a href="#">Shipping & Returns</a></li>
+                <li><a href="#">Size Guide</a></li>
+                <li><a href="#">Care Instructions</a></li>
+                <li><a href="#">FAQs</a></li>
+            </ul>
+        </div>
+        <div class="footer-section">
+            <h4>COMPANY</h4>
+            <ul>
+                <li><a href="#">About Us</a></li>
+                <li><a href="#">Our Story</a></li>
+                <li><a href="#">Sustainability</a></li>
+                <li><a href="#">Careers</a></li>
+                <li><a href="#">Press</a></li>
+            </ul>
+        </div>
+        <div class="footer-section">
+            <h4>NEWSLETTER</h4>
+            <p style="font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 20px; font-weight: 300;">Subscribe for exclusive offers and updates</p>
+            <input type="email" placeholder="Your email" style="width: 100%; padding: 12px; background: var(--dark); border: 1px solid rgba(255,255,255,0.2); color: #fff; margin-bottom: 15px; font-size: 13px;">
+            <button class="cta-secondary" style="width: 100%; padding: 12px;">Subscribe</button>
+        </div>
     </div>
-    
-    <div class="footer-col">
-      <h3>SHOP</h3>
-      <ul>
-        <li><a href="#">Shirts</a></li>
-        <li><a href="#">Polos</a></li>
-        <li><a href="#">Linen Pants</a></li>
-        <li><a href="#">Suits</a></li>
-       
-      </ul>
+    <div class="footer-bottom">
+        <p>© 2024 ÉLÉGANCE. ALL RIGHTS RESERVED. | PRIVACY POLICY | TERMS & CONDITIONS</p>
     </div>
-    
-    <div class="footer-col">
-      <h3>HELP</h3>
-      <ul>
-        <li><a href="#">Customer Service</a></li>
-        <li><a href="#">Size Guide</a></li>
-        <li><a href="#">Returns & Exchanges</a></li>
-        <li><a href="#">Shipping Info</a></li>
-        <li><a href="#">Contact Us</a></li>
-      </ul>
-    </div>
-    
-    <div class="footer-col">
-      <h3>ABOUT</h3>
-      <ul>
-        <li><a href="#">Our Story</a></li>
-        <li><a href="#">Sustainability</a></li>
-        <li><a href="#">Careers</a></li>
-        <li><a href="#">Press</a></li>
-        <li><a href="#">Store Locator</a></li>
-      </ul>
-    </div>
-  </div>
-  
-  <div class="copyright">
-    <p>&copy; 2023 HELL FECTORES. All rights reserved.</p>
-  </div>
 </footer>
-</body>
-</html>
+
+<style>
+    /* Footer Styles */
+    footer {
+        padding: 100px 80px 40px;
+        background: var(--dark-gray);
+        border-top: 1px solid rgba(212, 175, 55, 0.2);
+    }
+
+    .footer-main {
+        max-width: 1600px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+        gap: 60px;
+        margin-bottom: 80px;
+    }
+
+    .footer-brand h3 {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 32px;
+        letter-spacing: 5px;
+        margin-bottom: 25px;
+        background: linear-gradient(135deg, var(--gold), var(--light-gold));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .footer-brand p {
+        font-size: 14px;
+        line-height: 1.8;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 30px;
+    }
+
+    .social-links {
+        display: flex;
+        gap: 20px;
+    }
+
+    .social-links a {
+        width: 40px;
+        height: 40px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .social-links a:hover {
+        border-color: var(--gold);
+        color: var(--gold);
+        transform: translateY(-5px);
+    }
+
+    .footer-section h4 {
+        font-size: 14px;
+        letter-spacing: 3px;
+        margin-bottom: 25px;
+        color: var(--gold);
+        font-weight: 400;
+    }
+
+    .footer-section ul {
+        list-style: none;
+    }
+
+    .footer-section li {
+        margin-bottom: 15px;
+    }
+
+    .footer-section a {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.6);
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-weight: 300;
+    }
+
+    .footer-section a:hover {
+        color: #fff;
+        padding-left: 10px;
+    }
+
+    .footer-bottom {
+        padding-top: 40px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        text-align: center;
+        color: rgba(255, 255, 255, 0.4);
+        font-size: 12px;
+        letter-spacing: 2px;
+    }
+
+    @media (max-width: 768px) {
+        .footer-main { grid-template-columns: 1fr; }
+    }
+</style>

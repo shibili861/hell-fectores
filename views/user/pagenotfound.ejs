@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Not Found - ÉLÉGANCE</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Montserrat:wght@200;300;400;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --gold: #d4af37;
+            --light-gold: #f4e4c1;
+            --brown: #8B7355;
+            --light-brown: #C4A57B;
+            --cream: #F5E6D3;
+            --white: #ffffff;
+            --dark: #0a0a0a;
+            --dark-gray: #1a1a1a;
+            --medium-gray: #2a2a2a;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--dark);
+            color: #fff;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* Animated Background */
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(212, 175, 55, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(212, 175, 55, 0.1) 0%, transparent 50%),
+                linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+            z-index: 1;
+        }
+
+        .floating-shapes {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 2;
+        }
+
+        .shape {
+            position: absolute;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .shape1 {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .shape2 {
+            width: 200px;
+            height: 200px;
+            top: 60%;
+            right: 15%;
+            animation-delay: 3s;
+            transform: rotate(45deg);
+        }
+
+        .shape3 {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            bottom: 15%;
+            left: 20%;
+            animation-delay: 6s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(10deg); }
+        }
+
+        /* Container */
+        .error-container {
+            position: relative;
+            z-index: 10;
+            width: 90%;
+            max-width: 700px;
+            padding: 80px 60px;
+            background: rgba(26, 26, 26, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(196, 165, 123, 0.3);
+            border-radius: 16px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+            text-align: center;
+        }
+
+        /* Brand Header */
+        .brand-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .brand-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 48px;
+            font-weight: 300;
+            letter-spacing: 8px;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #fff 0%, var(--light-gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-subtitle {
+            font-size: 12px;
+            letter-spacing: 4px;
+            color: var(--light-brown);
+            text-transform: uppercase;
+            font-weight: 300;
+        }
+
+        /* Error Icon */
+        .error-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 40px;
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(196, 165, 123, 0.1));
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 0 0 20px rgba(212, 175, 55, 0); }
+        }
+
+        .error-icon svg {
+            width: 60px;
+            height: 60px;
+            stroke: var(--gold);
+        }
+
+        /* Error Content */
+        .error-content h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 120px;
+            font-weight: 300;
+            letter-spacing: 10px;
+            margin-bottom: 20px;
+            color: var(--gold);
+            line-height: 1;
+        }
+
+        .error-content h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 36px;
+            font-weight: 300;
+            letter-spacing: 4px;
+            margin-bottom: 30px;
+            color: #fff;
+        }
+
+        .error-content p {
+            font-size: 16px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 40px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 50px;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            font-size: 13px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-family: 'Montserrat', sans-serif;
+            transition: all 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--gold), var(--light-gold));
+            color: var(--dark);
+            border: none;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--gold);
+            border: 1px solid var(--gold);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(212, 175, 55, 0.5);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(212, 175, 55, 0.2);
+            background: rgba(212, 175, 55, 0.1);
+        }
+
+        /* Footer Links */
+        .error-footer {
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(196, 165, 123, 0.2);
+        }
+
+        .footer-text {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 15px;
+        }
+
+        .footer-link {
+            color: var(--gold);
+            text-decoration: none;
+            font-weight: 500;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .footer-link:hover {
+            color: var(--light-gold);
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .error-container {
+                padding: 60px 40px;
+            }
+
+            .brand-title {
+                font-size: 36px;
+                letter-spacing: 5px;
+            }
+
+            .error-content h1 {
+                font-size: 80px;
+            }
+
+            .error-content h2 {
+                font-size: 28px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 250px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .error-container {
+                padding: 40px 30px;
+            }
+
+            .brand-title {
+                font-size: 28px;
+            }
+
+            .error-content h1 {
+                font-size: 60px;
+            }
+
+            .error-content h2 {
+                font-size: 24px;
+            }
+
+            .error-icon {
+                width: 80px;
+                height: 80px;
+            }
+
+            .error-icon svg {
+                width: 40px;
+                height: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="animated-bg"></div>
+    <div class="floating-shapes">
+        <div class="shape shape1"></div>
+        <div class="shape shape2"></div>
+        <div class="shape shape3"></div>
+    </div>
+
+    <div class="error-container">
+        <div class="brand-header">
+            <h1 class="brand-title">ÉLÉGANCE</h1>
+            <p class="brand-subtitle">Luxury Men's Fashion</p>
+        </div>
+
+        <div class="error-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+            </svg>
+        </div>
+
+        <div class="error-content">
+            <h1>404</h1>
+            <h2>Page Not Found</h2>
+            <p>We apologize, but the page you are looking for seems to have gone astray. It may have been moved, deleted, or perhaps never existed in our collection.</p>
+            
+            <div class="action-buttons">
+                <a href="/" class="btn btn-primary">Return Home</a>
+                <a href="/contact" class="btn btn-secondary">Contact Support</a>
+            </div>
+        </div>
+
+        <div class="error-footer">
+            <p class="footer-text">
+                Need assistance? 
+                <a href="/contact" class="footer-link">Contact our support team</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

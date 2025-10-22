@@ -9,7 +9,7 @@ const Category = require("../../models/categorySchema");
 const Categoryinfo = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = 2;
+    const limit = 5;
     const skip = (page - 1) * limit;
     const search = req.query.search || "";  
     const query = search
@@ -149,7 +149,6 @@ const editCategory = async (req, res) => {
 
 
 
-
 module.exports={
   Categoryinfo,
     addCategory,
@@ -157,6 +156,8 @@ module.exports={
  unlistCategory,
  getEditCategory,
  editCategory,
+
+
 
 
 

@@ -1,38 +1,221 @@
 
+<!-- Navigation -->
+<!-- Styles -->
+<style>
+  :root {
+    --gold: #d4af37;
+    --light-gold: #f9e79f;
+  }
+
+  nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    padding: 30px 80px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(10, 10, 10, 0.7);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  nav.scrolled {
+    padding: 20px 80px;
+    background: rgba(10, 10, 10, 0.95);
+  }
+
+  .logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    font-weight: 300;
+    letter-spacing: 6px;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--light-gold) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    position: relative;
+  }
+
+  .logo::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 60px;
+    height: 1px;
+    background: var(--gold);
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 50px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 300;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: all 0.4s ease;
+    position: relative;
+    padding: 5px 0;
+  }
+
+  .nav-links a::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 1px;
+    background: var(--gold);
+    transition: all 0.4s ease;
+    transform: translateX(-50%);
+  }
+
+  .nav-links a:hover::before {
+    width: 100%;
+  }
+
+  .nav-links a:hover {
+    color: var(--gold);
+  }
+
+  .nav-icons {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    position: relative;
+  }
+
+  .icon-btn {
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    transition: all 0.4s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+  }
+
+  .icon-btn:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+    transform: rotate(15deg) scale(1.1);
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+  }
+
+  .signup-btn {
+    background: linear-gradient(135deg, var(--gold), var(--light-gold));
+    color: #000;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    margin-left: 10px;
+  }
+
+  .signup-btn:hover {
+    background: var(--light-gold);
+    transform: scale(1.05);
+  }
+
+  .dropdown {
+    position: relative;
+    display: inline-block;
+  }
+
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    top: 55px;
+    right: 0;
+    background-color: #111;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    min-width: 160px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+    z-index: 1;
+  }
+
+  .dropdown-content a {
+    color: #fff;
+    padding: 10px 15px;
+    text-decoration: none;
+    display: block;
+    font-size: 13px;
+  }
+
+  .dropdown-user {
+    display: block;
+    padding: 10px 15px;
+    color: var(--gold);
+    font-weight: 500;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .dropdown-content a:hover {
+    background-color: rgba(212, 175, 55, 0.1);
+    color: var(--gold);
+  }
+
+  .dropdown:hover .dropdown-content {
+    display: block;
+  }
+
+  @media (max-width: 768px) {
+    nav { padding: 20px 30px; }
+  }
+</style>
 
 
-
-<nav class="navbar">
-  <a href="/" class="logo">LuxeStore<span>É</span></a>
+<!-- Navigation -->
+<nav id="navbar">
+  <div class="logo">LUXSHORE</div>
 
   <ul class="nav-links">
     <li><a href="/">Home</a></li>
     <li><a href="/collections">Collections</a></li>
-    <li><a href="/about">About</a></li>
+    <li><a href="/about">Our Story</a></li>
     <li><a href="/contact">Contact</a></li>
   </ul>
 
-  <div class="nav-right">
-    <div class="icons">
-      <i class="fas fa-search"></i>
-      <i class="fas fa-user"></i>
-      <i class="fas fa-shopping-bag"></i>
-    </div>
+  <div class="nav-icons">
+    <button class="icon-btn" title="Search">🔍</button>
+    <button class="icon-btn" title="Wishlist">♡</button>
 
-    <div class="auth-buttons">
     <% if (locals.user) { %>
-  <div class="dropdown">
-    <a href="#" class="sign-in-link"><%= locals.user.name %></a>
-    <div class="dropdown-content">
-      <a href="/userprofile">Profile</a>
-      <a href="/logout">Logout</a>
-    </div>
-  </div>
-<% } else { %>
-  <a href="/login" class="btn login-btn">Login</a>
-  <a href="/signup" class="btn signup-btn">Sign Up</a>
-<% } %>
+      <!-- Logged-in user dropdown -->
+      <div class="dropdown">
+        <button class="icon-btn" title="Account">👤</button>
+        <div class="dropdown-content">
+          <span class="dropdown-user">Hi, <%= locals.user.name %></span>
+          <a href="/userprofile">Profile</a>
+          <a href="/logout">Logout</a>
+        </div>
+      </div>
+    <% } else { %>
+      <!-- Not logged in -->
+      <a href="/login" class="icon-btn" title="Login">👤</a>
+     
+    <% } %>
 
-    </div>
+    <button class="icon-btn" title="Cart">🛒</button>
   </div>
 </nav>

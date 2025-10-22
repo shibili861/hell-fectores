@@ -14,7 +14,7 @@ router.get("/login", adminController.loadlogin);
 router.post("/login", adminController.login);
 
 router.get("/", adminAuth, adminController.loaddashbord);             // /admin
-router.get("/dashboard", adminAuth, adminController.loaddashbord);   // /admin/dashboard ✅
+router.get("/dashboard", adminAuth, adminController.loaddashbord);   
 router.get("/logout", adminController.logout);
 
 
@@ -33,7 +33,7 @@ router.post("/editcategory/:id",adminAuth,categoryController.editCategory)
 //  product management
 
 
-// Configure multer for memory storage (since we're using sharp for processing)
+// Configure multer for memory storage 
 const storage = multer.memoryStorage();
 const upload = multer({
     storage: storage,
@@ -53,8 +53,17 @@ const upload = multer({
 router.get('/add-product', productController.getproductAddpage);
 router.post('/add-product', upload.array('images', 10), productController.addProducts);
 router.get('/allProducts',productController.getallproducts);
+router.get("/addproductbutton",productController.addProductsbutton)
 
+// Block a product
+router.patch("/block-product/:id", productController.blockProduct);
 
-
-
+// Unblock a product
+router.patch("/unblock-product/:id", productController.unblockProduct);
+// deleete products
+router.delete('/delete-product/:id', productController.deleteProduct);
+// Edit product routes
+router.get('/editproducts', productController.getEditProductPage);
+router.post('/updateProduct', upload.array('newImages', 5), productController.updateProduct);
+   
 module.exports=router;

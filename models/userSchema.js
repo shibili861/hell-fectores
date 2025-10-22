@@ -63,6 +63,9 @@ const userSchema=new Schema({
          ref:'user',
          required:true
     }],
+    resetPasswordToken: String,
+resetPasswordExpire: Date,
+
     searchHistory:[{
         category:{
             type:Schema.Types.ObjectId,

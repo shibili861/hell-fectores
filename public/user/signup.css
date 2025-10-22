@@ -299,7 +299,20 @@
     font-weight: 500;
     display: block;
 }
+.error-message {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 5px;
+    display: none;
+}
 
+.error-message.show {
+    display: block;
+}
+
+.form-control.error {
+    border-color: #dc3545;
+}
 
 /* Responsive Styles */
 @media (max-width: 768px) {

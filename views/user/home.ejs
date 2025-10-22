@@ -1,102 +1,1091 @@
-<%-include("../../views/partials/user/header")%>
-<link rel="stylesheet" href="/user/home.css">
-<script src="dropdown.ejs"></script>
-  <section class="hero">
-    <div class="hero-content">
-      <h1>ELEVATE YOUR STYLE</h1>
-      <p>Discover our premium collection of classic and contemporary menswear. Handcrafted with exceptional attention to detail for the modern gentleman.</p>
-      <a href="#" class="btn">SHOP NOW</a>
-    </div>
-  </section>
-  
-  <section class="categories">
-    <h2 class="section-title">OUR COLLECTIONS</h2>
-    
-    <div class="category-grid">
-      <div class="category-card">
-        <img src="https://images.unsplash.com/photo-1598033129183-c4f50c736f10?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1025&q=80" alt="Premium Shirts" class="category-img">
-        <div class="category-overlay">
-          <h3>Premium Shirts</h3>
-          <a href="#" class="btn">EXPLORE</a>
-        </div>
-      </div>
-      
-      <div class="category-card">
-        <img src="https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1259&q=80" alt="Classic Polos" class="category-img">
-        <div class="category-overlay">
-          <h3>Classic Polos</h3>
-          <a href="#" class="btn">EXPLORE</a>
-        </div>
-      </div>
-      
-      <div class="category-card">
-        <img src="https://images.unsplash.com/photo-1473966968600-fa801b869a1a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1287&q=80" alt="Linen Pants" class="category-img">
-        <div class="category-overlay">
-          <h3>Linen Pants</h3>
-          <a href="#" class="btn">EXPLORE</a>
-        </div>
-      </div>
-    </div>
-  </section>
-  
-  <section class="trending">
-    <h2 class="section-title">TRENDING NOW</h2>
-    
-    <div class="product-grid">
-      <div class="product-card">
-        <span class="product-badge">NEW</span>
-        <img src="https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1287&q=80" alt="Italian Silk Shirt" class="product-img">
-        <div class="product-info">
-          <h3 class="product-title">Italian Silk Shirt</h3>
-          <div class="product-price">
-            <span class="current-price">$189</span>
-          </div>
-        </div>
-      </div>
-      
-      <div class="product-card">
-        <span class="product-badge">BESTSELLER</span>
-        <img src="https://images.unsplash.com/photo-1527719327859-c6ce80353573?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1287&q=80" alt="Classic Fit Polo" class="product-img">
-        <div class="product-info">
-          <h3 class="product-title">Classic Fit Polo</h3>
-          <div class="product-price">
-            <span class="current-price">$129</span>
-            <span class="old-price">$159</span>
-          </div>
-        </div>
-      </div>
-      
-      <div class="product-card">
-        <img src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1336&q=80" alt="Linen Relaxed Pants" class="product-img">
-        <div class="product-info">
-          <h3 class="product-title">Linen Relaxed Pants</h3>
-          <div class="product-price">
-            <span class="current-price">$149</span>
-          </div>
-        </div>
-      </div>
-      
-      <div class="product-card">
-        <span class="product-badge">LIMITED</span>
-        <img src="https://images.unsplash.com/photo-1598033129183-c4f50c736f10?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1025&q=80" alt="Oxford Button-Down" class="product-img">
-        <div class="product-info">
-          <h3 class="product-title">Oxford Button-Down</h3>
-          <div class="product-price">
-            <span class="current-price">$159</span>
-            <span class="old-price">$199</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-  
-  <section class="newsletter">
-    <h2>JOIN OUR NEWSLETTER</h2>
-    <p>Subscribe to receive updates, access to exclusive deals, and style inspiration from our team.</p>
-    <form class="newsletter-form">
-      <input type="email" placeholder="Your email address">
-      <button type="submit">SUBSCRIBE</button>
-    </form>
-  </section>
 
-<%-include("../../views/partials/user/footer")%>
+ <%- include('../partials/user/header') %>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ÉLÉGANCE - Luxury Men's Fashion</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Montserrat:wght@200;300;400;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --gold: #d4af37;
+            --light-gold: #f4e4c1;
+            --brown: #8B7355;
+            --light-brown: #C4A57B;
+            --cream: #F5E6D3;
+            --white: #ffffff;
+            --dark: #0a0a0a;
+            --dark-gray: #1a1a1a;
+            --medium-gray: #2a2a2a;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--dark);
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* Custom Cursor */
+        body {
+            cursor: none;
+        }
+
+        .cursor {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--gold);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: all 0.1s ease;
+            mix-blend-mode: difference;
+        }
+
+        .cursor-follower {
+            width: 40px;
+            height: 40px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9998;
+            transition: all 0.3s ease;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(212, 175, 55, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(212, 175, 55, 0.1) 0%, transparent 50%),
+                linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+        }
+
+        .floating-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .shape {
+            position: absolute;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .shape1 {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .shape2 {
+            width: 200px;
+            height: 200px;
+            top: 60%;
+            right: 15%;
+            animation-delay: 3s;
+            transform: rotate(45deg);
+        }
+
+        .shape3 {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            bottom: 15%;
+            left: 20%;
+            animation-delay: 6s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(10deg); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 0 20px;
+            max-width: 1200px;
+        }
+
+        .hero-subtitle-top {
+            font-size: 14px;
+            letter-spacing: 6px;
+            color: var(--gold);
+            margin-bottom: 30px;
+            opacity: 0;
+            animation: fadeInUp 1.2s ease 0.3s forwards;
+            font-weight: 300;
+        }
+
+        .hero h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 120px;
+            font-weight: 300;
+            letter-spacing: 15px;
+            margin-bottom: 30px;
+            opacity: 0;
+            animation: fadeInUp 1.2s ease 0.6s forwards;
+            line-height: 1.1;
+            background: linear-gradient(135deg, #fff 0%, var(--light-gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 18px;
+            letter-spacing: 4px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 60px;
+            opacity: 0;
+            animation: fadeInUp 1.2s ease 0.9s forwards;
+            font-weight: 200;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            opacity: 0;
+            animation: fadeInUp 1.2s ease 1.2s forwards;
+        }
+
+        .cta-primary {
+            padding: 20px 60px;
+            background: linear-gradient(135deg, var(--gold), var(--light-gold));
+            color: var(--dark);
+            border: none;
+            font-size: 12px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-primary::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .cta-primary:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .cta-primary:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(212, 175, 55, 0.5);
+        }
+
+        .cta-secondary {
+            padding: 20px 60px;
+            background: transparent;
+            color: #fff;
+            border: 1px solid var(--gold);
+            font-size: 12px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            cursor: pointer;
+            font-weight: 400;
+            transition: all 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-secondary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--gold);
+            transition: left 0.5s ease;
+            z-index: -1;
+        }
+
+        .cta-secondary:hover::before {
+            left: 0;
+        }
+
+        .cta-secondary:hover {
+            color: var(--dark);
+            border-color: var(--gold);
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            animation: fadeInUp 1.2s ease 1.5s forwards;
+        }
+
+        .scroll-indicator span {
+            display: block;
+            width: 1px;
+            height: 60px;
+            background: linear-gradient(to bottom, transparent, var(--gold));
+            margin: 0 auto 10px;
+            animation: scrollDown 2s infinite;
+        }
+
+        .scroll-indicator p {
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: var(--gold);
+        }
+
+        @keyframes scrollDown {
+            0%, 100% { transform: translateY(0); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateY(20px); opacity: 0; }
+        }
+
+        /* Featured Banner */
+        .featured-banner {
+            padding: 120px 80px;
+            background: linear-gradient(135deg, #1a1410 0%, #0a0a0a 50%, #1a1410 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .featured-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(139, 115, 85, 0.15) 0%, transparent 60%),
+                radial-gradient(circle at 80% 70%, rgba(212, 175, 55, 0.1) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .banner-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .banner-text h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 64px;
+            font-weight: 300;
+            letter-spacing: 5px;
+            margin-bottom: 30px;
+            line-height: 1.2;
+            color: #fff;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .banner-text p {
+            font-size: 16px;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+
+        .banner-image {
+            height: 600px;
+            background: linear-gradient(135deg, #8B7355 0%, #6B5943 100%);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(196, 165, 123, 0.3);
+        }
+
+        .banner-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
+        }
+
+        /* Collections */
+        .collections {
+            padding: 150px 80px;
+            background: var(--dark);
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 100px;
+        }
+
+        .section-label {
+            font-size: 12px;
+            letter-spacing: 4px;
+            color: var(--gold);
+            margin-bottom: 20px;
+            font-weight: 300;
+        }
+
+        .section-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 72px;
+            font-weight: 300;
+            letter-spacing: 8px;
+        }
+
+        .collection-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 35px;
+            max-width: 1500px;
+            margin: 0 auto;
+        }
+
+        .collection-card {
+            position: relative;
+            height: 650px;
+            overflow: hidden;
+            cursor: pointer;
+            border-radius: 12px;
+            background: var(--dark-gray);
+            border: 1px solid rgba(196, 165, 123, 0.2);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .collection-card:hover {
+            border-color: rgba(212, 175, 55, 0.5);
+            box-shadow: 0 35px 70px rgba(0, 0, 0, 0.6), 0 0 50px rgba(212, 175, 55, 0.15);
+        }
+
+        .collection-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+            background-size: cover;
+            background-position: center;
+        }
+
+        .collection-card:hover .collection-bg {
+            transform: scale(1.12) rotate(2deg);
+        }
+
+        .collection-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.3) 50%, transparent 80%);
+            transition: background 0.6s ease;
+        }
+
+        .collection-card:hover .collection-overlay {
+            background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 50%, transparent 80%);
+        }
+
+        .collection-content {
+            position: absolute;
+            bottom: 65px;
+            left: 65px;
+            right: 65px;
+        }
+
+        .collection-content h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 56px;
+            font-weight: 300;
+            letter-spacing: 6px;
+            margin-bottom: 18px;
+            transform: translateY(0);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .collection-card:hover .collection-content h3 {
+            transform: translateY(-15px);
+            letter-spacing: 8px;
+        }
+
+        .collection-content p {
+            font-size: 13px;
+            color: var(--light-brown);
+            letter-spacing: 3.5px;
+            margin-bottom: 35px;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+
+        .collection-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 18px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 11px;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            opacity: 0;
+            transform: translateY(25px);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 14px 32px;
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            background: rgba(212, 175, 55, 0.1);
+            backdrop-filter: blur(10px);
+            font-weight: 500;
+        }
+
+        .collection-card:hover .collection-link {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .collection-link:hover {
+            background: linear-gradient(135deg, var(--gold), var(--light-gold));
+            color: var(--dark);
+            border-color: var(--gold);
+            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.4);
+        }
+
+        .collection-link::after {
+            content: '→';
+            font-size: 22px;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .collection-link:hover::after {
+            transform: translateX(12px);
+        }
+
+        /* Products */
+        .products {
+            padding: 150px 80px;
+            background: linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
+            position: relative;
+        }
+
+        .products::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 30% 20%, rgba(196, 165, 123, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 70% 80%, rgba(212, 175, 55, 0.06) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 35px;
+            max-width: 1600px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .product-card {
+            background: rgba(26, 26, 26, 0.6);
+            cursor: pointer;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(196, 165, 123, 0.15);
+            border-radius: 8px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .product-card:hover {
+            transform: translateY(-25px) scale(1.02);
+            border-color: rgba(212, 175, 55, 0.4);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(212, 175, 55, 0.15);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 420px;
+            margin-bottom: 0;
+            position: relative;
+            overflow: hidden;
+            border-radius: 0;
+        }
+
+        .product-badge {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px 24px;
+            background: linear-gradient(135deg, rgba(196, 165, 123, 0.95), rgba(139, 115, 85, 0.95));
+            color: var(--white);
+            font-size: 9px;
+            letter-spacing: 2.5px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .product-quick-view {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 25px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.7) 100%);
+            opacity: 0;
+            transform: translateY(100%);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            justify-content: center;
+            gap: 18px;
+            backdrop-filter: blur(10px);
+        }
+
+        .product-card:hover .product-quick-view {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .quick-btn {
+            width: 50px;
+            height: 50px;
+            background: transparent;
+            border: 1px solid rgba(212, 175, 55, 0.6);
+            color: var(--gold);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .quick-btn:hover {
+            background: linear-gradient(135deg, var(--gold), var(--light-gold));
+            color: var(--dark);
+            border-color: var(--gold);
+            transform: scale(1.15) rotate(10deg);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
+        }
+
+        .product-info {
+            text-align: center;
+            padding: 28px 20px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .product-category {
+            font-size: 10px;
+            letter-spacing: 2.5px;
+            color: var(--light-brown);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        .product-name {
+            font-size: 17px;
+            font-weight: 300;
+            letter-spacing: 2px;
+            margin-bottom: 14px;
+            color: rgba(255, 255, 255, 0.95);
+            transition: color 0.3s ease;
+        }
+
+        .product-card:hover .product-name {
+            color: var(--light-gold);
+        }
+
+        .product-price {
+            font-size: 22px;
+            color: var(--gold);
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        /* Testimonials */
+        .testimonials {
+            padding: 150px 80px;
+            background: var(--dark);
+            text-align: center;
+        }
+
+        .testimonial-slider {
+            max-width: 900px;
+            margin: 60px auto 0;
+        }
+
+        .testimonial {
+            padding: 60px;
+        }
+
+        .testimonial-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 32px;
+            font-weight: 300;
+            line-height: 1.6;
+            margin-bottom: 40px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .testimonial-author {
+            font-size: 14px;
+            letter-spacing: 3px;
+            color: var(--gold);
+        }
+
+        .testimonial-dots {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 40px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dot.active {
+            background: var(--gold);
+            width: 30px;
+            border-radius: 5px;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .hero h1 { font-size: 80px; }
+            .collection-grid { grid-template-columns: 1fr; }
+            .product-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 48px; letter-spacing: 5px; }
+            .section-title { font-size: 40px; }
+            .collections, .products, .testimonials { padding: 80px 30px; }
+            .banner-content { grid-template-columns: 1fr; }
+            .hero-buttons { flex-direction: column; }
+            .product-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="cursor"></div>
+    <div class="cursor-follower"></div>
+
+    <!-- Include Navbar -->
+    <div id="navbar-container"></div>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="floating-shapes">
+            <div class="shape shape1"></div>
+            <div class="shape shape2"></div>
+            <div class="shape shape3"></div>
+        </div>
+        <div class="hero-content">
+            <p class="hero-subtitle-top">SPRING COLLECTION 2025</p>
+            <h1>TIMELESS<br>LUXURY</h1>
+            <p class="hero-subtitle">Handcrafted Premium Linen & Cotton for the Modern Gentleman</p>
+            <div class="hero-buttons">
+                <button class="cta-primary">Discover Collection</button>
+                <button class="cta-secondary">Watch Film</button>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <span></span>
+            <p>SCROLL</p>
+        </div>
+    </section>
+
+    <!-- Featured Banner -->
+    <section class="featured-banner">
+        <div class="banner-content">
+            <div class="banner-text">
+                <h2>Crafted for Excellence</h2>
+                <p>Each piece in our collection is meticulously crafted using the finest natural fibers. Our premium linen and cotton garments embody sophistication, comfort, and timeless style—designed for the discerning man who values quality above all.</p>
+                <button class="cta-secondary">Learn Our Story</button>
+            </div>
+            <div class="banner-image"></div>
+        </div>
+    </section>
+
+    <!-- Collections -->
+    <section class="collections" id="collections">
+        <div class="section-header">
+            <p class="section-label">EXPLORE</p>
+            <h2 class="section-title">Our Collections</h2>
+        </div>
+        <div class="collection-grid">
+            <div class="collection-card">
+                <div class="collection-bg" style="background: linear-gradient(135deg, rgba(107, 68, 35, 0.9), rgba(74, 50, 25, 0.8)), url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%236B4423%22 width=%22100%22 height=%22100%22/></svg>');"></div>
+                <div class="collection-overlay"></div>
+                <div class="collection-content">
+                    <h3>Linen Shirts</h3>
+                    <p>BREATHABLE ELEGANCE</p>
+                    <a href="#" class="collection-link">Explore Now</a>
+                </div>
+            </div>
+            <div class="collection-card">
+                <div class="collection-bg" style="background: linear-gradient(135deg, rgba(139, 115, 85, 0.9), rgba(107, 89, 67, 0.8)), url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%238B7355%22 width=%22100%22 height=%22100%22/></svg>');"></div>
+                <div class="collection-overlay"></div>
+                <div class="collection-content">
+                    <h3>Linen Pants</h3>
+                    <p>EFFORTLESS STYLE</p>
+                    <a href="#" class="collection-link">Explore Now</a>
+                </div>
+            </div>
+            <div class="collection-card">
+                <div class="collection-bg" style="background: linear-gradient(135deg, rgba(44, 62, 80, 0.9), rgba(26, 37, 47, 0.8)), url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%232C3E50%22 width=%22100%22 height=%22100%22/></svg>');"></div>
+                <div class="collection-overlay"></div>
+                <div class="collection-content">
+                    <h3>Cotton Shirts</h3>
+                    <p>CLASSIC COMFORT</p>
+                    <a href="#" class="collection-link">Explore Now</a>
+                </div>
+            </div>
+            <div class="collection-card">
+                <div class="collection-bg" style="background: linear-gradient(135deg, rgba(52, 73, 94, 0.9), rgba(44, 62, 80, 0.8)), url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%2334495E%22 width=%22100%22 height=%22100%22/></svg>');"></div>
+                <div class="collection-overlay"></div>
+                <div class="collection-content">
+                    <h3>Cotton Pants</h3>
+                    <p>TIMELESS DESIGN</p>
+                    <a href="#" class="collection-link">Explore Now</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products -->
+    <section class="products">
+        <div class="section-header">
+            <p class="section-label">CURATED SELECTION</p>
+            <h2 class="section-title">Featured Pieces</h2>
+        </div>
+        <div class="product-grid">
+            <div class="product-card">
+                <div class="product-image" style="background: 
+                    linear-gradient(135deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.3)),
+                    repeating-linear-gradient(45deg, #D4A574 0px, #D4A574 20px, #C09858 20px, #C09858 40px),
+                    repeating-linear-gradient(-45deg, transparent 0px, transparent 10px, rgba(255,255,255,0.03) 10px, rgba(255,255,255,0.03) 20px);">
+                    <div class="product-badge">NEW ARRIVAL</div>
+                    <div class="product-quick-view">
+                        <button class="quick-btn" title="Add to Wishlist">♡</button>
+                        <button class="quick-btn" title="Quick View">👁</button>
+                        <button class="quick-btn" title="Add to Cart">🛒</button>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <div class="product-category">Premium Linen</div>
+                    <div class="product-name">Beige Linen Shirt</div>
+                    <div class="product-price">₹2,499</div>
+                </div>
+            </div>
+            <div class="product-card">
+                <div class="product-image" style="background: 
+                    linear-gradient(135deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.3)),
+                    repeating-linear-gradient(0deg, #B8956A 0px, #B8956A 25px, #9A7B4F 25px, #9A7B4F 50px),
+                    repeating-linear-gradient(90deg, transparent 0px, transparent 15px, rgba(255,255,255,0.02) 15px, rgba(255,255,255,0.02) 30px);">
+                    <div class="product-badge">BESTSELLER</div>
+                    <div class="product-quick-view">
+                        <button class="quick-btn" title="Add to Wishlist">♡</button>
+                        <button class="quick-btn" title="Quick View">👁</button>
+                        <button class="quick-btn" title="Add to Cart">🛒</button>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <div class="product-category">Linen Trousers</div>
+                    <div class="product-name">Tan Linen Pants</div>
+                    <div class="product-price">₹2,199</div>
+                </div>
+            </div>
+            <div class="product-card">
+                <div class="product-image" style="background: 
+                    linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.4)),
+                    repeating-linear-gradient(90deg, #A89174 0px, #A89174 15px, #967d5f 15px, #967d5f 30px),
+                    repeating-linear-gradient(0deg, transparent 0px, transparent 20px, rgba(255,255,255,0.03) 20px, rgba(255,255,255,0.03) 40px);">
+                    <div class="product-badge">LIMITED</div>
+                    <div class="product-quick-view">
+                        <button class="quick-btn" title="Add to Wishlist">♡</button>
+                        <button class="quick-btn" title="Quick View">👁</button>
+                        <button class="quick-btn" title="Add to Cart">🛒</button>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <div class="product-category">Pure Linen</div>
+                    <div class="product-name">Olive Linen Shirt</div>
+                    <div class="product-price">₹2,699</div>
+                </div>
+            </div>
+            <div class="product-card">
+                <div class="product-image" style="background: 
+                    linear-gradient(135deg, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.35)),
+                    repeating-linear-gradient(45deg, #C4A57B 0px, #C4A57B 18px, #B8956A 18px, #B8956A 36px),
+                    repeating-linear-gradient(-45deg, transparent 0px, transparent 12px, rgba(255,255,255,0.02) 12px, rgba(255,255,255,0.02) 24px);">
+                    <div class="product-quick-view">
+                        <button class="quick-btn" title="Add to Wishlist">♡</button>
+                        <button class="quick-btn" title="Quick View">👁</button>
+                        <button class="quick-btn" title="Add to Cart">🛒</button>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <div class="product-category">Linen Blend</div>
+                    <div class="product-name">Khaki Linen Pants</div>
+                    <div class="product-price">₹1,999</div>
+                </div>
+            </div>
+            <div class="product-card">
+                <div class="product-image" style="background: 
+                    linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.4)),
+                    repeating-linear-gradient(0deg, #4A6FA5 0px, #4A6FA5 22px, #355682 22px, #355682 44px),
+                    repeating-linear-gradient(90deg, transparent 0px, transparent 18px, rgba(255,255,255,0.03) 18px, rgba(255,255,255,0.03) 36px);">
+                    <div class="product-badge">NEW</div>
+                    <div class="product-quick-view">
+                        <button class="quick-btn" title="Add to Wishlist">♡</button>
+                        <button class="quick-btn" title="Quick View">👁</button>
+                        <button class="quick-btn" title="Add to Cart">🛒</button>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <div class="product-category">Premium Cotton</div>
+                    <div class="product-name">Navy Cotton Shirt</div>
+                    <div class="product-price">₹1,899</div>
+                </div>
+            </div>
+            <div class="product-card">
+                <div class="product-image" style="background: 
+                    linear-gradient(135deg, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.35)),
+                    repeating-linear-gradient(90deg, #556B7E 0px, #556B7E 20px, #3E4F5E 20px, #3E4F5E 40px),
+                    repeating-linear-gradient(0deg, transparent 0px, transparent 15px, rgba(255,255,255,0.02) 15px, rgba(255,255,255,0.02) 30px);">
+                    <div class="product-quick-view">
+                        <button class="quick-btn" title="Add to Wishlist">♡</button>
+                        <button class="quick-btn" title="Quick View">👁</button>
+                        <button class="quick-btn" title="Add to Cart">🛒</button>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <div class="product-category">Cotton Twill</div>
+                    <div class="product-name">Slate Cotton Chinos</div>
+                    <div class="product-price">₹1,699</div>
+                </div>
+            </div>
+            <div class="product-card">
+                <div class="product-image" style="background: 
+                    linear-gradient(135deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.3)),
+                    repeating-linear-gradient(45deg, #E8D4B8 0px, #E8D4B8 16px, #D4A574 16px, #D4A574 32px),
+                    repeating-linear-gradient(-45deg, transparent 0px, transparent 10px, rgba(0,0,0,0.03) 10px, rgba(0,0,0,0.03) 20px);">
+                    <div class="product-badge">PREMIUM</div>
+                    <div class="product-quick-view">
+                        <button class="quick-btn" title="Add to Wishlist">♡</button>
+                        <button class="quick-btn" title="Quick View">👁</button>
+                        <button class="quick-btn" title="Add to Cart">🛒</button>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <div class="product-category">Luxury Linen</div>
+                    <div class="product-name">Ivory Linen Shirt</div>
+                    <div class="product-price">₹2,899</div>
+                </div>
+            </div>
+            <div class="product-card">
+                <div class="product-image" style="background: 
+                    linear-gradient(135deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.3)),
+                    repeating-linear-gradient(0deg, #8B7355 0px, #8B7355 24px, #7a6348 24px, #7a6348 48px),
+                    repeating-linear-gradient(90deg, transparent 0px, transparent 16px, rgba(255,255,255,0.03) 16px, rgba(255,255,255,0.03) 32px);">
+                    <div class="product-quick-view">
+                        <button class="quick-btn" title="Add to Wishlist">♡</button>
+                        <button class="quick-btn" title="Quick View">👁</button>
+                        <button class="quick-btn" title="Add to Cart">🛒</button>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <div class="product-category">Linen Classic</div>
+                    <div class="product-name">Brown Linen Pants</div>
+                    <div class="product-price">₹2,299</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="testimonials">
+        <div class="section-header">
+            <p class="section-label">TESTIMONIALS</p>
+            <h2 class="section-title">What Our Clients Say</h2>
+        </div>
+        <div class="testimonial-slider">
+            <div class="testimonial">
+                <p class="testimonial-text">"The quality is exceptional. Every piece feels luxurious and the attention to detail is remarkable. This is truly premium menswear."</p>
+                <p class="testimonial-author">— RAHUL SHARMA, MUMBAI</p>
+            </div>
+            <div class="testimonial-dots">
+                <div class="dot active"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Include Footer -->
+    <div id="footer-container"></div>
+
+    <script>
+        // Load navbar and footer
+        fetch('navbar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('navbar-container').innerHTML = data;
+                // Initialize navbar functionality after loading
+                initNavbar();
+            });
+
+        fetch('footer.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('footer-container').innerHTML = data;
+            });
+
+        function initNavbar() {
+            // Custom Cursor
+            const cursor = document.querySelector('.cursor');
+            const follower = document.querySelector('.cursor-follower');
+
+            document.addEventListener('mousemove', (e) => {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+                
+                setTimeout(() => {
+                    follower.style.left = e.clientX + 'px';
+                    follower.style.top = e.clientY + 'px';
+                }, 100);
+            });
+
+            // Navbar scroll effect
+            window.addEventListener('scroll', () => {
+                const navbar = document.getElementById('navbar');
+                if (window.scrollY > 100) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+            });
+
+            // Smooth scroll
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            });
+
+            // Add hover effects to buttons
+            document.querySelectorAll('button').forEach(btn => {
+                btn.addEventListener('mouseenter', () => {
+                    cursor.style.transform = 'scale(2)';
+                    follower.style.transform = 'scale(1.5)';
+                });
+                btn.addEventListener('mouseleave', () => {
+                    cursor.style.transform = 'scale(1)';
+                    follower.style.transform = 'scale(1)';
+                });
+            });
+        }
+
+        // Scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.collection-card, .product-card').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(50px)';
+            el.style.transition = 'all 0.8s ease';
+            observer.observe(el);
+        });
+    </script>
+    
+</body>
+
+</html>
+  <%- include('../partials/user/footer') %>

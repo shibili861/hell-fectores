@@ -341,7 +341,7 @@
         <label for="email">Email</label>
         <div class="input-with-icon">
             <i class="fas fa-user"></i>
-            <input type="text" id="email" name="email" placeholder="Enter your email" required>
+            <input type="text" id="email" name="email" placeholder="Enter your email" >
         </div>
     </div>
 
@@ -349,7 +349,7 @@
         <label for="password">Password</label>
         <div class="input-with-icon">
             <i class="fas fa-lock"></i>
-            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            <input type="password" id="password" name="password" placeholder="Enter your password">
         </div>
     </div>
 
@@ -360,26 +360,46 @@
     </div>
 
     <script>
-    document.querySelector('form').addEventListener('submit', function(e) {
-        const username = document.getElementById('username').value.trim();
-        const password = document.getElementById('password').value.trim();
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('loginpage');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
 
-        if (!username) {
-            e.preventDefault(); // stop only if invalid
-            alert('Please enter your username');
+    // Create an error message container (below the inputs)
+    const errorContainer = document.createElement('p');
+    errorContainer.style.color = 'red';
+    errorContainer.style.textAlign = 'center';
+    errorContainer.style.marginTop = '10px';
+    form.appendChild(errorContainer);
+
+    form.addEventListener('submit', function(e) {
+        const email = emailInput.value.trim();
+        const password = passwordInput.value.trim();
+
+        errorContainer.textContent = ''; // clear previous error message
+
+        if (!email && !password) {
+            e.preventDefault();
+            errorContainer.textContent = 'Please enter your email and password.';
+            return;
+        }
+
+        if (!email) {
+            e.preventDefault();
+            errorContainer.textContent = 'Please enter your email.';
             return;
         }
 
         if (!password) {
-            e.preventDefault(); // stop only if invalid
-            alert('Please enter your password');
+            e.preventDefault();
+            errorContainer.textContent = 'Please enter your password.';
             return;
         }
 
-        // ✅ if both are filled, let the form submit normally to /login
+        // ✅ if both are filled, form will submit normally
     });
 
-    // Keep the touch effect for mobile
+    // Touch effect for mobile
     const loginBtn = document.getElementById('loginBtn');
     loginBtn.addEventListener('touchstart', function() {
         this.classList.add('touch-effect');
@@ -387,6 +407,7 @@
     loginBtn.addEventListener('touchend', function() {
         this.classList.remove('touch-effect');
     });
+});
 </script>
 
 </body>

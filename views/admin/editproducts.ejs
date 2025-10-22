@@ -1,13 +1,12 @@
-<%- include('../partials/admin/sidebar') %>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Product - LuxeAdmin</title>
+    <title>Edit Product - LuxeAdmin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <style>
         :root {
             --primary-white: #fefdf8;
@@ -108,9 +107,9 @@
             font-size: 1.1rem;
         }
 
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+        .form-vertical {
+            display: flex;
+            flex-direction: column;
             gap: 1.5rem;
         }
 
@@ -119,7 +118,7 @@
         }
 
         .form-group.full-width {
-            grid-column: 1 / -1;
+            width: 100%;
         }
 
         .form-label {
@@ -249,6 +248,7 @@
             align-items: center;
             gap: 0.75rem;
             letter-spacing: 0.3px;
+            text-decoration: none;
         }
 
         .btn-primary {
@@ -271,6 +271,17 @@
         .btn-secondary:hover {
             background: var(--light-brown);
             transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--error), #d32f2f);
+            color: var(--secondary-white);
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(244, 67, 54, 0.4);
         }
 
         .price-input-container {
@@ -360,7 +371,29 @@
             border-left: 3px solid var(--error);
         }
 
-        /* Cropper Modal Styles - Premium Version */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-left: 15px;
+        }
+
+        .status-active {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.15), rgba(76, 175, 80, 0.25));
+            color: var(--success);
+            border: 2px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .status-inactive {
+            background: linear-gradient(135deg, rgba(244, 67, 54, 0.15), rgba(244, 67, 54, 0.25));
+            color: var(--error);
+            border: 2px solid rgba(244, 67, 54, 0.3);
+        }
+
+        /* Cropper Modal Styles */
         .cropper-modal {
             display: none;
             position: fixed;
@@ -557,6 +590,32 @@
             box-shadow: 0 12px 35px rgba(93, 64, 55, 0.6);
         }
 
+        .cropper-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: var(--dark-brown);
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .cropper-close:hover {
+            background: var(--light-brown);
+            transform: rotate(90deg);
+            color: var(--error);
+        }
+
         /* Cropper.js custom styles */
         .cropper-view-box,
         .cropper-face {
@@ -595,31 +654,8 @@
             border-radius: 14px;
         }
 
-        /* Close button for modal */
-        .cropper-close {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: none;
-            border: none;
-            color: var(--dark-brown);
-            font-size: 1.5rem;
-            cursor: pointer;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
-            background: rgba(255, 255, 255, 0.9);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .cropper-close:hover {
-            background: var(--light-brown);
-            transform: rotate(90deg);
-            color: var(--error);
+        body.modal-open {
+            overflow: hidden;
         }
 
         /* Responsive design */
@@ -636,10 +672,15 @@
                 padding: 1.5rem;
             }
             
-            .form-grid {
-                grid-template-columns: 1fr;
+            .form-actions {
+                flex-direction: column;
             }
             
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
             .cropper-container {
                 padding: 1.5rem;
                 margin: 1rem;
@@ -684,40 +725,86 @@
             border-color: var(--error) !important;
         }
 
-        body.modal-open {
-            overflow: hidden;
+        /* Loading overlay */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(62, 39, 35, 0.8);
+            z-index: 10001;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid var(--gold);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
     <div class="main-content">
         <div class="page-header">
             <div>
-                <h1 class="page-title">Add New Product</h1>
+                <h1 class="page-title">Edit Product</h1>
                 <div class="breadcrumb">
-                    <a href="/admin/dashboard">Dashboard</a> / <a href="#">Products</a> / Add Product
+                    <a href="/admin/dashboard">Dashboard</a> / <a href="/admin/products">Products</a> / Edit Product
                 </div>
             </div>
+            <% if (product) { %>
+                <span class="status-badge <%= product.isBlocked ? 'status-inactive' : 'status-active' %>">
+                    <i class="fas fa-circle" style="font-size: 6px; margin-right: 5px;"></i>
+                    <%= product.isBlocked ? 'Blocked' : 'Active' %>
+                </span>
+            <% } %>
         </div>
 
         <div class="form-container">
-            <form action="/admin/add-product" method="POST" enctype="multipart/form-data" id="productForm">
+            <form action="/admin/updateProduct" method="POST" enctype="multipart/form-data" id="productForm">
+                <input type="hidden" name="productId" value="<%= product ? product._id : '' %>">
                 
                 <!-- Basic Information Section -->
                 <div class="form-section">
                     <h3 class="section-title"><i class="fas fa-info-circle"></i> Basic Information</h3>
-                    <div class="form-grid">
+                    <div class="form-vertical">
                         <div class="form-group">
                             <label class="form-label">Product Name</label>
-                            <input type="text" class="form-input" name="productName" placeholder="Enter product name">
+                            <input type="text" class="form-input" name="productName" 
+                                   placeholder="Enter product name" 
+                                   value="<%= product ? product.productName : '' %>">
                             <div id="productName-error" class="error-message"></div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">Category</label>
                             <select class="form-select" name="category">
-                                <% for(let i=0;i<cat.length;i++){ %>
-                                    <option value="<%=cat[i].name%>"><%=cat[i].name%></option>
+                                <% if (cat && cat.length > 0) { %>
+                                    <% cat.forEach(category => { %>
+                                        <option value="<%= category._id %>" 
+                                                <%= (product && product.category && product.category._id.toString() === category._id.toString()) ? 'selected' : '' %>>
+                                            <%= category.name %>
+                                        </option>
+                                    <% }); %>
+                                <% } else { %>
+                                    <option value="">No categories available</option>
                                 <% } %>
                             </select>
                         </div>
@@ -727,12 +814,14 @@
                 <!-- Pricing Section -->
                 <div class="form-section">
                     <h3 class="section-title"><i class="fas fa-tag"></i> Pricing & Inventory</h3>
-                    <div class="form-grid">
+                    <div class="form-vertical">
                         <div class="form-group">
                             <label class="form-label">Regular Price</label>
                             <div class="price-input-container">
                                 <span class="price-prefix">$</span>
-                                <input type="number" class="form-input price-input" name="regularPrice" placeholder="0.00" step="0.01">
+                                <input type="number" class="form-input price-input" name="regularPrice" 
+                                       placeholder="0.00" step="0.01"
+                                       value="<%= product ? product.regularPrice : '' %>">
                             </div>
                             <div id="regularPrice-error" class="error-message"></div>
                         </div>
@@ -741,14 +830,18 @@
                             <label class="form-label">Sale Price</label>
                             <div class="price-input-container">
                                 <span class="price-prefix">$</span>
-                                <input type="number" class="form-input price-input" name="salePrice" placeholder="0.00" step="0.01">
+                                <input type="number" class="form-input price-input" name="salePrice" 
+                                       placeholder="0.00" step="0.01"
+                                       value="<%= product ? product.salePrice : '' %>">
                             </div>
                             <div id="salePrice-error" class="error-message"></div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">Stock Quantity</label>
-                            <input type="number" class="form-input" name="stockQty" placeholder="Enter quantity">
+                            <input type="number" class="form-input" name="stockQty" 
+                                   placeholder="Enter quantity"
+                                   value="<%= product ? product.quantity : '' %>">
                             <div id="stockQty-error" class="error-message"></div>
                         </div>
                     </div>
@@ -757,48 +850,71 @@
                 <!-- Description Section -->
                 <div class="form-section">
                     <h3 class="section-title"><i class="fas fa-file-alt"></i> Description</h3>
-                    <div class="form-group full-width">
-                        <label class="form-label">Product Description</label>
-                        <textarea class="form-textarea" name="description" placeholder="Describe your product in detail..."></textarea>
-                        <div id="description-error" class="error-message"></div>
-                    </div>
-                    <div class="form-group full-width">
-                        <label class="form-label">Short Description</label>
-                        <textarea class="form-textarea" name="shortDescription" placeholder="Brief description for product listings..." style="min-height: 80px;"></textarea>
+                    <div class="form-vertical">
+                        <div class="form-group">
+                            <label class="form-label">Product Description</label>
+                            <textarea class="form-textarea" name="description" 
+                                      placeholder="Describe your product in detail..."><%= product ? product.description : '' %></textarea>
+                            <div id="description-error" class="error-message"></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Short Description</label>
+                            <textarea class="form-textarea" name="shortDescription" 
+                                      placeholder="Brief description for product listings..." 
+                                      style="min-height: 80px;"><%= product ? product.shortDescription : '' %></textarea>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Images Section -->
                 <div class="form-section">
                     <h3 class="section-title"><i class="fas fa-images"></i> Product Images</h3>
-                    <div class="form-group full-width">
-                        <label class="form-label">Product Images</label>
-                        <div class="file-upload" id="fileUploadArea">
-                            <i class="fas fa-cloud-upload-alt"></i>
-                            <div class="file-upload-text">Click to upload images</div>
-                            <div class="file-upload-subtext">PNG, JPG, JPEG up to 5MB each</div>
+                    <div class="form-vertical">
+                        <div class="form-group">
+                            <label class="form-label">Current Images</label>
+                            <div class="image-preview-container" id="currentImagesContainer">
+                                <% if (product && product.productImage && product.productImage.length > 0) { %>
+                                    <% product.productImage.forEach((image, index) => { %>
+                                        <div class="image-preview">
+                                            <img src="<%= image %>" alt="Product image <%= index + 1 %>">
+                                            <div class="image-actions">
+                                                <button type="button" class="image-action-btn remove-btn" 
+                                                        data-image-index="<%= index %>">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    <% }); %>
+                                <% } else { %>
+                                    <p style="color: var(--text-light); font-style: italic;">No images uploaded</p>
+                                <% } %>
+                            </div>
                         </div>
-                        <input type="file" id="imageInput" name="images" accept="image/png,image/jpeg,image/jpg" multiple style="display: none;">
-                        <div class="image-preview-container" id="imagePreviewContainer"></div>
-                        <div id="images-error" class="error-message"></div>
-                    </div>
-                </div>
 
-                <!-- Settings Section -->
-                <div class="form-section">
-                    <h3 class="section-title"><i class="fas fa-cog"></i> Product Settings</h3>
-                    <div class="form-grid">
-                        <!-- Additional settings can be added here -->
+                        <div class="form-group">
+                            <label class="form-label">Add New Images</label>
+                            <div class="file-upload" id="fileUploadArea">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <div class="file-upload-text">Click to upload new images</div>
+                                <div class="file-upload-subtext">PNG, JPG, JPEG up to 5MB each</div>
+                            </div>
+                            <input type="file" id="imageInput" name="newImages" accept="image/png,image/jpeg,image/jpg" multiple style="display: none;">
+                            <div class="image-preview-container" id="newImagesPreviewContainer"></div>
+                            <div id="images-error" class="error-message"></div>
+                        </div>
+
+                        <input type="hidden" name="removedImages" id="removedImages" value="">
                     </div>
                 </div>
 
                 <!-- Form Actions -->
                 <div class="form-actions">
-                    <button type="reset" class="btn btn-secondary">
-                        <i class="fas fa-times"></i> Cancel
-                    </button>
+                    <a href="/admin/allproducts" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Products
+                    </a>
+                   
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-plus-circle"></i> Add Product
+                        <i class="fas fa-save"></i> Update Product
                     </button>
                 </div>
             </form>
@@ -827,6 +943,7 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
     <script>
         // Global variables
         let cropper;
@@ -837,7 +954,7 @@
         // DOM elements
         const fileUploadArea = document.getElementById('fileUploadArea');
         const imageInput = document.getElementById('imageInput');
-        const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+        const newImagesPreviewContainer = document.getElementById('newImagesPreviewContainer');
         const cropperModal = document.getElementById('cropperModal');
         const cropperImage = document.getElementById('cropperImage');
         const cropperPreview = document.getElementById('cropperPreview');
@@ -845,6 +962,7 @@
         const saveCropBtn = document.getElementById('saveCrop');
         const closeCropperBtn = document.getElementById('closeCropper');
         const productForm = document.getElementById('productForm');
+        const loadingOverlay = document.getElementById('loadingOverlay');
 
         // Event listeners
         fileUploadArea.addEventListener('click', () => imageInput.click());
@@ -860,621 +978,6 @@
             }
         });
 
-        // Display success/error messages from query parameters
-        function showMessageFromURL() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const success = urlParams.get('success');
-            const error = urlParams.get('error');
-            
-            if (success) {
-                alert('Success: ' + success);
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
-            
-            if (error) {
-                alert('Error: ' + error);
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
-        }
-
-        // Call this when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            showMessageFromURL();
-        });
-
-        // Form submission handler
-       // Form submission handler with beautiful popup
-productForm.addEventListener('submit', async function(e) {
-    e.preventDefault();
-
-    if (!validateForm()) return;
-
-    const formData = new FormData();
-
-    // Add all text fields
-    formData.append('productName', productForm.productName.value);
-    formData.append('category', productForm.category.value);
-    formData.append('regularPrice', productForm.regularPrice.value);
-    formData.append('salePrice', productForm.salePrice.value);
-    formData.append('stockQty', productForm.stockQty.value);
-    formData.append('description', productForm.description.value);
-    formData.append('shortDescription', productForm.shortDescription.value);
-
-    // Process images
-    for (let i = 0; i < uploadedImages.length; i++) {
-        const imgData = uploadedImages[i];
-        let imageDataUrl;
-        
-        if (imgData.cropped) {
-            imageDataUrl = imgData.cropped;
-        } else {
-            const canvas = await createCanvasFromImage(imgData.original);
-            imageDataUrl = canvas.toDataURL('image/jpeg', 0.9);
-        }
-        
-        const blob = base64ToBlob(imageDataUrl);
-        formData.append('images', blob, `product-image-${i}.jpg`);
-    }
-
-    try {
-        const submitBtn = productForm.querySelector('button[type="submit"]');
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding Product...';
-        submitBtn.disabled = true;
-
-        const response = await fetch('/admin/add-product', {
-            method: 'POST',
-            body: formData
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            // Show beautiful success popup
-            showSuccessPopup('Product Added Successfully!', 'Your product has been added to the catalog.', data.redirectUrl);
-        } else {
-            showErrorPopup('Error!', data.message || 'Failed to add product. Please try again.');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        showErrorPopup('Connection Error', 'Unable to connect to server. Please check your connection and try again.');
-    } finally {
-        const submitBtn = productForm.querySelector('button[type="submit"]');
-        submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Add Product';
-        submitBtn.disabled = false;
-    }
-});
-
-// Beautiful Success Popup Function (SweetAlert2 Style)
-function showSuccessPopup(title, message, redirectUrl = '/admin/products') {
-    // Create popup overlay
-    const popupOverlay = document.createElement('div');
-    popupOverlay.className = 'success-popup-overlay';
-    popupOverlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 10000;
-        animation: popupFadeIn 0.3s ease-out;
-    `;
-
-    // Create popup container
-    const popupContainer = document.createElement('div');
-    popupContainer.className = 'success-popup-container';
-    popupContainer.style.cssText = `
-        background: var(--secondary-white);
-        border-radius: 20px;
-        padding: 2.5rem;
-        max-width: 500px;
-        width: 90%;
-        text-align: center;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        border: 1px solid rgba(161, 136, 127, 0.2);
-        position: relative;
-        overflow: hidden;
-        animation: popupScaleIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    `;
-
-    // Success icon
-    const successIcon = document.createElement('div');
-    successIcon.style.cssText = `
-        font-size: 4rem;
-        color: var(--success);
-        margin-bottom: 1.5rem;
-        animation: iconBounce 0.6s ease-out;
-    `;
-    successIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
-
-    // Title
-    const titleElement = document.createElement('h3');
-    titleElement.style.cssText = `
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: var(--dark-brown);
-        margin-bottom: 1rem;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    `;
-    titleElement.textContent = title;
-
-    // Message
-    const messageElement = document.createElement('p');
-    messageElement.style.cssText = `
-        font-size: 1.1rem;
-        color: var(--text-dark);
-        margin-bottom: 0.5rem;
-        line-height: 1.5;
-    `;
-    messageElement.textContent = message;
-
-    // Additional info
-    const infoElement = document.createElement('p');
-    infoElement.style.cssText = `
-        font-size: 0.9rem;
-        color: var(--text-light);
-        margin-top: 1rem;
-        margin-bottom: 2rem;
-    `;
-    infoElement.textContent = 'You will be redirected to the products page.';
-
-    // Button container
-    const buttonContainer = document.createElement('div');
-    buttonContainer.style.cssText = `
-        display: flex;
-        justify-content: center;
-        gap: 1rem;
-        margin-top: 2rem;
-    `;
-
-    // OK Button
-    const okButton = document.createElement('button');
-    okButton.style.cssText = `
-        background: linear-gradient(135deg, var(--success), #66bb6a);
-        color: white;
-        border: none;
-        padding: 12px 30px;
-        border-radius: 12px;
-        font-weight: 600;
-        font-size: 14px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        min-width: 140px;
-    `;
-    okButton.innerHTML = '<i class="fas fa-check"></i> OK';
-    
-    okButton.addEventListener('mouseenter', function() {
-        this.style.transform = 'translateY(-2px)';
-        this.style.boxShadow = '0 8px 25px rgba(76, 175, 80, 0.4)';
-    });
-    
-    okButton.addEventListener('mouseleave', function() {
-        this.style.transform = 'translateY(0)';
-        this.style.boxShadow = '0 5px 15px rgba(76, 175, 80, 0.3)';
-    });
-
-    okButton.addEventListener('click', function() {
-        this.style.transform = 'scale(0.98)';
-        setTimeout(() => {
-            window.location.href = redirectUrl;
-        }, 150);
-    });
-
-    // Assemble popup
-    popupContainer.appendChild(successIcon);
-    popupContainer.appendChild(titleElement);
-    popupContainer.appendChild(messageElement);
-    popupContainer.appendChild(infoElement);
-    buttonContainer.appendChild(okButton);
-    popupContainer.appendChild(buttonContainer);
-    popupOverlay.appendChild(popupContainer);
-    
-    // Add to document
-    document.body.appendChild(popupOverlay);
-
-    // Add CSS animations
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes popupFadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        @keyframes popupScaleIn {
-            from { 
-                opacity: 0;
-                transform: scale(0.8) translateY(-20px);
-            }
-            to { 
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-        }
-        
-        @keyframes iconBounce {
-            0% { 
-                transform: scale(0);
-                opacity: 0;
-            }
-            60% { 
-                transform: scale(1.2);
-            }
-            100% { 
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-    `;
-    document.head.appendChild(style);
-
-    // Close on overlay click
-    popupOverlay.addEventListener('click', function(e) {
-        if (e.target === popupOverlay) {
-            window.location.href = redirectUrl;
-        }
-    });
-
-    // Close on Escape key
-    const handleEscape = function(e) {
-        if (e.key === 'Escape') {
-            window.location.href = redirectUrl;
-            document.removeEventListener('keydown', handleEscape);
-        }
-    };
-    document.addEventListener('keydown', handleEscape);
-}
-
-// Error Popup Function (SweetAlert2 Style)
-function showErrorPopup(title, message) {
-    // Create popup overlay
-    const popupOverlay = document.createElement('div');
-    popupOverlay.className = 'error-popup-overlay';
-    popupOverlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 10000;
-        animation: popupFadeIn 0.3s ease-out;
-    `;
-
-    // Create popup container
-    const popupContainer = document.createElement('div');
-    popupContainer.className = 'error-popup-container';
-    popupContainer.style.cssText = `
-        background: var(--secondary-white);
-        border-radius: 20px;
-        padding: 2.5rem;
-        max-width: 500px;
-        width: 90%;
-        text-align: center;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        border: 1px solid rgba(161, 136, 127, 0.2);
-        position: relative;
-        overflow: hidden;
-        animation: popupScaleIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    `;
-
-    // Error icon
-    const errorIcon = document.createElement('div');
-    errorIcon.style.cssText = `
-        font-size: 4rem;
-        color: var(--error);
-        margin-bottom: 1.5rem;
-        animation: iconBounce 0.6s ease-out;
-    `;
-    errorIcon.innerHTML = '<i class="fas fa-exclamation-circle"></i>';
-
-    // Title
-    const titleElement = document.createElement('h3');
-    titleElement.style.cssText = `
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: var(--dark-brown);
-        margin-bottom: 1rem;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    `;
-    titleElement.textContent = title;
-
-    // Message
-    const messageElement = document.createElement('p');
-    messageElement.style.cssText = `
-        font-size: 1.1rem;
-        color: var(--text-dark);
-        margin-bottom: 2rem;
-        line-height: 1.5;
-    `;
-    messageElement.textContent = message;
-
-    // Button container
-    const buttonContainer = document.createElement('div');
-    buttonContainer.style.cssText = `
-        display: flex;
-        justify-content: center;
-        gap: 1rem;
-    `;
-
-    // OK Button
-    const okButton = document.createElement('button');
-    okButton.style.cssText = `
-        background: linear-gradient(135deg, var(--error), #e57373);
-        color: white;
-        border: none;
-        padding: 12px 30px;
-        border-radius: 12px;
-        font-weight: 600;
-        font-size: 14px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 5px 15px rgba(244, 67, 54, 0.3);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        min-width: 140px;
-    `;
-    okButton.innerHTML = '<i class="fas fa-redo"></i> Try Again';
-    
-    okButton.addEventListener('mouseenter', function() {
-        this.style.transform = 'translateY(-2px)';
-        this.style.boxShadow = '0 8px 25px rgba(244, 67, 54, 0.4)';
-    });
-    
-    okButton.addEventListener('mouseleave', function() {
-        this.style.transform = 'translateY(0)';
-        this.style.boxShadow = '0 5px 15px rgba(244, 67, 54, 0.3)';
-    });
-
-    okButton.addEventListener('click', function() {
-        this.style.transform = 'scale(0.98)';
-        setTimeout(() => {
-            popupOverlay.remove();
-        }, 150);
-    });
-
-    // Assemble popup
-    popupContainer.appendChild(errorIcon);
-    popupContainer.appendChild(titleElement);
-    popupContainer.appendChild(messageElement);
-    buttonContainer.appendChild(okButton);
-    popupContainer.appendChild(buttonContainer);
-    popupOverlay.appendChild(popupContainer);
-    
-    // Add to document
-    document.body.appendChild(popupOverlay);
-
-    // Close on overlay click
-    popupOverlay.addEventListener('click', function(e) {
-        if (e.target === popupOverlay) {
-            popupOverlay.remove();
-        }
-    });
-
-    // Close on Escape key
-    const handleEscape = function(e) {
-        if (e.key === 'Escape') {
-            popupOverlay.remove();
-            document.removeEventListener('keydown', handleEscape);
-        }
-    };
-    document.addEventListener('keydown', handleEscape);
-}
-
-// Error Popup Function
-function showErrorPopup(title, message) {
-    // Create popup overlay
-    const popupOverlay = document.createElement('div');
-    popupOverlay.className = 'error-popup-overlay';
-    popupOverlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(62, 39, 35, 0.95);
-        backdrop-filter: blur(10px);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 10000;
-        animation: popupFadeIn 0.5s ease-out;
-    `;
-
-    // Create popup container
-    const popupContainer = document.createElement('div');
-    popupContainer.className = 'error-popup-container';
-    popupContainer.style.cssText = `
-        background: linear-gradient(135deg, var(--primary-white) 0%, var(--light-gold) 100%);
-        border-radius: 25px;
-        padding: 3rem;
-        max-width: 500px;
-        width: 90%;
-        text-align: center;
-        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
-        border: 1px solid rgba(161, 136, 127, 0.2);
-        position: relative;
-        overflow: hidden;
-        animation: popupSlideIn 0.6s ease-out;
-    `;
-
-    // Add gradient top border (red for error)
-    const topBorder = document.createElement('div');
-    topBorder.style.cssText = `
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(135deg, var(--error), #e57373);
-        border-radius: 25px 25px 0 0;
-    `;
-
-    // Error icon
-    const errorIcon = document.createElement('div');
-    errorIcon.style.cssText = `
-        width: 80px;
-        height: 80px;
-        background: linear-gradient(135deg, var(--error), #e57373);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 1.5rem;
-        box-shadow: 0 8px 25px rgba(244, 67, 54, 0.3);
-        animation: iconBounce 0.6s ease-out;
-    `;
-    errorIcon.innerHTML = '<i class="fas fa-exclamation" style="color: white; font-size: 2rem;"></i>';
-
-    // Title
-    const titleElement = document.createElement('h2');
-    titleElement.style.cssText = `
-        font-size: 28px;
-        font-weight: 800;
-        color: var(--dark-brown);
-        margin-bottom: 1rem;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    `;
-    titleElement.textContent = title;
-
-    // Message
-    const messageElement = document.createElement('p');
-    messageElement.style.cssText = `
-        color: var(--text-dark);
-        font-size: 16px;
-        line-height: 1.6;
-        margin-bottom: 2rem;
-        opacity: 0.9;
-    `;
-    messageElement.textContent = message;
-
-    // OK Button
-    const okButton = document.createElement('button');
-    okButton.style.cssText = `
-        background: linear-gradient(135deg, var(--error), #e57373);
-        color: white;
-        border: none;
-        padding: 14px 32px;
-        border-radius: 15px;
-        font-weight: 700;
-        font-size: 15px;
-        cursor: pointer;
-        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        box-shadow: 0 8px 25px rgba(244, 67, 54, 0.3);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        margin: 0 auto;
-        position: relative;
-        overflow: hidden;
-    `;
-    okButton.innerHTML = '<i class="fas fa-redo"></i> Try Again';
-    
-    okButton.addEventListener('mouseenter', function() {
-        this.style.transform = 'translateY(-3px) scale(1.05)';
-        this.style.boxShadow = '0 12px 35px rgba(244, 67, 54, 0.4)';
-    });
-    
-    okButton.addEventListener('mouseleave', function() {
-        this.style.transform = 'translateY(0) scale(1)';
-        this.style.boxShadow = '0 8px 25px rgba(244, 67, 54, 0.3)';
-    });
-
-    okButton.addEventListener('click', function() {
-        popupOverlay.remove();
-    });
-
-    // Assemble popup
-    popupContainer.appendChild(topBorder);
-    popupContainer.appendChild(errorIcon);
-    popupContainer.appendChild(titleElement);
-    popupContainer.appendChild(messageElement);
-    popupContainer.appendChild(okButton);
-    popupOverlay.appendChild(popupContainer);
-    
-    // Add to document
-    document.body.appendChild(popupOverlay);
-
-    // Close on overlay click
-    popupOverlay.addEventListener('click', function(e) {
-        if (e.target === popupOverlay) {
-            popupOverlay.remove();
-        }
-    });
-
-    // Close on Escape key
-    const handleEscape = function(e) {
-        if (e.key === 'Escape') {
-            popupOverlay.remove();
-            document.removeEventListener('keydown', handleEscape);
-        }
-    };
-    document.addEventListener('keydown', handleEscape);
-}
-
-        // Helper function to create canvas from image
-        function createCanvasFromImage(imageSrc) {
-            return new Promise((resolve, reject) => {
-                const img = new Image();
-                img.onload = function() {
-                    try {
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        
-                        const maxWidth = 1200;
-                        const maxHeight = 1200;
-                        
-                        let { width, height } = img;
-                        
-                        if (width > maxWidth || height > maxHeight) {
-                            const ratio = Math.min(maxWidth / width, maxHeight / height);
-                            width = Math.floor(width * ratio);
-                            height = Math.floor(height * ratio);
-                        }
-                        
-                        canvas.width = width;
-                        canvas.height = height;
-                        ctx.drawImage(img, 0, 0, width, height);
-                        
-                        resolve(canvas);
-                    } catch (error) {
-                        reject(error);
-                    }
-                };
-                img.onerror = function() {
-                    reject(new Error('Failed to load image'));
-                };
-                img.src = imageSrc;
-            });
-        }
-
-        function base64ToBlob(base64Data) {
-            const parts = base64Data.split(';base64,');
-            const contentType = parts[0].split(':')[1];
-            const raw = window.atob(parts[1]);
-            const uInt8Array = new Uint8Array(raw.length);
-            
-            for (let i = 0; i < raw.length; ++i) {
-                uInt8Array[i] = raw.charCodeAt(i);
-            }
-            
-            return new Blob([uInt8Array], { type: contentType });
-        }
-
         // Handle image upload
         function handleImageUpload(event) {
             const files = event.target.files;
@@ -1485,12 +988,12 @@ function showErrorPopup(title, message) {
                 const file = files[i];
                 
                 if (!file.type.match('image.*')) {
-                    alert('Please select only image files.');
+                    showAlert('Error', 'Please select only image files.', 'error');
                     continue;
                 }
                 
                 if (file.size > 5 * 1024 * 1024) {
-                    alert('File size must be less than 5MB.');
+                    showAlert('Error', 'File size must be less than 5MB.', 'error');
                     continue;
                 }
                
@@ -1501,7 +1004,7 @@ function showErrorPopup(title, message) {
             document.getElementById('images-error').style.display = 'none';
         }
 
-        // Create image preview
+        // Create image preview with crop functionality
         function createImagePreview(file, index) {
             const reader = new FileReader();
             
@@ -1541,11 +1044,12 @@ function showErrorPopup(title, message) {
                 actionsDiv.appendChild(removeBtn);
                 previewDiv.appendChild(img);
                 previewDiv.appendChild(actionsDiv);
-                imagePreviewContainer.appendChild(previewDiv);
+                newImagesPreviewContainer.appendChild(previewDiv);
                 
                 uploadedImages[index] = {
                     original: e.target.result,
-                    cropped: null
+                    cropped: null,
+                    file: file
                 };
             };
             
@@ -1597,14 +1101,35 @@ function showErrorPopup(title, message) {
             });
             
             if (!canvas) {
-                alert('Could not crop image');
+                showAlert('Error', 'Could not crop image', 'error');
                 return;
             }
             
-            const previewImg = document.querySelector(`.image-preview[data-index="${currentImageIndex}"] img`);
-            previewImg.src = canvas.toDataURL('image/jpeg', 0.9);
-            uploadedImages[currentImageIndex].cropped = canvas.toDataURL('image/jpeg', 0.9);
-            closeCropper();
+            // Convert canvas to blob and update the file
+            canvas.toBlob((blob) => {
+                const croppedFile = new File([blob], `cropped-${Date.now()}.jpg`, {
+                    type: 'image/jpeg',
+                    lastModified: Date.now()
+                });
+                
+                // Update the file in imageFiles array
+                imageFiles[currentImageIndex] = croppedFile;
+                
+                // Update the preview image
+                const previewImg = document.querySelector(`#newImagesPreviewContainer .image-preview[data-index="${currentImageIndex}"] img`);
+                previewImg.src = canvas.toDataURL('image/jpeg', 0.9);
+                
+                // Update uploadedImages array
+                uploadedImages[currentImageIndex].cropped = canvas.toDataURL('image/jpeg', 0.9);
+                uploadedImages[currentImageIndex].file = croppedFile;
+                
+                // Update file input
+                updateFileInput();
+                
+                closeCropper();
+                
+                showAlert('Success', 'Image cropped successfully!', 'success');
+            }, 'image/jpeg', 0.9);
         }
 
         // Remove image
@@ -1612,12 +1137,13 @@ function showErrorPopup(title, message) {
             imageFiles.splice(index, 1);
             uploadedImages.splice(index, 1);
             
-            const preview = document.querySelector(`.image-preview[data-index="${index}"]`);
+            const preview = document.querySelector(`#newImagesPreviewContainer .image-preview[data-index="${index}"]`);
             if (preview) {
                 preview.remove();
             }
             
-            const previews = document.querySelectorAll('.image-preview');
+            // Re-index remaining previews
+            const previews = document.querySelectorAll('#newImagesPreviewContainer .image-preview');
             previews.forEach((preview, i) => {
                 preview.dataset.index = i;
                 
@@ -1655,106 +1181,198 @@ function showErrorPopup(title, message) {
             imageInput.files = dataTransfer.files;
         }
 
-        // Form validation
-        function validateForm() {
-            clearErrorMessages();
-            let isValid = true;
-            
-            const name = document.getElementsByName('productName')[0].value.trim();
-            const description = document.getElementsByName('description')[0].value.trim();
-            const price = document.getElementsByName('regularPrice')[0].value;
-            const salePrice = document.getElementsByName('salePrice')[0].value;
-            const stockQty = document.getElementsByName('stockQty')[0].value;
-            
-            if (name === "") {
-                displayErrorMessage('productName-error', 'Please enter a product name.');
-                isValid = false;
-            } else if (name.length < 3) {
-                displayErrorMessage('productName-error', 'Product name must be at least 3 characters.');
-                isValid = false;
-            }
-            
-            if (description === "") {
-                displayErrorMessage('description-error', 'Please enter a product description.');
-                isValid = false;
-            } else if (description.length < 10) {
-                displayErrorMessage('description-error', 'Description must be at least 10 characters.');
-                isValid = false;
-            }
-            
-            const priceNum = parseFloat(price);
-            if (isNaN(priceNum) || priceNum <= 0) {
-                displayErrorMessage('regularPrice-error', 'Please enter a valid price greater than 0.');
-                isValid = false;
-            }
-            
-            if (salePrice.trim() !== "") {
-                const salePriceNum = parseFloat(salePrice);
-                if (isNaN(salePriceNum) || salePriceNum < 0) {
-                    displayErrorMessage('salePrice-error', 'Please enter a valid sale price.');
-                    isValid = false;
-                } else if (priceNum <= salePriceNum) {
-                    displayErrorMessage('regularPrice-error', 'Regular price must be greater than sale price.');
-                    isValid = false;
-                }
-            }
-            
-            const stockNum = parseInt(stockQty);
-            if (isNaN(stockNum) || stockNum < 0) {
-                displayErrorMessage('stockQty-error', 'Please enter a valid stock quantity.');
-                isValid = false;
-            }
-            
-            if (uploadedImages.length === 0) {
-                displayErrorMessage('images-error', 'Please select at least one image.');
-                isValid = false;
-            }
-            
-            return isValid;
-        }
-
-        // Display error message
-        function displayErrorMessage(elementId, message) {
-            const errorElement = document.getElementById(elementId);
-            if (errorElement) {
-                errorElement.innerText = message;
-                errorElement.style.display = "block";
-                const inputField = document.querySelector(`[name="${elementId.replace('-error', '')}"]`);
-                if (inputField) {
-                    inputField.classList.add("shake");
-                    setTimeout(() => inputField.classList.remove("shake"), 400);
-                }
-            }
-        }
-
-        // Clear error messages
-        function clearErrorMessages() {
-            const errorElements = document.getElementsByClassName('error-message');
-            Array.from(errorElements).forEach(element => {
-                element.innerText = '';
-                element.style.display = 'none';
-            });
-        }
-
-        // Add interactive effects
-        document.querySelectorAll('.form-input, .form-select, .form-textarea').forEach(input => {
-            input.addEventListener('focus', function() {
-                this.parentElement.style.transform = 'translateY(-2px)';
-            });
-            
-            input.addEventListener('blur', function() {
-                this.parentElement.style.transform = 'translateY(0)';
-            });
-            
-            input.addEventListener('input', function() {
-                const fieldName = this.getAttribute('name');
-                const errorElement = document.getElementById(`${fieldName}-error`);
-                if (errorElement) {
-                    errorElement.style.display = 'none';
-                    this.classList.remove('shake');
-                }
+        // Remove existing images functionality
+        const removedImages = [];
+        document.querySelectorAll('#currentImagesContainer .remove-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const imageIndex = this.getAttribute('data-image-index');
+                const previewDiv = this.closest('.image-preview');
+                
+                // Add to removed images array
+                removedImages.push(imageIndex);
+                document.getElementById('removedImages').value = JSON.stringify(removedImages);
+                
+                // Remove from UI
+                previewDiv.style.opacity = '0.5';
+                previewDiv.style.transform = 'scale(0.9)';
+                setTimeout(() => {
+                    previewDiv.remove();
+                }, 300);
             });
         });
+
+        // Form submission with premium SweetAlert2
+        document.getElementById('productForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            let isValid = true;
+            
+            // Clear previous errors
+            document.querySelectorAll('.error-message').forEach(error => {
+                error.style.display = 'none';
+            });
+
+            // Basic validation
+            const productName = document.querySelector('input[name="productName"]').value.trim();
+            const regularPrice = document.querySelector('input[name="regularPrice"]').value;
+            const stockQty = document.querySelector('input[name="stockQty"]').value;
+            const description = document.querySelector('textarea[name="description"]').value.trim();
+
+            if (!productName) {
+                document.getElementById('productName-error').textContent = 'Product name is required';
+                document.getElementById('productName-error').style.display = 'block';
+                isValid = false;
+            }
+            
+            if (!regularPrice || parseFloat(regularPrice) <= 0) {
+                document.getElementById('regularPrice-error').textContent = 'Valid regular price is required';
+                document.getElementById('regularPrice-error').style.display = 'block';
+                isValid = false;
+            }
+            
+            if (!stockQty || parseInt(stockQty) < 0) {
+                document.getElementById('stockQty-error').textContent = 'Valid stock quantity is required';
+                document.getElementById('stockQty-error').style.display = 'block';
+                isValid = false;
+            }
+            
+            if (!description) {
+                document.getElementById('description-error').textContent = 'Product description is required';
+                document.getElementById('description-error').style.display = 'block';
+                isValid = false;
+            }
+
+            if (!isValid) {
+                // Add shake animation to invalid fields
+                document.querySelectorAll('.form-input, .form-textarea').forEach(field => {
+                    if (!field.value.trim()) {
+                        field.classList.add('shake');
+                        setTimeout(() => field.classList.remove('shake'), 500);
+                    }
+                });
+                return;
+            }
+
+            // Show loading overlay
+            loadingOverlay.style.display = 'flex';
+
+            // Prepare form data
+            const formData = new FormData(this);
+            
+            // Submit form via AJAX
+            fetch(this.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                loadingOverlay.style.display = 'none';
+                
+                if (data.success) {
+                    showAlert(
+                        'Success!', 
+                        data.message, 
+                        'success',
+                        data.redirectUrl
+                    );
+                } else {
+                    showAlert('Error!', data.message, 'error');
+                }
+            })
+            .catch(error => {
+                loadingOverlay.style.display = 'none';
+                console.error('Error:', error);
+                showAlert('Error!', 'An error occurred while updating the product', 'error');
+            });
+        });
+
+        // Premium SweetAlert2 function
+        function showAlert(title, text, icon, redirectUrl = null) {
+            const swalConfig = {
+                title: title,
+                text: text,
+                icon: icon,
+                confirmButtonText: 'OK',
+                confirmButtonColor: icon === 'success' ? '#5d4037' : '#d32f2f',
+                background: 'linear-gradient(135deg, #fefdf8 0%, #f8f4e6 100%)',
+                color: '#3e2723',
+                customClass: {
+                    popup: 'sweetalert-popup',
+                    title: 'sweetalert-title',
+                    confirmButton: 'sweetalert-confirm-btn'
+                },
+                buttonsStyling: false,
+                showClass: {
+                    popup: `
+                        animate__animated 
+                        animate__zoomIn 
+                        animate__faster
+                    `
+                },
+                hideClass: {
+                    popup: `
+                        animate__animated 
+                        animate__zoomOut 
+                        animate__faster
+                    `
+                }
+            };
+
+            if (icon === 'success') {
+                swalConfig.title = `
+                    <div style="color: #5d4037; font-size: 2rem; margin-bottom: 1rem;">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div style="font-size: 1.5rem; font-weight: 700; color: #5d4037;">${title}</div>
+                `;
+                swalConfig.html = `
+                    <div style="text-align: center;">
+                        <div style="font-size: 1.1rem; color: #795548; margin-bottom: 1.5rem;">${text}</div>
+                        <div style="font-size: 3rem; color: #4caf50; margin: 1rem 0;">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                `;
+            } else {
+                swalConfig.title = `
+                    <div style="color: #d32f2f; font-size: 2rem; margin-bottom: 1rem;">
+                        <i class="fas fa-exclamation-circle"></i>
+                    </div>
+                    <div style="font-size: 1.5rem; font-weight: 700; color: #d32f2f;">${title}</div>
+                `;
+            }
+
+            Swal.fire(swalConfig).then((result) => {
+                if (result.isConfirmed && redirectUrl) {
+                    window.location.href = redirectUrl;
+                }
+            });
+        }
+
+        // Add custom styles for SweetAlert2
+        const style = document.createElement('style');
+        style.textContent = `
+            .sweetalert-popup {
+                border-radius: 20px !important;
+                border: 2px solid #f5f1ee !important;
+                box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3) !important;
+                background: linear-gradient(135deg, #fefdf8 0%, #f8f4e6 100%) !important;
+            }
+            .sweetalert-confirm-btn {
+                padding: 12px 30px !important;
+                border-radius: 12px !important;
+                font-weight: 600 !important;
+                font-size: 1rem !important;
+                transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+                border: none !important;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+            }
+            .sweetalert-confirm-btn:hover {
+                transform: translateY(-2px) !important;
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3) !important;
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 </html>
