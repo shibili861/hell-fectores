@@ -69,7 +69,7 @@ resetPasswordExpire: Date,
     searchHistory:[{
         category:{
             type:Schema.Types.ObjectId,
-            ref:"catecory"
+           ref:"category"
         },
         brand:{
             type:String

@@ -753,6 +753,42 @@
                         </div>
                     </div>
                 </div>
+                <!-- Size Variants Section -->
+<div class="form-section">
+    <h3 class="section-title"><i class="fas fa-ruler-combined"></i> Size Variants</h3>
+    
+    <div class="checkbox-group" style="margin-bottom: 1.5rem;">
+        <label class="checkbox-label">
+            <input type="checkbox" id="enableVariants" class="checkbox-input" name="enableVariants">
+            <span class="custom-checkbox">
+                <i class="fas fa-check"></i>
+            </span>
+            Enable Size Variants
+        </label>
+    </div>
+
+    <div id="sizeVariantsContainer" style="display: none;">
+        <div class="form-group full-width">
+            <div class="variant-info" style="background: var(--light-gold); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                <i class="fas fa-info-circle" style="color: var(--accent-brown);"></i>
+                <span style="color: var(--dark-brown); font-weight: 500;">
+                    All sizes will use the same price defined above. Only quantity varies by size.
+                </span>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <label class="form-label">Size Variants</label>
+                <button type="button" id="addSizeVariant" class="btn" style="background: var(--light-brown); color: var(--dark-brown); padding: 0.5rem 1rem; font-size: 0.9rem;">
+                    <i class="fas fa-plus"></i> Add Size
+                </button>
+            </div>
+            
+            <div id="sizeVariantsList">
+                <!-- Size variants will be added here dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
 
                 <!-- Description Section -->
                 <div class="form-section">
@@ -882,10 +918,25 @@
             showMessageFromURL();
         });
 
-        // Form submission handler
-       // Form submission handler with beautiful popup
+        
+// Update form submission to include variants data
+// Form submission handler - SINGLE VERSION
 productForm.addEventListener('submit', async function(e) {
     e.preventDefault();
+
+    // Debug what's being sent
+    console.log('=== FORM DATA DEBUG ===');
+    console.log('Enable Variants:', document.getElementById('enableVariants').checked);
+    
+    const sizeSelects = document.querySelectorAll('.size-select');
+    const quantityInputs = document.querySelectorAll('.size-quantity');
+    
+    console.log('Number of size inputs:', sizeSelects.length);
+    
+    sizeSelects.forEach((select, index) => {
+        console.log('Size:', select.value, 'Quantity:', quantityInputs[index].value);
+    });
+    console.log('=== END DEBUG ===');
 
     if (!validateForm()) return;
 
@@ -900,7 +951,23 @@ productForm.addEventListener('submit', async function(e) {
     formData.append('description', productForm.description.value);
     formData.append('shortDescription', productForm.shortDescription.value);
 
-    // Process images
+    // SIMPLE FIX: Add size variants data
+    const enableVariants = document.getElementById('enableVariants').checked;
+    formData.append('enableVariants', enableVariants);
+
+    if (enableVariants) {
+        const sizeSelects = document.querySelectorAll('.size-select');
+        const quantityInputs = document.querySelectorAll('.size-quantity');
+        
+        sizeSelects.forEach((select, index) => {
+            if (select.value && quantityInputs[index].value) {
+                formData.append('sizes', select.value);
+                formData.append('quantities', quantityInputs[index].value);
+            }
+        });
+    }
+
+    // Process images (your existing image code)
     for (let i = 0; i < uploadedImages.length; i++) {
         const imgData = uploadedImages[i];
         let imageDataUrl;
@@ -916,6 +983,7 @@ productForm.addEventListener('submit', async function(e) {
         formData.append('images', blob, `product-image-${i}.jpg`);
     }
 
+    // Submit form
     try {
         const submitBtn = productForm.querySelector('button[type="submit"]');
         const originalText = submitBtn.innerHTML;
@@ -930,7 +998,6 @@ productForm.addEventListener('submit', async function(e) {
         const data = await response.json();
         
         if (data.success) {
-            // Show beautiful success popup
             showSuccessPopup('Product Added Successfully!', 'Your product has been added to the catalog.', data.redirectUrl);
         } else {
             showErrorPopup('Error!', data.message || 'Failed to add product. Please try again.');
@@ -944,7 +1011,6 @@ productForm.addEventListener('submit', async function(e) {
         submitBtn.disabled = false;
     }
 });
-
 // Beautiful Success Popup Function (SweetAlert2 Style)
 function showSuccessPopup(title, message, redirectUrl = '/admin/products') {
     // Create popup overlay
@@ -1755,6 +1821,144 @@ function showErrorPopup(title, message) {
                 }
             });
         });
+        // Size Variants Management
+const enableVariantsCheckbox = document.getElementById('enableVariants');
+const sizeVariantsContainer = document.getElementById('sizeVariantsContainer');
+const sizeVariantsList = document.getElementById('sizeVariantsList');
+const addSizeVariantBtn = document.getElementById('addSizeVariant');
+
+const availableSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
+let usedSizes = new Set();
+
+// Toggle variants section
+enableVariantsCheckbox.addEventListener('change', function() {
+    sizeVariantsContainer.style.display = this.checked ? 'block' : 'none';
+    if (!this.checked) {
+        sizeVariantsList.innerHTML = '';
+        usedSizes.clear();
+        // Reset stock quantity to manual input
+        document.getElementsByName('stockQty')[0].value = '';
+        document.getElementsByName('stockQty')[0].readOnly = false;
+    } else {
+        // Make stock quantity read-only when variants are enabled
+        document.getElementsByName('stockQty')[0].readOnly = true;
+        document.getElementsByName('stockQty')[0].value = '0';
+    }
+});
+
+// Add size variant
+addSizeVariantBtn.addEventListener('click', function() {
+    addSizeVariant();
+});
+
+function addSizeVariant(selectedSize = '', quantity = '') {
+    const availableSizesOptions = availableSizes.filter(size => !usedSizes.has(size));
+    
+    if (availableSizesOptions.length === 0) {
+        alert('All available sizes have been added.');
+        return;
+    }
+
+    const variantId = Date.now();
+    const variantDiv = document.createElement('div');
+    variantDiv.className = 'size-variant-item';
+    variantDiv.style.cssText = `
+        display: grid;
+        grid-template-columns: 1fr 1fr auto;
+        gap: 1rem;
+        align-items: end;
+        padding: 1rem;
+        background: var(--light-gold);
+        border-radius: 12px;
+        margin-bottom: 1rem;
+        border: 1px solid var(--light-brown);
+    `;
+
+    variantDiv.innerHTML = `
+        <div class="form-group">
+            <label class="form-label">Size</label>
+            <select class="form-select size-select" name="sizes" required>
+                <option value="">Select Size</option>
+                ${availableSizesOptions.map(size => 
+                    `<option value="${size}" ${selectedSize === size ? 'selected' : ''}>${size}</option>`
+                ).join('')}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Quantity</label>
+            <input type="number" class="form-input size-quantity" name="quantities" value="${quantity}" placeholder="0" min="0" required>
+        </div>
+        
+        <div class="form-group">
+            <button type="button" class="btn remove-size" style="background: var(--error); color: white; padding: 0.75rem;">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+
+    sizeVariantsList.appendChild(variantDiv);
+
+    const sizeSelect = variantDiv.querySelector('.size-select');
+    const removeBtn = variantDiv.querySelector('.remove-size');
+    const quantityInput = variantDiv.querySelector('.size-quantity');
+
+    if (selectedSize) {
+        usedSizes.add(selectedSize);
+    }
+
+    sizeSelect.addEventListener('change', function() {
+        if (this.value) {
+            usedSizes.add(this.value);
+        }
+    });
+
+    removeBtn.addEventListener('click', function() {
+        const selectedSizeValue = sizeSelect.value;
+        if (selectedSizeValue) {
+            usedSizes.delete(selectedSizeValue);
+        }
+        variantDiv.remove();
+        updateStockQuantity();
+    });
+
+    // Update stock quantity when variant quantities change
+    quantityInput.addEventListener('input', updateStockQuantity);
+    updateStockQuantity();
+}
+
+function updateStockQuantity() {
+    if (!enableVariantsCheckbox.checked) return;
+
+    const quantityInputs = document.querySelectorAll('.size-quantity');
+    let totalQuantity = 0;
+    
+    quantityInputs.forEach(input => {
+        totalQuantity += parseInt(input.value) || 0;
+    });
+
+    document.getElementsByName('stockQty')[0].value = totalQuantity;
+}
+
+// Update form submission to handle variants
+const originalFormSubmit = productForm.onsubmit;
+productForm.onsubmit = function(e) {
+    if (enableVariantsCheckbox.checked) {
+        const sizeSelects = document.querySelectorAll('.size-select');
+        const quantityInputs = document.querySelectorAll('.size-quantity');
+
+        // Validate variants
+        for (let i = 0; i < sizeSelects.length; i++) {
+            if (!sizeSelects[i].value || !quantityInputs[i].value) {
+                e.preventDefault();
+                alert('Please fill all fields for size variants.');
+                return false;
+            }
+        }
+    }
+    
+    return originalFormSubmit ? originalFormSubmit.call(this, e) : true;
+};
     </script>
 </body>
 </html>

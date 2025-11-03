@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>My Addresses</title>
+  <style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;600&family=Montserrat:wght@400;700&display=swap');
+
+:root {
+  --gold: #d4af37;
+  --light-gold: #f4e4c1;
+  --brown: #8B7355;
+  --light-brown: #C4A57B;
+  --cream: #F5E6D3;
+  --white: #ffffff;
+  --dark: #0a0a0a;
+  --dark-gray: #1a1a1a;
+  --medium-gray: #cacaca;
+}
+
+body {
+  font-family: 'Montserrat', sans-serif;
+  background: var(--white);
+  color: var(--dark-gray);
+  padding: 0;
+  margin: 0;
+  min-height: 100vh;
+}
+
+h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 58px;
+  color: var(--gold);
+  text-align: center;
+  margin: 48px 0 35px 0;
+  letter-spacing: 6px;
+  font-weight: 300;
+  text-shadow: 0 1px 18px rgba(212,175,55,0.09);
+}
+
+.address-header {
+  width: 100%;
+  margin-bottom: 38px;
+}
+.address-subtitle {
+  color: var(--brown);
+  font-size: 22px;
+  text-align: center;
+  font-weight: 400;
+  margin-bottom: 22px;
+  letter-spacing: 2px;
+}
+
+.section-heading {
+  font-family: 'Cormorant Garamond', serif;
+  color: var(--gold);
+  text-align: left;
+  font-size: 2rem;
+  letter-spacing: 2px;
+  margin: 20px 0 40px 0;
+  font-weight: 600;
+}
+
+.premium-address-list {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 38px;
+  margin: 0 auto;
+  width: 100%;
+  align-items: stretch;
+  justify-content: flex-start;
+}
+
+.address-card {
+  background: linear-gradient(135deg, var(--white), var(--cream));
+  border-radius: 22px;
+  box-shadow: 0 8px 32px rgba(212,175,55,0.10), 0 2px 8px 0 var(--medium-gray);
+  border-left: 7px solid var(--gold);
+  border-top: 2.5px solid var(--light-brown);
+  padding: 41px 32px 28px 32px;
+  min-width: 310px;
+  max-width: 390px;
+  flex: 1 1 340px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: box-shadow .33s, border-color .33s;
+  position: relative;
+  font-size: 1.3rem;
+  line-height: 1.8;
+  font-weight: 400;
+}
+
+.address-card:hover {
+  box-shadow: 0 14px 58px rgba(212,175,55,0.18);
+  border-left: 7px solid var(--gold);
+  z-index: 2;
+  border-top: 2.5px solid var(--gold);
+  background: linear-gradient(135deg, var(--light-gold), var(--white) 70%);
+}
+
+.address-card b {
+  color: var(--brown);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.37em;
+  font-weight: 700;
+  margin-bottom: 11px;
+  letter-spacing: 1px;
+  display: block;
+}
+
+.address-line {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 1.1em;
+  font-weight: 500;
+  letter-spacing: 0.4px;
+  color: var(--dark-gray);
+  word-break: break-all;
+}
+
+.address-card .actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.address-card .actions button {
+  margin: 0;
+}
+
+button {
+  padding: 13px 26px;
+  border: none;
+  border-radius: 10px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: 1.2px;
+  cursor: pointer;
+  transition: background .22s, color .22s, box-shadow .22s;
+  box-shadow: 0 2px 12px rgba(212,175,55,0.13);
+}
+
+button.add {
+  background: linear-gradient(135deg, var(--gold) 80%, var(--light-gold));
+  color: var(--white);
+  border: 2px solid var(--gold);
+  font-size: 20px;
+}
+button.add:hover {
+  background: linear-gradient(135deg, var(--gold), var(--cream));
+  color: var(--dark);
+  transform: translateY(-2px) scale(1.06);
+  box-shadow: 0 14px 38px rgba(212,175,55,0.15);
+}
+
+button.edit {
+  background: linear-gradient(135deg, var(--brown) 70%, var(--gold));
+  color: var(--white);
+  border: 2px solid var(--light-brown);
+  font-size: 18px;
+}
+button.edit:hover {
+  background: linear-gradient(135deg, var(--gold), var(--brown) 80%);
+  color: var(--dark);
+  box-shadow: 0 8px 24px rgba(212,175,55,0.12);
+}
+
+button.delete {
+  background: linear-gradient(135deg, #e74c3c 60%, var(--gold));
+  color: var(--white);
+  border: 2px solid #e74c3c;
+  font-size: 18px;
+}
+button.delete:hover {
+  background: linear-gradient(135deg, #c0392b, var(--gold) 90%);
+  color: var(--dark);
+  transform: scale(1.08);
+  box-shadow: 0 12px 30px rgba(212,175,55,0.12);
+}
+
+.cancel-btn {
+  background: linear-gradient(135deg, var(--medium-gray), var(--brown));
+  color: var(--dark-gray);
+  border: 2px solid var(--light-brown);
+  font-weight: 600;
+}
+.cancel-btn:hover {
+  background: linear-gradient(135deg, var(--light-gold), var(--white));
+  color: var(--gold);
+}
+
+.btn-icon {
+  margin-right: 8px;
+  font-size: 1.22em;
+  vertical-align: middle;
+}
+
+.add-address-card {
+  width: 100%;
+  max-width: 650px;
+  margin-bottom: 38px;
+  background: linear-gradient(135deg, var(--cream), var(--white) 70%);
+  border: 2.5px solid var(--gold);
+  box-shadow: 0 6px 30px rgba(212,175,55,0.07), 0 6px 15px rgb(160,130,80,0.12);
+  padding: 42px 26px 34px 32px;
+}
+
+.premium-heading {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 36px;
+  color: var(--gold);
+  margin-bottom: 26px;
+  text-align: center;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-shadow: 0 1px 18px rgba(212,175,55,0.09);
+}
+
+form input, form select {
+  font-family: 'Montserrat', sans-serif;
+  width: 100%;
+  padding: 16px 18px;
+  margin: 14px 0;
+  border: 1.5px solid var(--light-brown);
+  border-radius: 13px;
+  background: rgba(245,230,211,0.21);
+  color: var(--brown);
+  outline: none;
+  font-size: 19px;
+  transition: border-color 0.20s, background 0.22s;
+  box-shadow: 0 2px 12px rgba(180,135,46,0.05);
+}
+form input:focus, form select:focus {
+  border-color: var(--gold);
+  background: var(--cream);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 24px;
+}
+
+#addModal,
+#editModal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(180,160,80,0.06);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+#addModal[style*="flex"], #editModal[style*="flex"] {
+  display: flex !important;
+}
+#addModal .modal-content, #editModal .modal-content {
+  background: var(--white);
+  border: 2.5px solid var(--gold);
+  border-radius: 18px;
+  box-shadow: 0 8px 45px rgba(139, 115, 85, 0.15);
+  width: 460px;
+  max-width: 98vw;
+  padding: 39px 34px 26px 38px;
+  position: relative;
+}
+
+#addModal h3, #editModal h3 {
+  font-family: 'Cormorant Garamond', serif;
+  color: var(--gold);
+  letter-spacing: 2.5px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 18px;
+  font-size: 1.39em;
+}
+
+.address-main {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 36px 8px 60px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.add-address-card, .address-list-section {
+  width: 100%;
+}
+
+::-webkit-scrollbar {
+  width: 7px;
+  background: var(--cream);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--gold);
+  border-radius: 5px;
+}
+
+.address-card:focus-within {
+  box-shadow: 0 0 0 4px var(--gold), 0 8px 32px rgba(212,175,55,0.22);
+  z-index: 3;
+}
+.error-message {
+  color: #d32f2f;
+  background: none;
+  font-size: 0.86em;         /* Smaller than 1em */
+  font-family: 'Montserrat', sans-serif;
+  border-radius: 4px;
+  padding: 3px 0 0 2px;     /* Minimal padding, no box */
+  margin: 0 0 4px 0;        /* Tight spacing */
+  display: none;
+  line-height: 1.3;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+}
+input.error, select.error {
+  border-color: #d32f2f;
+  background: #fff8f5;
+}
+
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .premium-address-list {
+    justify-content: center;
+    gap: 19px;
+  }
+}
+@media (max-width: 900px) {
+  .premium-address-list {
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+  }
+  .address-card {
+    min-width: 92vw;
+    max-width: 99vw;
+  }
+}
+@media (max-width: 700px) {
+  .address-main {
+    padding: 12px 2vw 50px 2vw;
+  }
+  .premium-heading { font-size: 26px; }
+  #addModal .modal-content, #editModal .modal-content {
+    padding: 17px 5vw 20px 5vw;
+    width: 98vw;
+  }
+}
+
+
+  </style>
+</head>
+<body>
+  <main class="address-main">
+    <header class="address-header">
+      <h1>My Addresses</h1>
+      <p class="address-subtitle">Effortlessly manage your delivery addresses in style.</p>
+      <button class="add" id="openAddModal"><span class="btn-icon">➕</span> Add Address</button>
+    </header>
+
+    <!-- Addresses displayed here -->
+    <section class="address-list-section">
+      <h4 class="section-heading">Saved Addresses</h4>
+      <div id="addressList" class="premium-address-list"></div>
+    </section>
+  </main>
+<div id="addModal" style="display:none;" role="dialog" aria-modal="true">
+  <div class="modal-content">
+    <h3>Add New Address</h3>
+    <form id="addForm" autocomplete="off">
+      <select name="addressType" >
+        <option value="">Type</option>
+        <option value="Home">🏡 Home</option>
+        <option value="Work">🏢 Work</option>
+      </select>
+      <input name="name" placeholder="Full name" />
+      <div class="error-message"></div>
+      <input name="city" placeholder="City"  />
+      <div class="error-message"></div>
+      <input name="landMark" placeholder="Landmark" />
+      <div class="error-message"></div>
+      <input name="state" placeholder="State"  />
+      <div class="error-message"></div>
+      <input name="pincode" placeholder="Pincode" type="number"  />
+      <div class="error-message"></div>
+      <input name="phone" placeholder="Phone"  />
+      <div class="error-message"></div>
+      <input name="altphone" placeholder="Alternate phone" />
+      <div class="error-message"></div>
+      <div class="modal-actions">
+        <button class="add" type="submit"><span class="btn-icon">➕</span> Add Address</button>
+        <button class="cancel-btn" type="button" onclick="closeAddModal()"><span class="btn-icon">❌</span> Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+  <!-- Modal content here -->
+
+      
+  <div id="editModal">
+    <div class="modal-content">
+      <h3>Edit Address</h3>
+      <form id="editForm">
+        <input type="hidden" id="editId" name="id" />
+        <select id="editType" name="addressType" required>
+          <option value="Home">🏡 Home</option>
+          <option value="Work">🏢 Work</option>
+        </select>
+        <input id="editName" name="name" placeholder="Full name" />
+        <div class="error-message"></div>
+        <input id="editCity" name="city" placeholder="City" />
+        <div class="error-message"></div>
+        <input id="editLandmark" name="landMark" placeholder="Landmark" />
+        <div class="error-message"></div>
+        <input id="editState" name="state" placeholder="State"  />
+        <div class="error-message"></div>
+        <input id="editPincode" name="pincode" placeholder="Pincode" type="number"  />
+        <div class="error-message"></div>
+        <input id="editPhone" name="phone" placeholder="Phone"  />
+         <div class="error-message"></div>
+        
+        <input id="editAltphone" name="altphone" placeholder="Alternate phone" />
+         <div class="error-message"></div>
+        <div class="modal-actions">
+          <button class="edit" type="submit"><span class="btn-icon">💾</span> Save</button>
+          <button class="cancel-btn" type="button" onclick="closeModal()"><span class="btn-icon">❌</span> Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+
+  
+</body>
+
+
+
+
+
+  <script>
+ function validateAddressForm(form) {
+  // Remove all previous error highlights/messages
+  Array.from(form.elements).forEach(field => {
+    if (field.type !== 'submit' && field.type !== 'button') {
+      field.classList.remove('error');
+      if (field.nextElementSibling && field.nextElementSibling.classList.contains('error-message')) {
+        field.nextElementSibling.textContent = '';
+        field.nextElementSibling.style.display = 'none';
+      }
+    }
+  });
+
+  let valid = true;
+
+  // Field references
+  const addressType = form.elements["addressType"];
+  const name = form.elements["name"];
+  const city = form.elements["city"];
+  const landMark = form.elements["landMark"];
+  const state = form.elements["state"];
+  const pincode = form.elements["pincode"];
+  const phone = form.elements["phone"];
+  const altphone = form.elements["altphone"];
+
+  // ✅ FIXED: Better regex patterns
+  const namePattern = /^[A-Za-z\s.'-]{2,50}$/; // Allows apostrophes, hyphens, 2-50 chars
+  const pincodePattern = /^\d{6}$/;
+  const phonePattern = /^[6-9]\d{9}$/;
+  const textPattern = /^[A-Za-z0-9\s.,'-]{2,100}$/; // General text validation
+
+  // ✅ Validate addressType
+  if (!addressType.value || addressType.value === "") {
+    valid = false;
+    showError(addressType, "Please select an address type.");
+  }
+
+  // ✅ Validate name
+  if (!name.value.trim()) {
+    valid = false;
+    showError(name, "Name is required.");
+  } else if (!namePattern.test(name.value.trim())) {
+    valid = false;
+    showError(name, "Enter a valid name (2-50 letters, spaces, hyphens, apostrophes only).");
+  }
+
+  // ✅ Validate city
+  if (!city.value.trim()) {
+    valid = false;
+    showError(city, "City is required.");
+  } else if (!textPattern.test(city.value.trim())) {
+    valid = false;
+    showError(city, "Enter a valid city name.");
+  }
+
+  // ✅ Validate landmark (FIXED: was missing)
+  if (!landMark.value.trim()) {
+    valid = false;
+    showError(landMark, "Landmark is required.");
+  } else if (!textPattern.test(landMark.value.trim())) {
+    valid = false;
+    showError(landMark, "Enter a valid landmark.");
+  }
+
+  // ✅ Validate state
+  if (!state.value.trim()) {
+    valid = false;
+    showError(state, "State is required.");
+  } else if (!textPattern.test(state.value.trim())) {
+    valid = false;
+    showError(state, "Enter a valid state name.");
+  }
+
+  // ✅ Validate pincode
+  if (!pincode.value.trim()) {
+    valid = false;
+    showError(pincode, "Pincode is required.");
+  } else if (!pincodePattern.test(pincode.value.trim())) {
+    valid = false;
+    showError(pincode, "Enter a valid 6-digit pincode.");
+  }
+
+  // ✅ Validate phone
+  if (!phone.value.trim()) {
+    valid = false;
+    showError(phone, "Phone number is required.");
+  } else if (!phonePattern.test(phone.value.trim())) {
+    valid = false;
+    showError(phone, "Enter a valid 10-digit phone number starting with 6-9.");
+  }
+
+  // ✅ Validate altphone (FIXED: better handling)
+  if (altphone.value.trim() && !phonePattern.test(altphone.value.trim())) {
+    valid = false;
+    showError(altphone, "Alternate phone must be a valid 10-digit number starting with 6-9.");
+  }
+
+  return valid;
+}
+
+// ✅ Helper function to show errors
+function showError(field, message) {
+  field.classList.add('error');
+  if (field.nextElementSibling && field.nextElementSibling.classList.contains('error-message')) {
+    field.nextElementSibling.textContent = message;
+    field.nextElementSibling.style.display = 'block';
+  } else {
+    // Create error message element if it doesn't exist
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+    field.parentNode.insertBefore(errorDiv, field.nextSibling);
+  }
+}
+// Add real-time validation as user types
+document.querySelectorAll('#addForm input, #addForm select').forEach(field => {
+  field.addEventListener('blur', function() {
+    validateSingleField(this);
+  });
+});
+
+function validateSingleField(field) {
+  const form = field.form;
+  const value = field.value.trim();
+  
+  // Remove existing error
+  field.classList.remove('error');
+  if (field.nextElementSibling && field.nextElementSibling.classList.contains('error-message')) {
+    field.nextElementSibling.style.display = 'none';
+  }
+  
+  // Define patterns
+  const namePattern = /^[A-Za-z\s.'-]{2,50}$/;
+  const pincodePattern = /^\d{6}$/;
+  const phonePattern = /^[6-9]\d{9}$/;
+  const textPattern = /^[A-Za-z0-9\s.,'-]{2,100}$/;
+  
+  let isValid = true;
+  let message = '';
+  
+  switch(field.name) {
+    case 'addressType':
+      isValid = value !== '';
+      message = 'Please select an address type.';
+      break;
+      
+    case 'name':
+      isValid = value && namePattern.test(value);
+      message = 'Enter a valid name (2-50 letters, spaces, hyphens, apostrophes only).';
+      break;
+      
+    case 'city':
+      isValid = value && textPattern.test(value);
+      message = 'Enter a valid city name.';
+      break;
+      
+    case 'landMark':
+      isValid = value && textPattern.test(value);
+      message = 'Enter a valid landmark.';
+      break;
+      
+    case 'state':
+      isValid = value && textPattern.test(value);
+      message = 'Enter a valid state name.';
+      break;
+      
+    case 'pincode':
+      isValid = pincodePattern.test(value);
+      message = 'Enter a valid 6-digit pincode.';
+      break;
+      
+    case 'phone':
+      isValid = phonePattern.test(value);
+      message = 'Enter a valid 10-digit phone number starting with 6-9.';
+      break;
+      
+    case 'altphone':
+      isValid = !value || phonePattern.test(value);
+      message = 'Alternate phone must be a valid 10-digit number starting with 6-9.';
+      break;
+  }
+  
+  if (!isValid && value !== '') {
+    showError(field, message);
+  }
+  
+  return isValid;
+}
+
+
+  // 🟢 Modify Add Form submission
+  document.getElementById('addForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    if (!validateAddressForm(e.target)) return; // stop if invalid
+
+    const formData = Object.fromEntries(new FormData(e.target));
+    const res = await fetch('/add-address', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData)
+    });
+    const data = await res.json();
+    if (data.success) {
+      e.target.reset();
+      closeAddModal();
+      loadAddresses();
+    } else {
+      alert(data.message || 'Failed to add address');
+    }
+  });
+
+  // 🟢 Modify Edit Form submission
+  document.getElementById('editForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    if (!validateAddressForm(e.target)) return; // stop if invalid
+
+    const id = document.getElementById('editId').value;
+    const formData = Object.fromEntries(new FormData(e.target));
+    const res = await fetch(`/edit-address/${id}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData)
+    });
+    const result = await res.json();
+    if (result.success) {
+      closeModal();
+      loadAddresses();
+    } else {
+      alert(result.message || 'Failed to edit');
+    }
+  });
+    async function loadAddresses() {
+      const res = await fetch('/get-addresses');
+      const data = await res.json();
+      const list = document.getElementById('addressList');
+      list.innerHTML = '';
+
+      if (!data.addresses || data.addresses.length === 0) {
+        list.innerHTML = '<p>No saved addresses yet.</p>';
+        return;
+      }
+
+      data.addresses.forEach(addr => {
+        const div = document.createElement('div');
+        div.className = 'address-card';
+        div.innerHTML = `
+          <b>${addr.addressType}</b><br/>
+          ${addr.name}<br/>
+          ${addr.city}, ${addr.state}, ${addr.pincode}<br/>
+          ${addr.landMark ? addr.landMark + '<br/>' : ''}
+          Phone: ${addr.phone}
+          ${addr.altphone ? '<br/>Alt: ' + addr.altphone : ''}
+          <div class="actions">
+            <button class="edit" onclick='openEdit(${JSON.stringify(addr)})'>Edit</button>
+            <button class="delete" onclick="deleteAddress('${addr._id}')">Delete</button>
+          </div>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+   
+
+    // Delete address
+    async function deleteAddress(id) {
+      if (!confirm('Delete this address?')) return;
+      const res = await fetch(`/delete-address/${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) loadAddresses();
+    }
+
+    // Edit modal
+    function openEdit(addr) {
+      document.getElementById('editId').value = addr._id;
+      document.getElementById('editType').value = addr.addressType;
+      document.getElementById('editName').value = addr.name;
+      document.getElementById('editCity').value = addr.city;
+      document.getElementById('editLandmark').value = addr.landMark || '';
+      document.getElementById('editState').value = addr.state;
+      document.getElementById('editPincode').value = addr.pincode;
+      document.getElementById('editPhone').value = addr.phone;
+      document.getElementById('editAltphone').value = addr.altphone || '';
+      document.getElementById('editModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('editModal').style.display = 'none';
+    }
+
+    // Save edited address
+    document.getElementById('editForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const id = document.getElementById('editId').value;
+      const data = Object.fromEntries(new FormData(e.target));
+      const res = await fetch(`/edit-address/${id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const result = await res.json();
+      if (result.success) {
+        closeModal();
+        loadAddresses();
+      } else {
+        alert(result.message || 'Failed to edit');
+      }
+    });
+
+    loadAddresses();
+    // Modal handlers for Add Address
+document.getElementById('openAddModal').onclick = function() {
+  document.getElementById('addModal').style.display = 'flex';
+};
+function closeAddModal() {
+  document.getElementById('addModal').style.display = 'none';
+}
+// When submitting, close modal only on success (your logic already does this)
+document.getElementById('addForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const formData = Object.fromEntries(new FormData(e.target));
+  const res = await fetch('/add-address', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(formData)
+  });
+  const data = await res.json();
+  if (data.success) {
+    e.target.reset();
+    closeAddModal();
+    loadAddresses();
+  } else {
+    alert(data.message || 'Failed to add address');
+  }
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === "Escape") {
+    // Try closing both modals safely
+    closeAddModal();
+    closeModal();
+  }
+});
+
+  </script>
+
+</html>

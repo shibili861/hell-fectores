@@ -1,5 +1,4 @@
 const User = require("../models/userSchema");
-
 const userAuth = (req, res, next) => {
   if (req.session.userId) {
     User.findById(req.session.userId)
@@ -7,7 +6,13 @@ const userAuth = (req, res, next) => {
         if (user && !user.isBlocked) {
           next();
         } else {
-          res.redirect("/login");
+          // If user is blocked, destroy their session and redirect to login
+          req.session.destroy((err) => {
+            if (err) {
+              console.log("Session destroy error:", err);
+            }
+            res.redirect("/login?message=User is blocked by admin");
+          });
         }
       })
       .catch((error) => {
@@ -18,7 +23,6 @@ const userAuth = (req, res, next) => {
     res.redirect("/login");
   }
 };
-
 const adminAuth = (req, res, next) => {
   if (!req.session.adminId) {
     return res.redirect("/admin/login");
@@ -38,7 +42,20 @@ const adminAuth = (req, res, next) => {
     });
 };
 
+const checkUserStatus = async (req, res, next) => {
+  if (req.session.userId) {
+    const user = await User.findById(req.session.userId);
+    if (user && user.isBlocked) {
+      // Log out blocked user
+      req.session.destroy();
+      res.redirect("/login?message=User is blocked by admin");
+      return;
+    }
+  }
+  next();
+};
 module.exports = {
   userAuth,
   adminAuth,
+   checkUserStatus
 };

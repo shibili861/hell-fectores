@@ -28,12 +28,12 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-//  Sync Passport user into session + make available in EJS
 app.use(async (req, res, next) => {
  if (req.isAuthenticated() && !req.session.userId) {
   req.session.userId = req.user._id;
 }
-if (req.session.userId) {
+// Add this check for null/undefined explicitly
+if (req.session.userId && req.session.userId !== null) {
   try {
     const user = await User.findById(req.session.userId);
     res.locals.user = user;
@@ -43,10 +43,22 @@ if (req.session.userId) {
 } else {
   res.locals.user = null;
 }
-
-
   next();
 });
+
+
+
+
+
+
+
+app.use((req, res, next) => {
+  res.set("Cache-Control", "no-cache, no-store, must-revalidate");
+  res.set("Pragma", "no-cache");
+  res.set("Expires", "0");
+  next();
+});
+
 
 app.set('views', path.join(__dirname, 'views'));
 app.set("view engine", "ejs")

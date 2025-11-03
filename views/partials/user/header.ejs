@@ -1,6 +1,4 @@
-
 <!-- Navigation -->
-<!-- Styles -->
 <style>
   :root {
     --gold: #d4af37;
@@ -116,26 +114,6 @@
     box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
   }
 
-  .signup-btn {
-    background: linear-gradient(135deg, var(--gold), var(--light-gold));
-    color: #000;
-    font-size: 12px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 25px;
-    cursor: pointer;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    margin-left: 10px;
-  }
-
-  .signup-btn:hover {
-    background: var(--light-gold);
-    transform: scale(1.05);
-  }
-
   .dropdown {
     position: relative;
     display: inline-block;
@@ -180,12 +158,10 @@
   }
 
   @media (max-width: 768px) {
-    nav { padding: 20px 30px; }
+    nav { padding: 20px 30px; flex-direction: column; gap: 10px; }
   }
 </style>
 
-
-<!-- Navigation -->
 <nav id="navbar">
   <div class="logo">LUXSHORE</div>
 
@@ -200,22 +176,28 @@
     <button class="icon-btn" title="Search">🔍</button>
     <button class="icon-btn" title="Wishlist">♡</button>
 
-    <% if (locals.user) { %>
-      <!-- Logged-in user dropdown -->
+    <a href="/cart" class="icon-btn relative" title="Cart">
+      🛒
+      <span id="cartCount" 
+        class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] px-[6px] py-[2px] rounded-full font-semibold shadow-lg">
+        0
+      </span>
+    </a>
+
+    <% if (locals.user && locals.user._id) { %>
       <div class="dropdown">
         <button class="icon-btn" title="Account">👤</button>
         <div class="dropdown-content">
           <span class="dropdown-user">Hi, <%= locals.user.name %></span>
           <a href="/userprofile">Profile</a>
-          <a href="/logout">Logout</a>
+          <a href="/Logout">Logout</a>
         </div>
       </div>
     <% } else { %>
-      <!-- Not logged in -->
       <a href="/login" class="icon-btn" title="Login">👤</a>
-     
     <% } %>
-
-    <button class="icon-btn" title="Cart">🛒</button>
   </div>
 </nav>
+
+<script src="/user/js/cart-client.js" defer></script>
+

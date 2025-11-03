@@ -523,6 +523,17 @@
             color: var(--light-brown);
             min-width: 120px;
         }
+        .size-option.out-of-stock {
+    opacity: 0.5;
+    background: rgba(255, 255, 255, 0.1);
+    cursor: not-allowed;
+}
+
+.size-option.out-of-stock:hover {
+    transform: none;
+    border-color: rgba(196, 165, 123, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+}
 
         @media (max-width: 1200px) {
             .product-wrapper {
@@ -597,7 +608,7 @@
                 <!-- ... rest of your product info HTML remains exactly the same ... -->
                 
                 <h1 class="product-title"><%= product.productName %></h1>
-                
+ 
                 <div class="rating-section">
                     <div class="stars">
                         <% 
@@ -645,19 +656,27 @@
                     </div>
                 </div>
 
-                <!-- Size Selection -->
-                <% if (product.sizes && product.sizes.length > 0) { %>
-                    <div class="size-section">
-                        <p class="section-label">Select Size</p>
-                        <div class="size-grid">
-                            <% for (let i = 0; i < product.sizes.length; i++) { %>
-                                <button class="size-option <%= i === 0 ? 'active' : '' %>" data-size="<%= product.sizes[i] %>">
-                                    <%= product.sizes[i] %>
-                                </button>
-                            <% } %>
-                        </div>
-                    </div>
-                <% } %>
+               <!-- Size Selection -->
+    <!-- Size Selection - SIMPLE FIX -->
+<div class="size-section">
+    <p class="section-label">Select Size</p>
+    <div class="size-grid">
+        <% if (product.sizeVariants && product.sizeVariants.length > 0) { %>
+            <!-- Show size variants -->
+            <% product.sizeVariants.forEach((variant, index) => { %>
+                <button class="size-option" data-size="<%= variant.size %>">
+                    <%= variant.size %>
+                </button>
+            <% }); %>
+        <% } else { %>
+            <!-- Show regular sizes if no variants -->
+            <button class="size-option active" data-size="S">S</button>
+            <button class="size-option" data-size="M">M</button>
+            <button class="size-option" data-size="L">L</button>
+            <button class="size-option" data-size="XL">XL</button>
+        <% } %>
+    </div>
+</div>
 
                 <!-- Quantity -->
                 <div class="quantity-section">
@@ -671,12 +690,16 @@
                     </div>
                 </div>
 
-                <!-- Action Buttons - Only Add to Cart -->
-                <div class="action-buttons">
-                    <button class="btn-add-cart" id="addToCartBtn" <%= product.quantity <= 0 ? 'disabled' : '' %>>
-                        <%= product.quantity > 0 ? 'Add to Cart' : 'Out of Stock' %>
-                    </button>
-                </div>
+      <!-- Action Buttons - Only Add to Cart -->
+<button 
+    class="btn-add-cart" 
+    id="addToCartBtn"
+    <%= product.quantity <= 0 ? 'disabled' : '' %>>
+    <%= product.quantity > 0 ? 'Add to Cart' : 'Out of Stock' %>
+</button>
+
+
+
 
                 <!-- Product Details -->
                 <div class="product-details">
@@ -740,13 +763,42 @@
             }
         }
 
-        // Size Selection
-        document.querySelectorAll('.size-option').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.size-option').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-            });
-        });
+   // Simple Size Selection
+document.querySelectorAll('.size-option').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.size-option').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+    });
+});
+
+// Function to update stock status based on selected size
+function updateStockStatus(quantity) {
+    const stockStatus = document.querySelector('.stock-status');
+    const stockDot = document.querySelector('.stock-dot');
+    const stockText = stockStatus.querySelector('span:last-child');
+    const addToCartBtn = document.getElementById('addToCartBtn');
+    
+    if (parseInt(quantity) > 0) {
+        stockStatus.className = 'stock-status in-stock';
+        stockText.textContent = 'IN STOCK';
+        addToCartBtn.disabled = false;
+        addToCartBtn.textContent = 'Add to Cart';
+    } else {
+        stockStatus.className = 'stock-status out-of-stock';
+        stockText.textContent = 'OUT OF STOCK';
+        addToCartBtn.disabled = true;
+        addToCartBtn.textContent = 'Out of Stock';
+    }
+}
+
+// Initialize stock status on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const firstAvailableSize = document.querySelector('.size-option:not([disabled])');
+    if (firstAvailableSize) {
+        const initialQuantity = firstAvailableSize.getAttribute('data-quantity');
+        updateStockStatus(initialQuantity);
+    }
+});
 
         // Toggle Details
         function toggleDetails() {
@@ -913,6 +965,140 @@
             zoomImage.style.width = (mainImage.naturalWidth * zoomLevel) + 'px';
             zoomImage.style.height = (mainImage.naturalHeight * zoomLevel) + 'px';
         };
+
+    // ========== ADD TO CART FUNCTIONALITY ==========
+    
+    // Add to cart function for product page
+    async function addToCart(productId, quantity = 1) {
+        try {
+            console.log('Adding to cart:', { productId, quantity });
+            
+            const response = await fetch('/api/cart/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    productId: productId,
+                    quantity: quantity
+                })
+            });
+
+            const data = await response.json();
+            console.log('Add to cart response:', data);
+            
+            if (data.success) {
+                // Show success message
+                showToast('✅ Product added to cart!');
+                
+                // Update cart count
+                updateCartCount();
+                
+                // Redirect to cart page after 1 second
+                setTimeout(() => {
+                    window.location.href = '/cart';
+                }, 1000);
+            } else {
+                showToast('❌ ' + (data.message || 'Failed to add to cart'));
+            }
+        } catch (error) {
+            console.error('Error adding to cart:', error);
+            showToast('❌ Error adding to cart');
+        }
+    }
+
+    // Toast function for product page
+    function showToast(message) {
+        // Remove existing toasts
+        const existingToasts = document.querySelectorAll('.custom-toast');
+        existingToasts.forEach(toast => toast.remove());
+        
+        // Create new toast
+        const toast = document.createElement('div');
+        toast.className = 'custom-toast';
+        toast.innerHTML = `
+            <div style="position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10000; animation: slideIn 0.3s ease-out;">
+                ${message}
+            </div>
+        `;
+        
+        document.body.appendChild(toast);
+        
+        // Remove toast after 3 seconds
+        setTimeout(() => {
+            toast.remove();
+        }, 3000);
+    }
+
+    // Update cart count in navbar
+    async function updateCartCount() {
+        try {
+            const response = await fetch('/api/cart');
+            const data = await response.json();
+            
+            if (data.success) {
+                const cartCount = data.cart?.items?.length || 0;
+                const cartCountElement = document.getElementById('cartCount');
+                if (cartCountElement) {
+                    cartCountElement.textContent = cartCount;
+                }
+            }
+        } catch (error) {
+            console.error('Error updating cart count:', error);
+        }
+    }
+
+    // Add CSS for toast animation
+    const toastStyles = document.createElement('style');
+    toastStyles.textContent = `
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    `;
+    
+    document.head.appendChild(toastStyles);
+
+    document.getElementById('addToCartBtn').addEventListener('click', function() {
+        const productId = "<%= product._id %>";
+        const quantity = parseInt(document.getElementById('quantity').value) || 1;
+        
+        // Check if button is disabled (out of stock)
+        if (this.disabled) {
+            showToast('❌ Product is out of stock');
+            return;
+        }
+        
+        console.log('Add to cart button clicked:', { productId, quantity });
+        addToCart(productId, quantity);
+    });
+
+    // ========== END ADD TO CART FUNCTIONALITY ==========
+
+
+  // Debug: Check if routes are working
+async function testCartRoutes() {
+    try {
+        console.log('Testing cart routes...');
+        
+        // Test if cart page is accessible
+        const cartPageResponse = await fetch('/cart');
+        console.log('Cart page status:', cartPageResponse.status);
+        
+        // Test if API endpoint is accessible
+        const apiResponse = await fetch('/api/cart');
+        console.log('API cart status:', apiResponse.status);
+        
+    } catch (error) {
+        console.error('Route test failed:', error);
+    }
+}
+
+// Run test on page load
+document.addEventListener('DOMContentLoaded', function() {
+    testCartRoutes();
+    updateCartCount(); // Initialize cart count
+});
 
     </script>
 </body>

@@ -234,8 +234,9 @@ const resendotp = async (req, res) => {
 
 const loadlogin = async (req, res) => {
   try {
-    if (!req.session.user) {
-      return res.render("user/loginpage", { message: "" });
+    if (!req.session.userId) { 
+      const message = req.query.message || ""; // Get message from URL parameter
+      return res.render("user/loginpage", { message: message });
     }
     res.redirect("/");
   } catch (error) {
@@ -264,7 +265,7 @@ const login = async (req, res) => {
       return res.render("user/loginpage", { message: "Incorrect password" });
     }
 
-    req.session.user = findUser._id;
+     req.session.userId = findUser._id;
     req.session.save((err) => {
       if (err) console.error(err);
       res.redirect("/");
@@ -276,21 +277,27 @@ const login = async (req, res) => {
     });
   }
 };
-
-// Logout
+// Logout - USER
 const logout = (req, res) => {
-  req.session.destroy((err) => {
-    if (err) {
-      console.error("Session destroy error:", err);
-      return res.redirect("/pagenotfound");
-    }
-    res.clearCookie("connect.sid");
-    console.log("User logged out and session cleared");
+  try {
+    // Clear session data
+   req.session.userId = null;
+    
+    // Also logout from Passport
+    req.logout(function(err) {
+      if (err) { 
+        console.log("Passport logout error:", err);
+      }
+      console.log("User logged out successfully");
+      res.redirect("/login");
+    });
+    
+  } catch (error) {
+    console.error("Error in user logout controller:", error);
     res.redirect("/login");
-  });
+  }
 };
 
-    //  forget password
 // Load forgot password page
 const loadForgotPassword = async (req, res) => {
   try {
@@ -462,6 +469,7 @@ const loadcollectionpage = async (req, res) => {
     }
 
     const categories = await Category.find({ isListed: true });
+  
     
     const page = parseInt(req.query.page) || 1;
     const limit = 9;
@@ -478,7 +486,7 @@ const loadcollectionpage = async (req, res) => {
       const categoryIds = categories.map(cat => cat._id);
       query.category = { $in: categoryIds };
     }
-
+     
     const products = await Product.find(query)
       .populate('category', 'name')
       .sort({ createdAt: -1 })
@@ -500,7 +508,9 @@ const loadcollectionpage = async (req, res) => {
       category: categories,
       totalProducts,
       currentPage: page,
-      totalPages
+      totalPages,
+      
+
     });
   } catch (error) {
     console.error("Error loading collection page:", error);
@@ -544,7 +554,7 @@ const filterProducts = async (req, res) => {
       }
     }
     
-    // Sort options
+    
     let sortOption = {};
     switch (sort) {
       case 'low-to-high':
@@ -600,6 +610,8 @@ const filterProducts = async (req, res) => {
   }
 };
 
+
+
 module.exports = {
   pagenotfound,
   loadSign,
@@ -622,5 +634,7 @@ loadForgotPassword,
 
   loadHomePage,
   loadcollectionpage,
-  filterProducts
+  filterProducts,
+
+
 };

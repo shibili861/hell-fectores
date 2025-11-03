@@ -705,6 +705,9 @@
                       <a href="/admin/editCategory?id=<%= category.id %>" class="btn-action btn-info">
                         <i class="fas fa-edit"></i> Edit
                       </a>
+                      <button class="btn-action btn-danger delete-category" data-id="<%= category._id %>" data-name="<%= category.name %>">
+                       <i class="fas fa-trash"></i> Delete
+                     </button>
                     </td>
                   </tr>
                   <% }) %>
@@ -967,6 +970,148 @@
         });
       });
     });
+    // Delete category functionality
+$(document).ready(function() {
+  
+
+  // Delete category
+  $('.delete-category').click(function() {
+    const btn = $(this);
+    const categoryId = btn.data('id');
+    const categoryName = btn.data('name');
+
+    Swal.fire({
+      title: `Are you sure?`,
+      html: `
+        <div style="text-align: center;">
+          <div style="font-size: 4rem; color: var(--danger); margin-bottom: 1rem;">
+            <i class="fas fa-exclamation-triangle"></i>
+          </div>
+          <p style="font-size: 1.2rem; color: var(--primary); margin-bottom: 0.5rem; font-weight: 600;">
+            Delete this category?
+          </p>
+          <p style="font-size: 1rem; color: var(--accent); font-weight: 600; margin-bottom: 0.5rem;">
+            "${categoryName}"
+          </p>
+          <p style="font-size: 0.9rem; color: var(--gray); margin-top: 1rem;">
+            This action cannot be undone. All products in this category may be affected.
+          </p>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Delete It',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: 'var(--danger)',
+      cancelButtonColor: 'var(--gray)',
+      reverseButtons: true,
+      width: '500px',
+      customClass: {
+        popup: 'custom-swal-popup',
+        title: 'custom-swal-title',
+        htmlContainer: 'custom-swal-content',
+        confirmButton: 'custom-swal-confirm',
+        cancelButton: 'custom-swal-cancel',
+        actions: 'custom-swal-actions'
+      },
+      buttonsStyling: false,
+      background: 'var(--light)',
+      backdrop: 'rgba(58, 38, 24, 0.7)'
+    }).then((result) => {
+      if(result.isConfirmed) {
+        $.ajax({
+          url: '/admin/deleteCategory',
+          type: 'POST',  
+          contentType: 'application/json',
+          data: JSON.stringify({ id: categoryId }),
+          success: function(response) {
+            console.log("Server responded:", response);
+            if(response.success) {
+              btn.closest('tr').remove();
+              Swal.fire({
+                title: 'Success!',
+                html: `
+                  <div style="text-align: center;">
+                    <div style="font-size: 4rem; color: var(--success); margin-bottom: 1rem;">
+                      <i class="fas fa-check-circle"></i>
+                    </div>
+                    <p style="font-size: 1.1rem; color: var(--primary); font-weight: 600;">
+                      Category deleted successfully!
+                    </p>
+                  </div>
+                `,
+                confirmButtonText: 'OK',
+                confirmButtonColor: 'var(--success)',
+                width: '450px',
+                customClass: {
+                  popup: 'custom-swal-popup',
+                  title: 'custom-swal-title',
+                  htmlContainer: 'custom-swal-content',
+                  confirmButton: 'custom-swal-confirm',
+                  actions: 'custom-swal-actions'
+                },
+                buttonsStyling: false,
+                background: 'var(--light)'
+              });
+            } else {
+              Swal.fire({
+                title: 'Error!',
+                html: `
+                  <div style="text-align: center;">
+                    <div style="font-size: 4rem; color: var(--danger); margin-bottom: 1rem;">
+                      <i class="fas fa-times-circle"></i>
+                    </div>
+                    <p style="font-size: 1.1rem; color: var(--primary); font-weight: 600;">
+                      ${response.message}
+                    </p>
+                  </div>
+                `,
+                confirmButtonText: 'OK',
+                confirmButtonColor: 'var(--danger)',
+                width: '450px',
+                customClass: {
+                  popup: 'custom-swal-popup',
+                  title: 'custom-swal-title',
+                  htmlContainer: 'custom-swal-content',
+                  confirmButton: 'custom-swal-confirm',
+                  actions: 'custom-swal-actions'
+                },
+                buttonsStyling: false,
+                background: 'var(--light)'
+              });
+            }
+          },
+          error: function() {
+            Swal.fire({
+              title: 'Error!',
+              html: `
+                <div style="text-align: center;">
+                  <div style="font-size: 4rem; color: var(--danger); margin-bottom: 1rem;">
+                    <i class="fas fa-times-circle"></i>
+                  </div>
+                  <p style="font-size: 1.1rem; color: var(--primary); font-weight: 600;">
+                    Something went wrong
+                  </p>
+                </div>
+              `,
+              confirmButtonText: 'OK',
+              confirmButtonColor: 'var(--danger)',
+              width: '450px',
+              customClass: {
+                popup: 'custom-swal-popup',
+                title: 'custom-swal-title',
+                htmlContainer: 'custom-swal-content',
+                confirmButton: 'custom-swal-confirm',
+                actions: 'custom-swal-actions'
+              },
+              buttonsStyling: false,
+              background: 'var(--light)'
+            });
+          }
+        });
+      }
+    });
+  });
+});
   </script>
 </body>
 </html>

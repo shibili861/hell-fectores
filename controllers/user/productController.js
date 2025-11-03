@@ -1,7 +1,7 @@
 const Product=require("../../models/productSchema");
 const Category=require("../../models/categorySchema");
 const User=require("../../models/userSchema");
-const user = require("../../models/userSchema");
+
 
 
 
@@ -23,7 +23,9 @@ const productDetails = async (req, res) => {
             user: userData,
             product: product,
             quantity: product.quantity,
-            category: findCategory
+            category: findCategory,
+             
+
         });
     } catch (error) {
         console.error('Error fetching product details:', error);

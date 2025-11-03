@@ -1,0 +1,1017 @@
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>ÉLÉGANCE - My Profile</title>
+                <link rel="stylesheet" href="/user/profile.css">
+               
+            </head>
+            <body>
+                <!-- Profile Header -->
+                <section class="profile-header">
+                    <div class="profile-hero-content">
+                        <div class="profile-avatar-wrapper">
+                            <div class="profile-avatar">
+                                <% if (user.name) { %>
+                                    <%= user.name.split(' ').map(n => n[0].toUpperCase()).join('') %>
+                                <% } else { %>
+                                    U
+                                <% } %>
+                            </div>
+                            <div class="avatar-edit">📷</div>
+                        </div>
+                        <h1 class="profile-name"><%= user.name %></h1>
+                        <p class="profile-email"><%= user.email %></p>
+                    </div>
+                </section>
+
+                <!-- Main Container -->
+                <div class="profile-container">
+                    <div class="profile-grid">
+                        <!-- Sidebar -->
+                        <aside class="profile-sidebar">
+                            <ul class="sidebar-nav">
+                    <li><a href="#profile" class="active"><span>👤</span> My Profile</a></li>
+                    <li><a href="#orders"><span>📦</span> Orders</a></li>
+                    <li><a href="#wishlist"><span>♡</span> Wishlist</a></li>
+                    <li><a href="/addresses" ><span>📍</span> Addresses</a></li>
+                    <li><a href="#settings"><span>⚙️</span> Settings</a></li>
+                    </ul>
+                            
+                        
+                            
+                            <div class="sidebar-stats">
+                                <div class="stat-item">
+                                    <div class="stat-value">12</div>
+                                    <div class="stat-label">Total Orders</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">8</div>
+                                    <div class="stat-label">Wishlist Items</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">₹45K</div>
+                                    <div class="stat-label">Total Spent</div>
+                                </div>
+                            </div>
+                            
+                            <form action="/logout" method="POST">
+                                <button class="btn-logout" type="submit">
+                                    <span>🚪</span> Logout
+                                </button>
+                            </form>
+                        </aside>
+
+                        <!-- Main Content -->
+                        <main class="profile-main" id="profile">
+                            <div class="info-header">
+                                <h2 class="section-title">Personal Information</h2>
+                                <button class="btn-edit-profile" id="openEditModal">
+                                    <span>✏️</span> Edit Profile
+                                </button>
+                            </div>
+                            
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <span class="info-label">Full Name</span>
+                                    <span class="info-value"><%= user.name %></span>
+                                </div>
+
+                                <div class="info-item">
+                                    <span class="info-label">Email Address</span>
+                                    <span class="info-value"><%= user.email %></span>
+                                </div>
+
+                                <div class="info-item">
+                                    <span class="info-label">Phone Number</span>
+                                    <span class="info-value"><%= user.phone || 'Not provided' %></span>
+                                </div>
+
+                                <div class="info-item">
+                                    <span class="info-label">Member Since</span>
+                                    <span class="info-value"><%= user.createdOn %></span>
+                                </div>
+                            </div>
+
+                            <div class="security-section">
+                                <h3 class="subsection-title">Security</h3>
+                                <div class="security-item">
+                                    <div class="security-left">
+                                        <div class="info-label">Password</div>
+                                        <div class="info-value">••••••••••</div>
+                                    </div>
+                                    <button class="btn-change" id="changePasswordBtn">Change</button>
+                                </div>
+                            </div>
+                                                                            <!-- Addresses Section -->
+                                                    <div class="addresses-section" style="margin-top: 50px;">
+                                                        <div class="info-header">
+                                                            <h2 class="section-title">My Addresses</h2>
+                                            <button class="btn-edit-profile" id="openAddressModalBtn">
+                                                                <span>📍</span> Add New Address
+                                                            </button>
+                                                        </div>
+                                                        
+                                                    
+                                                    </div>
+                        </main>
+                    </div>
+                </div>
+
+                <!-- Edit Profile Modal -->
+                <div class="modal-overlay" id="editProfileModal">
+                    <div class="modal-content">
+                        <div class="modal-close" id="closeModal">×</div>
+                        
+                        <div class="modal-header">
+                            <h2 class="modal-title">Edit Profile</h2>
+                            <p class="modal-subtitle">Update your personal information</p>
+                        </div>
+                        
+                        <div class="modal-avatar-section">
+                            <div class="modal-avatar-wrapper">
+                                <div class="modal-avatar">
+                                    <% if (user.name) { %>
+                                        <%= user.name.split(' ').map(n => n[0].toUpperCase()).join('') %>
+                                    <% } else { %>
+                                        U
+                                    <% } %>
+                                </div>
+                                <div class="modal-avatar-edit">📷</div>
+                            </div>
+                            <p class="modal-avatar-text">Change Profile Picture</p>
+                        </div>
+                        
+                        <form id="editProfileForm">
+                            <div class="modal-form-grid">
+                                <div class="modal-form-group">
+                                    <label class="modal-form-label">Full Name</label>
+                                    <input type="text" name="name" class="modal-form-input" value="<%= user.name %>" placeholder="Enter full name">
+                                </div>
+
+                                <div class="modal-form-group">
+                                    <label class="modal-form-label">Email Address</label>
+                                    <input type="email" name="email" class="modal-form-input" value="<%= user.email %>" placeholder="Enter email">
+                                </div>
+
+                                <div class="modal-form-group">
+                                    <label class="modal-form-label">Phone Number</label>
+                                    <input type="tel" name="phone" class="modal-form-input" value="<%= user.phone || '' %>" placeholder="Enter phone">
+                                </div>
+                            </div>
+                            
+                            <div class="modal-form-actions">
+                                <button type="button" class="btn btn-secondary" id="cancelEdit">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- OTP Verification Modal -->
+                <div class="modal-overlay" id="otpModal">
+                    <div class="modal-content otp-modal-content">
+                        <div class="modal-close" id="closeOtpModal">×</div>
+                        
+                        <div class="modal-header">
+                            <h2 class="modal-title">Verify OTP</h2>
+                            <p class="modal-subtitle">Enter the verification code sent to your email</p>
+                        </div>
+                        
+                        <div id="otpMessage" class="message" style="display: none;"></div>
+                        
+                        <form id="otpForm">
+                            <div class="otp-input-group">
+                                <input type="text" class="otp-input" maxlength="1" data-index="0">
+                                <input type="text" class="otp-input" maxlength="1" data-index="1">
+                                <input type="text" class="otp-input" maxlength="1" data-index="2">
+                                <input type="text" class="otp-input" maxlength="1" data-index="3">
+                                <input type="text" class="otp-input" maxlength="1" data-index="4">
+                                <input type="text" class="otp-input" maxlength="1" data-index="5">
+                            </div>
+                            
+                            <div class="otp-timer">
+                                <span id="timer">02:00</span>
+                            </div>
+                            
+                            <div class="otp-actions">
+                                <button type="button" class="btn-resend" id="resendOtp" disabled>Resend OTP (120s)</button>
+                                <button type="submit" class="btn btn-primary">Verify</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Password Change Modal (Pre-rendered) -->
+                <div class="password-modal" id="passwordModal">
+                    <h3>Change Password</h3>
+                    <form id="passwordChangeForm">
+                        <div>
+                            <label style="display: block; margin-bottom: 8px; font-size: 12px; color: #c4a57b;">New Password</label>
+                            <input type="password" id="newPassword" required minlength="6">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 8px; font-size: 12px; color: #c4a57b;">Confirm Password</label>
+                            <input type="password" id="confirmPassword" required minlength="6">
+                        </div>
+                        <div class="password-modal-actions">
+                            <button type="button" class="btn-cancel-password" id="cancelPassword">Cancel</button>
+                            <button type="submit" class="btn-submit-password">Update Password</button>
+                        </div>
+                    </form>
+                </div>
+          <!-- Fixed Address Modal (single version) -->
+<div id="addressModalBox" class="address-modal">
+    <div class="address-modal-content">
+        <span class="address-modal-close" id="closeAddressModal">&times;</span>
+        
+        <h2 class="address-modal-title">Add New Address</h2>
+        <p class="address-modal-subtitle">Please fill in your address details below.</p>
+        
+        <form id="addressForm" action="/user/add-address" >
+            <div class="address-form-group">
+                <label for="addressType">Address Type</label>
+                <select id="addressType" name="addressType" >
+                    <option value="Home">Home</option>
+                    <option value="Work">Work</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            
+            <div class="address-form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name" placeholder="Enter full name" >
+                <div class="error-message"></div>
+            </div>
+            
+            <div class="address-form-group">
+                <label for="city">City</label>
+                <input type="text" id="city" name="city" placeholder="Enter city" >
+                <div class="error-message"></div>
+            </div>
+            
+            <div class="address-form-group">
+                <label for="landMark">Landmark</label>
+                <input type="text" id="landMark" name="landMark" placeholder="Enter landmark" >
+                <div class="error-message"></div>
+            </div>
+            
+            <div class="address-form-group">
+                <label for="state">State</label>
+                <input type="text" id="state" name="state" placeholder="Enter state" >
+                <div class="error-message"></div>
+            </div>
+            
+            <div class="address-form-group">
+                <label for="pincode">Pincode</label>
+                <input type="number" id="pincode" name="pincode" placeholder="Enter pincode" >
+                <div class="error-message"></div>
+            </div>
+            
+            <div class="address-form-group">
+                <label for="phone">Phone</label>
+                <input type="text" id="phone" name="phone" placeholder="Enter phone number" >
+                <div class="error-message"></div>
+            </div>
+            
+            <div class="address-form-group">
+                <label for="altphone">Alternate Phone</label>
+                <input type="text" id="altphone" name="altphone" placeholder="Enter alternate phone number" >
+                <div class="error-message"></div>
+            </div>
+            
+            <button type="submit" class="btn-save-address">Save Address</button>
+        </form>
+    </div>
+</div>
+                <script>
+                 document.getElementById('addressForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+
+  // Remove previous errors
+  document.querySelectorAll('.error-message').forEach(msg => {
+    msg.textContent = '';
+    msg.style.display = 'none';
+  });
+  document.querySelectorAll('input, select').forEach(f => f.classList.remove('error'));
+
+  let valid = true;
+
+  // Field references
+  const addressType = this.elements["addressType"];
+  const name = this.elements["name"];
+  const city = this.elements["city"];
+  const landMark = this.elements["landMark"];
+  const state = this.elements["state"];
+  const pincode = this.elements["pincode"];
+  const phone = this.elements["phone"];
+  const altphone = this.elements["altphone"];
+
+  // Patterns
+  const namePattern = /^[A-Za-z\s]{3,}$/;
+  const pincodePattern = /^\d{6}$/;
+  const phonePattern = /^[6-9]\d{9}$/;
+
+  // Validate addressType
+  if (!addressType.value.trim()) {
+    addressType.classList.add('error');
+    addressType.parentElement.querySelector('.error-message').textContent = "Select address type.";
+    addressType.parentElement.querySelector('.error-message').style.display = "block";
+    valid = false;
+  }
+
+  // Validate name
+  if (!namePattern.test(name.value.trim())) {
+    name.classList.add('error');
+    name.parentElement.querySelector('.error-message').textContent = "Enter full name (min 3 letters).";
+    name.parentElement.querySelector('.error-message').style.display = "block";
+    valid = false;
+  }
+
+  // Validate city
+  if (!city.value.trim()) {
+    city.classList.add('error');
+    city.parentElement.querySelector('.error-message').textContent = "City is required.";
+    city.parentElement.querySelector('.error-message').style.display = "block";
+    valid = false;
+  }
+
+  // Validate state
+  if (!state.value.trim()) {
+    state.classList.add('error');
+    state.parentElement.querySelector('.error-message').textContent = "State is required.";
+    state.parentElement.querySelector('.error-message').style.display = "block";
+    valid = false;
+  }
+
+  // Validate pincode
+  if (!pincodePattern.test(pincode.value.trim())) {
+    pincode.classList.add('error');
+    pincode.parentElement.querySelector('.error-message').textContent = "Enter 6 digit pincode.";
+    pincode.parentElement.querySelector('.error-message').style.display = "block";
+    valid = false;
+  }
+
+  // Validate phone
+  if (!phonePattern.test(phone.value.trim())) {
+    phone.classList.add('error');
+    phone.parentElement.querySelector('.error-message').textContent = "Enter valid phone (10 digits, starts with 6-9).";
+    phone.parentElement.querySelector('.error-message').style.display = "block";
+    valid = false;
+  }
+
+  // Validate altphone only if not empty
+  if (altphone.value && !phonePattern.test(altphone.value.trim())) {
+    altphone.classList.add('error');
+    altphone.parentElement.querySelector('.error-message').textContent = "Alt phone must be 10 digits, starts with 6-9.";
+    altphone.parentElement.querySelector('.error-message').style.display = "block";
+    valid = false;
+  }
+
+  if (valid) {
+    this.submit(); // Or AJAX submit if you prefer
+  }
+});
+
+
+
+
+                // Modal functionality
+                const openModalBtn = document.getElementById('openEditModal');
+                const closeModalBtn = document.getElementById('closeModal');
+                const cancelEditBtn = document.getElementById('cancelEdit');
+                const modal = document.getElementById('editProfileModal');
+                const editForm = document.getElementById('editProfileForm');
+                
+                // OTP Modal elements
+                const otpModal = document.getElementById('otpModal');
+                const closeOtpModalBtn = document.getElementById('closeOtpModal');
+                const otpForm = document.getElementById('otpForm');
+                const otpInputs = document.querySelectorAll('.otp-input');
+                const resendOtpBtn = document.getElementById('resendOtp');
+                const timerElement = document.getElementById('timer');
+                const otpMessage = document.getElementById('otpMessage');
+                const changePasswordBtn = document.getElementById('changePasswordBtn');
+                
+                // Password Modal elements
+                const passwordModal = document.getElementById('passwordModal');
+                const cancelPasswordBtn = document.getElementById('cancelPassword');
+                const passwordChangeForm = document.getElementById('passwordChangeForm');
+
+            
+                
+                // Variables to track OTP state
+                let otpTimer;
+                let timeLeft = 90;
+                let isEmailChange = false;
+                let isPasswordChange = false;
+                let updatedData = {};
+                let currentEmail = '';
+                let otpType = '';
+                
+                // Initialize
+                document.addEventListener('DOMContentLoaded', () => {
+                    // Add click effects to buttons
+                    document.querySelectorAll('button').forEach(button => {
+                        button.addEventListener('click', function(e) {
+                            const ripple = document.createElement('span');
+                            const rect = this.getBoundingClientRect();
+                            const size = Math.max(rect.width, rect.height);
+                            const x = e.clientX - rect.left - size / 2;
+                            const y = e.clientY - rect.top - size / 2;
+                            
+                            ripple.style.cssText = `
+                                position: absolute;
+                                border-radius: 50%;
+                                background: rgba(255, 255, 255, 0.5);
+                                transform: scale(0);
+                                animation: ripple 0.6s linear;
+                                width: ${size}px;
+                                height: ${size}px;
+                                left: ${x}px;
+                                top: ${y}px;
+                                pointer-events: none;
+                            `;
+                            
+                            this.appendChild(ripple);
+                            
+                            setTimeout(() => {
+                                ripple.remove();
+                            }, 600);
+                        });
+                    });
+                });
+                
+                // Ripple animation
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes ripple {
+                        to {
+                            transform: scale(4);
+                            opacity: 0;
+                        }
+                    }
+                    button {
+                        position: relative;
+                        overflow: hidden;
+                    }
+                `;
+                document.head.appendChild(style);
+                
+                openModalBtn.addEventListener('click', () => {
+                    modal.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                });
+                
+                function closeModal() {
+                    modal.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+                
+                closeModalBtn.addEventListener('click', closeModal);
+                cancelEditBtn.addEventListener('click', closeModal);
+                
+                // Close modal when clicking outside
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        closeModal();
+                    }
+                });
+                
+                // Handle profile form submission
+                editForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    
+                    const formData = new FormData(editForm);
+                    updatedData = {
+                        name: formData.get('name'),
+                        email: formData.get('email'),
+                        phone: formData.get('phone')
+                    };
+                    
+                    // Basic validation
+                    if (!updatedData.name.trim()) {
+                        showMessage('Name is required', 'error');
+                        return;
+                    }
+                    
+                    if (!updatedData.email.trim()) {
+                        showMessage('Email is required', 'error');
+                        return;
+                    }
+                    
+                    // Check if email is being changed
+                    const originalEmail = '<%= user.email %>';
+                    if (updatedData.email !== originalEmail) {
+                        isEmailChange = true;
+                        otpType = 'email';
+                        currentEmail = updatedData.email;
+                        await sendOtp(updatedData.email, 'email');
+                        showOtpModal();
+                    } else {
+                        // No email change, update profile directly
+                        await updateProfile(updatedData);
+                    }
+                });
+                
+                // Handle password change button
+                changePasswordBtn.addEventListener('click', async () => {
+                    isPasswordChange = true;
+                    otpType = 'password';
+                    currentEmail = '<%= user.email %>';
+                    await sendOtp(currentEmail, 'password');
+                    showOtpModal();
+                });
+                
+                // Show OTP modal
+                function showOtpModal() {
+                    closeModal();
+                    otpModal.classList.add('active');
+                    startOtpTimer();
+                    otpInputs[0].focus();
+                    
+                    // Update modal title based on type
+                    const modalTitle = document.querySelector('#otpModal .modal-title');
+                    const modalSubtitle = document.querySelector('#otpModal .modal-subtitle');
+                    
+                    if (otpType === 'email') {
+                        modalTitle.textContent = 'Verify Email Change';
+                        modalSubtitle.textContent = 'Enter OTP sent to your new email address';
+                    } else {
+                        modalTitle.textContent = 'Verify Password Change';
+                        modalSubtitle.textContent = 'Enter OTP sent to your email address';
+                    }
+                }
+                
+                // Close OTP modal
+                function closeOtpModal() {
+                    otpModal.classList.remove('active');
+                    resetOtpForm();
+                    clearInterval(otpTimer);
+                    timeLeft = 120;
+                    updateTimerDisplay();
+                    isEmailChange = false;
+                    isPasswordChange = false;
+                    currentEmail = '';
+                    otpType = '';
+                }
+                
+                closeOtpModalBtn.addEventListener('click', closeOtpModal);
+                
+                // Handle OTP input navigation
+                otpInputs.forEach((input, index) => {
+                    input.addEventListener('input', (e) => {
+                        const value = e.target.value;
+                        // Only allow numbers
+                        if (!/^\d*$/.test(value)) {
+                            e.target.value = value.replace(/\D/g, '');
+                            return;
+                        }
+                        
+                        if (e.target.value.length === 1 && index < otpInputs.length - 1) {
+                            otpInputs[index + 1].focus();
+                        }
+                        
+                        // Auto-submit when all fields are filled
+                        if (index === otpInputs.length - 1 && value.length === 1) {
+                            const allFilled = Array.from(otpInputs).every(input => input.value.length === 1);
+                            if (allFilled) {
+                                setTimeout(() => otpForm.dispatchEvent(new Event('submit')), 100);
+                            }
+                        }
+                    });
+                    
+                    input.addEventListener('keydown', (e) => {
+                        if (e.key === 'Backspace') {
+                            if (!e.target.value && index > 0) {
+                                otpInputs[index - 1].focus();
+                            }
+                        }
+                        
+                        // Allow navigation with arrow keys
+                        if (e.key === 'ArrowLeft' && index > 0) {
+                            otpInputs[index - 1].focus();
+                        }
+                        if (e.key === 'ArrowRight' && index < otpInputs.length - 1) {
+                            otpInputs[index + 1].focus();
+                        }
+                    });
+                    
+                    // Handle paste event for OTP
+                    input.addEventListener('paste', (e) => {
+                        e.preventDefault();
+                        const pasteData = e.clipboardData.getData('text').slice(0, 6);
+                        if (/^\d+$/.test(pasteData)) {
+                            pasteData.split('').forEach((char, i) => {
+                                if (otpInputs[i]) {
+                                    otpInputs[i].value = char;
+                                }
+                            });
+                            otpInputs[Math.min(5, pasteData.length - 1)].focus();
+                        }
+                    });
+                });
+                
+                // Handle OTP form submission
+                otpForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    
+                    const otp = Array.from(otpInputs).map(input => input.value).join('');
+                    
+                    if (otp.length !== 6) {
+                        showMessage('Please enter the complete 6-digit OTP', 'error');
+                        return;
+                    }
+                    
+                    showMessage('Verifying OTP...', 'success');
+                    
+                    const isValid = await verifyOtp(otp, currentEmail);
+                    
+                    if (isValid) {
+                        showMessage('OTP verified successfully!', 'success');
+                        
+                        setTimeout(() => {
+                            if (otpType === 'email') {
+                                updateProfile(updatedData);
+                            } else if (otpType === 'password') {
+                                showPasswordChangeForm();
+                            }
+                            closeOtpModal();
+                        }, 1000);
+                    }
+                });
+                
+                // Resend OTP
+                resendOtpBtn.addEventListener('click', async () => {
+                    await sendOtp(currentEmail, otpType);
+                    resetOtpTimer();
+                });
+                
+                // OTP timer functions
+                function startOtpTimer() {
+                    clearInterval(otpTimer);
+                    timeLeft = 120;
+                    updateTimerDisplay();
+                    resendOtpBtn.disabled = true;
+                    resendOtpBtn.style.opacity = '0.5';
+                    
+                    otpTimer = setInterval(() => {
+                        timeLeft--;
+                        updateTimerDisplay();
+                        
+                        if (timeLeft <= 0) {
+                            clearInterval(otpTimer);
+                            resendOtpBtn.disabled = false;
+                            resendOtpBtn.style.opacity = '1';
+                            resendOtpBtn.textContent = 'Resend OTP';
+                        }
+                    }, 1000);
+                }
+                
+                function resetOtpTimer() {
+                    clearInterval(otpTimer);
+                    startOtpTimer();
+                }
+                
+                function updateTimerDisplay() {
+                    const minutes = Math.floor(timeLeft / 40);
+                    const seconds = timeLeft % 40;
+                    timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                    resendOtpBtn.textContent = `Resend OTP (${timeLeft}s)`;
+                }
+                
+                function resetOtpForm() {
+                    otpInputs.forEach(input => input.value = '');
+                    otpMessage.style.display = 'none';
+                }
+                
+                function showMessage(text, type) {
+                    otpMessage.textContent = text;
+                    otpMessage.className = `message ${type}`;
+                    otpMessage.style.display = 'block';
+                    
+                    // Auto-hide success messages after 5 seconds
+                    if (type === 'success' && !text.includes('Verifying') && !text.includes('Sending')) {
+                        setTimeout(() => {
+                            otpMessage.style.display = 'none';
+                        }, 5000);
+                    }
+                }
+                
+                // Show password change form (using pre-rendered modal)
+                function showPasswordChangeForm() {
+                    passwordModal.classList.add('active');
+                    document.getElementById('newPassword').value = '';
+                    document.getElementById('confirmPassword').value = '';
+                }
+                
+                // Close password modal
+                function closePasswordModal() {
+                    passwordModal.classList.remove('active');
+                }
+                
+                cancelPasswordBtn.addEventListener('click', closePasswordModal);
+                
+                // Handle password form submission
+                passwordChangeForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    
+                    const newPassword = document.getElementById('newPassword').value;
+                    const confirmPassword = document.getElementById('confirmPassword').value;
+                    
+                    if (newPassword !== confirmPassword) {
+                        alert('Passwords do not match!');
+                        return;
+                    }
+                    
+                    if (newPassword.length < 6) {
+                        alert('Password must be at least 6 characters long!');
+                        return;
+                    }
+                    
+                    await updatePassword(newPassword);
+                    closePasswordModal();
+                });
+                
+                // Close password modal when clicking outside
+                passwordModal.addEventListener('click', (e) => {
+                    if (e.target === passwordModal) {
+                        closePasswordModal();
+                    }
+                });
+                
+                // API functions
+                async function sendOtp(email, type) {
+                    try {
+                        showMessage('Sending OTP...', 'success');
+                        
+                        const response = await fetch('/send-otp', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ email, type })
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            showMessage('OTP sent successfully! Check your email.', 'success');
+                        } else {
+                            showMessage(data.message || 'Failed to send OTP', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error sending OTP:', error);
+                        showMessage('Failed to send OTP. Please try again.', 'error');
+                    }
+                }
+                
+                async function verifyOtp(otp, email) {
+                    try {
+                        const response = await fetch('/verify-otp', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ otp, email })
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            otpType = data.type || otpType;
+                            return true;
+                        } else {
+                            showMessage(data.message || 'Invalid OTP', 'error');
+                            return false;
+                        }
+                    } catch (error) {
+                        console.error('Error verifying OTP:', error);
+                        showMessage('Failed to verify OTP. Please try again.', 'error');
+                        return false;
+                    }
+                }
+                
+                async function updateProfile(data) {
+                    try {
+                        showMessage('Updating profile...', 'success');
+                        
+                        const response = await fetch('/update-profile', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(data)
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (result.success) {
+                            showMessage('Profile updated successfully!', 'success');
+                            // Reload page to reflect changes
+                            setTimeout(() => {
+                                location.reload();
+                            }, 2000);
+                        } else {
+                            showMessage(result.message || 'Failed to update profile', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error updating profile:', error);
+                        showMessage('Failed to update profile. Please try again.', 'error');
+                    }
+                }
+                
+                async function updatePassword(newPassword) {
+                    try {
+                        const response = await fetch('/update-password', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ password: newPassword })
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (result.success) {
+                            showMessage('Password updated successfully!', 'success');
+                        } else {
+                            alert(result.message || 'Failed to update password. Please try again.');
+                            showPasswordChangeForm();
+                        }
+                    } catch (error) {
+                        console.error('Error updating password:', error);
+                        alert('Failed to update password. Please try again.');
+                        showPasswordChangeForm();
+                    }
+                }
+                
+                // Close modals with Escape key
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        if (otpModal.classList.contains('active')) {
+                            closeOtpModal();
+                        } else if (modal.classList.contains('active')) {
+                            closeModal();
+                        } else if (passwordModal.classList.contains('active')) {
+                            closePasswordModal();
+                        }
+                    }
+                });
+                
+                // Add loading states to buttons
+                document.addEventListener('submit', function(e) {
+                    const form = e.target;
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        const originalText = submitBtn.textContent;
+                        submitBtn.innerHTML = '<span>⏳</span> Processing...';
+                        submitBtn.disabled = true;
+                        
+                        // Revert after form processing (you might need to adjust this based on your async operations)
+                        setTimeout(() => {
+                            submitBtn.textContent = originalText;
+                            submitBtn.disabled = false;
+                        }, 3000);
+                    }
+                });
+        // === Address Modal Functionality ===
+const openAddressModalBtn = document.getElementById("openAddressModalBtn");
+const openAddressesBtn = document.getElementById("openAddressesBtn");
+const addressModal = document.getElementById("addressModalBox");
+const closeAddressModal = document.getElementById("closeAddressModal");
+const addressForm = document.getElementById("addressForm");
+
+// === Open Modal from Either Button ===
+function openAddressModal() {
+  addressModal.style.display = "flex";
+}
+
+if (openAddressModalBtn) {
+  openAddressModalBtn.addEventListener("click", openAddressModal);
+}
+
+if (openAddressesBtn) {
+  openAddressesBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    openAddressModal();
+  });
+}
+
+// === Close Modal ===
+if (closeAddressModal) {
+  closeAddressModal.addEventListener("click", () => {
+    addressModal.style.display = "none";
+  });
+}
+
+// === Close Modal When Clicking Outside ===
+if (addressModal) {
+  addressModal.addEventListener("click", (e) => {
+    if (e.target === addressModal) {
+      addressModal.style.display = "none";
+    }
+  });
+}
+
+// === Handle Form Submission ===
+if (addressForm) {
+  addressForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const submitBtn = addressForm.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = "Saving...";
+    submitBtn.disabled = true;
+
+    const formData = new FormData(addressForm);
+    const payload = Object.fromEntries(formData.entries());
+
+    try {
+      const response = await fetch("/add-address", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const responseText = await response.text();
+
+      try {
+        const data = JSON.parse(responseText);
+        if (data.success) {
+          addressForm.reset();
+          addressModal.style.display = "none";
+          alert("Address added successfully!");
+        } else {
+          alert(data.message || "Unable to save address");
+        }
+      } catch {
+        if (response.ok) {
+          addressForm.reset();
+          addressModal.style.display = "none";
+          alert("Address added successfully!");
+        } else {
+          alert("Server returned an unexpected response.");
+        }
+      }
+    } catch (err) {
+      alert("Network error: " + err.message);
+    } finally {
+      submitBtn.innerHTML = originalText;
+      submitBtn.disabled = false;
+    }
+  });
+}
+
+
+// Helper functions
+function escapeHtml(text) {
+    if (!text && text !== 0) return "";
+    return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function showTempMessage(message, type) {
+    const messageDiv = document.createElement('div');
+    messageDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 25px;
+        background: ${type === 'success' ? '#4CAF50' : '#f44336'};
+        color: white;
+        border-radius: 8px;
+        z-index: 10000;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    `;
+    messageDiv.textContent = message;
+    document.body.appendChild(messageDiv);
+    
+    setTimeout(() => {
+        document.body.removeChild(messageDiv);
+    }, 3000);
+}
+
+// Placeholder functions for edit/delete (you can implement these later)
+function editAddress(index) {
+    alert('Edit address functionality coming soon!');
+}
+
+function deleteAddress(index) {
+    if (confirm('Are you sure you want to delete this address?')) {
+        alert('Delete address functionality coming soon!');
+    }
+}
+
+                
+            </script>
+            </body>
+            </html>

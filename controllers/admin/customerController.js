@@ -8,6 +8,7 @@ const customerinfo = async (req, res) => {
 
         let search = req.query.search || "";
         let page = parseInt(req.query.page) || 1;
+       
         const limit = 6;
 
         const userData = await User.find({
@@ -17,10 +18,11 @@ const customerinfo = async (req, res) => {
                 { email: { $regex: ".*" + search + ".*", $options: "i" } }
             ],
         })
-        .sort({ createdAt: -1 })   // latest users first
+        .sort({ createdAt: -1 })   
         .skip((page - 1) * limit)
         .limit(limit)
         .exec();
+
 
         const count = await User.find({
             isAdmin: false,
@@ -75,3 +77,5 @@ module.exports = {
 
 
 };
+
+

@@ -636,6 +636,13 @@
                 justify-content: center;
             }
         }
+        .qty {
+  font-size: 14px;
+  color: #f4e4c1;
+  margin-top: 8px;
+  letter-spacing: 1px;
+}
+
         .clear-btn {
   position: absolute;
   right: 60px;
@@ -803,13 +810,18 @@
   Quick View
 </button>
                 <!-- Action Buttons -->
-                <div class="quick-btns-row">
+                <div class="quick-btns-row" >
                   <button class="quick-btn" title="Add to Wishlist" onclick="">
                     ♡
+
                   </button>
-                  <button class="quick-btn" title="Add to Cart" onclick="">
-                    🛒
-                  </button>
+                 <button
+              
+
+                  class="quick-btn" title="Add to Cart" onclick="addToCart('<%= products[i]._id %>')">
+                  🛒
+                 </button>
+
                 </div>
               </div>
             </div>
@@ -818,8 +830,10 @@
               <div class="product-category">
                 <%= products[i].categoryName || "Category" %>
               </div>
+             
               <div class="product-name"><%= products[i].productName %></div>
               <div class="product-price">₹<%= products[i].salePrice || products[i].regularPrice %></div>
+              <div class="qty"><%products[i].length>0%></div>
             </div>
           </div>
         <% } %>
@@ -844,6 +858,7 @@
         <a class="pagination-btn" href="/collection?page=<%= currentPage + 1 %>">Next</a>
       <% } %>
     </div>
+    <div id="toast-root"></div>
   </section>
 
  <script>
@@ -1067,12 +1082,91 @@ resetFiltersBtn.addEventListener('click', function() {
     // Simply redirect to the product details page
     window.location.href = `/productsDetailes?id=${productId}`;
   }
+        // ===== Add to Cart =====
+  async function addToCart(productId) {
+    try {
+      const res = await fetch('/api/cart/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ productId, quantity: 1 })
+      });
 
+      let data = {};
+      try {
+        data = await res.json();
+      } catch {
+        showToast('Unexpected response from server', 'error');
+        return;
+      }
+
+      if (data.success) {
+        showToast(data.message || '🛒 Added to cart');
+      } else if (data.message) {
+        showToast(data.message, 'error');
+      } else {
+        showToast('Something went wrong. Try again later.', 'error');
+      }
+    } catch (err) {
+      console.error('Add to cart error:', err);
+      showToast('Error adding to cart', 'error');
+    }
+  }
+
+  // ===== Toast Notification =====
+  function showToast(msg, type = 'info') {
+    const root = document.getElementById('toast-root') || (() => {
+      const el = document.createElement('div');
+      el.id = 'toast-root';
+      document.body.appendChild(el);
+      return el;
+    })();
+
+    const el = document.createElement('div');
+    el.className = `toast ${type === 'error' ? 'error' : ''}`;
+    el.textContent = msg;
+    root.appendChild(el);
+    setTimeout(() => el.remove(), 3000);
+  }
   
   // Initial load
   document.addEventListener('DOMContentLoaded', function() {
     fetchProducts();
   });
+  function showToast(msg, type = 'info') {
+  const root = document.getElementById('toast-root');
+  if (!root) {
+    console.error('❌ Toast root missing in DOM');
+    return;
+  }
+
+  const el = document.createElement('div');
+  el.className = `toast ${type === 'error' ? 'error' : 'success'}`;
+  el.textContent = msg;
+
+  // Basic styling (if no CSS)
+  el.style.position = 'fixed';
+  el.style.bottom = '20px';
+  el.style.right = '20px';
+  el.style.padding = '12px 18px';
+  el.style.borderRadius = '8px';
+  el.style.backgroundColor = type === 'error' ? '#e74c3c' : '#2ecc71';
+  el.style.color = 'white';
+  el.style.fontSize = '14px';
+  el.style.zIndex = '9999';
+  el.style.boxShadow = '0 4px 10px rgba(0,0,0,0.2)';
+  el.style.transition = 'opacity 0.3s ease';
+  
+  root.appendChild(el);
+
+  setTimeout(() => {
+    el.style.opacity = '0';
+    setTimeout(() => el.remove(), 300);
+  }, 2500);
+}
 </script>
+
+
 </body>
 </html>
+<%- include('../partials/user/footer') %>

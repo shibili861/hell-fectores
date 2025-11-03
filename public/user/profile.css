@@ -1,0 +1,937 @@
+ 
+                    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Montserrat:wght@200;300;400;600&display=swap');
+
+                    * {
+                        margin: 0;
+                        padding: 0;
+                        box-sizing: border-box;
+                    }
+
+                    :root {
+                        --gold: #d4af37;
+                        --light-gold: #f4e4c1;
+                        --brown: #8B7355;
+                        --light-brown: #C4A57B;
+                        --cream: #F5E6D3;
+                        --white: #ffffff;
+                        --dark: #0a0a0a;
+                        --dark-gray: #1a1a1a;
+                        --medium-gray: #2a2a2a;
+                    }
+
+                    body {
+                        font-family: 'Montserrat', sans-serif;
+                        background: var(--dark);
+                        color: #fff;
+                        overflow-x: hidden;
+                    }
+
+                    /* Profile Header */
+                    .profile-header {
+                        height: 50vh;
+                        background: linear-gradient(135deg, #1a1410 0%, #0a0a0a 50%, #1a1410 100%);
+                        position: relative;
+                        overflow: hidden;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    }
+
+                    .profile-header::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: 
+                            radial-gradient(circle at 30% 40%, rgba(212, 175, 55, 0.12) 0%, transparent 60%),
+                            radial-gradient(circle at 70% 60%, rgba(139, 115, 85, 0.08) 0%, transparent 60%);
+                    }
+
+                    .profile-hero-content {
+                        position: relative;
+                        z-index: 10;
+                        text-align: center;
+                    }
+
+                    .profile-avatar-wrapper {
+                        margin-bottom: 30px;
+                        position: relative;
+                        display: inline-block;
+                    }
+
+                    .profile-avatar {
+                        width: 180px;
+                        height: 180px;
+                        border-radius: 50%;
+                        border: 4px solid var(--gold);
+                        background: linear-gradient(135deg, var(--brown), var(--light-brown));
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 64px;
+                        font-family: 'Cormorant Garamond', serif;
+                        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+                        position: relative;
+                        overflow: hidden;
+                    }
+
+                    .avatar-edit {
+                        position: absolute;
+                        bottom: 10px;
+                        right: 10px;
+                        width: 45px;
+                        height: 45px;
+                        background: linear-gradient(135deg, var(--gold), var(--light-gold));
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        cursor: pointer;
+                        border: 3px solid var(--dark);
+                        transition: all 0.2s ease;
+                        font-size: 18px;
+                    }
+
+                    .avatar-edit:hover {
+                        transform: scale(1.15) rotate(10deg);
+                        box-shadow: 0 8px 20px rgba(212, 175, 55, 0.6);
+                    }
+
+                    .profile-name {
+                        font-family: 'Cormorant Garamond', serif;
+                        font-size: 56px;
+                        font-weight: 300;
+                        letter-spacing: 8px;
+                        margin-bottom: 15px;
+                        background: linear-gradient(135deg, #fff 0%, var(--light-gold) 100%);
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                    }
+
+                    .profile-email {
+                        font-size: 14px;
+                        letter-spacing: 3px;
+                        color: var(--light-brown);
+                        font-weight: 300;
+                    }
+
+                    /* Main Container */
+                    .profile-container {
+                        max-width: 1400px;
+                        margin: -80px auto 0;
+                        padding: 0 80px 120px;
+                        position: relative;
+                        z-index: 20;
+                    }
+
+                    .profile-grid {
+                        display: grid;
+                        grid-template-columns: 350px 1fr;
+                        gap: 40px;
+                    }
+
+                    /* Sidebar */
+                    .profile-sidebar {
+                        background: rgba(26, 26, 26, 0.6);
+                        border: 1px solid rgba(196, 165, 123, 0.2);
+                        border-radius: 12px;
+                        padding: 40px 30px;
+                        backdrop-filter: blur(10px);
+                        height: fit-content;
+                        position: sticky;
+                        top: 40px;
+                    }
+
+                    .sidebar-nav {
+                        list-style: none;
+                    }
+
+                    .sidebar-nav li {
+                        margin-bottom: 8px;
+                    }
+
+                    .sidebar-nav a {
+                        display: flex;
+                        align-items: center;
+                        gap: 15px;
+                        padding: 18px 20px;
+                        color: rgba(255, 255, 255, 0.7);
+                        text-decoration: none;
+                        font-size: 13px;
+                        letter-spacing: 2px;
+                        text-transform: uppercase;
+                        border-radius: 8px;
+                        transition: all 0.2s ease;
+                        font-weight: 400;
+                        border: 1px solid transparent;
+                    }
+
+                    .sidebar-nav a:hover,
+                    .sidebar-nav a.active {
+                        background: rgba(212, 175, 55, 0.1);
+                        color: var(--gold);
+                        border-color: rgba(212, 175, 55, 0.3);
+                        transform: translateX(8px);
+                    }
+
+                    .sidebar-nav a span:first-child {
+                        font-size: 20px;
+                    }
+
+                    .sidebar-divider {
+                        height: 1px;
+                        background: linear-gradient(to right, transparent, rgba(212, 175, 55, 0.2), transparent);
+                        margin: 30px 0;
+                    }
+
+                    .sidebar-stats {
+                        text-align: center;
+                        padding: 25px 15px;
+                        background: rgba(212, 175, 55, 0.05);
+                        border-radius: 8px;
+                        border: 1px solid rgba(212, 175, 55, 0.15);
+                    }
+
+                    .stat-item {
+                        margin-bottom: 20px;
+                    }
+
+                    .stat-item:last-child {
+                        margin-bottom: 0;
+                    }
+
+                    .stat-value {
+                        font-family: 'Cormorant Garamond', serif;
+                        font-size: 36px;
+                        color: var(--gold);
+                        font-weight: 600;
+                        margin-bottom: 5px;
+                    }
+
+                    .stat-label {
+                        font-size: 10px;
+                        letter-spacing: 2px;
+                        color: var(--light-brown);
+                        text-transform: uppercase;
+                    }
+
+                    /* Logout Button */
+                    .btn-logout {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 12px;
+                        width: 100%;
+                        padding: 18px 20px;
+                        margin-top: 20px;
+                        background: rgba(231, 76, 60, 0.1);
+                        color: rgba(255, 255, 255, 0.8);
+                        border: 1px solid rgba(231, 76, 60, 0.3);
+                        border-radius: 8px;
+                        font-size: 13px;
+                        letter-spacing: 2px;
+                        text-transform: uppercase;
+                        cursor: pointer;
+                        transition: all 0.2s ease;
+                        font-weight: 500;
+                    }
+
+                    .btn-logout:hover {
+                        background: rgba(231, 76, 60, 0.2);
+                        color: #fff;
+                        border-color: rgba(231, 76, 60, 0.5);
+                        transform: translateY(-3px);
+                        box-shadow: 0 8px 20px rgba(231, 76, 60, 0.3);
+                    }
+
+                    /* Main Content */
+                    .profile-main {
+                        background: rgba(26, 26, 26, 0.6);
+                        border: 1px solid rgba(196, 165, 123, 0.2);
+                        border-radius: 12px;
+                        padding: 50px;
+                        backdrop-filter: blur(10px);
+                    }
+
+                    .info-header {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-bottom: 50px;
+                        padding-bottom: 25px;
+                        border-bottom: 1px solid rgba(196, 165, 123, 0.15);
+                    }
+
+                    .section-title {
+                        font-family: 'Cormorant Garamond', serif;
+                        font-size: 42px;
+                        font-weight: 300;
+                        letter-spacing: 6px;
+                        margin: 0;
+                    }
+
+                    .btn-edit-profile {
+                        padding: 15px 40px;
+                        background: linear-gradient(135deg, var(--gold), var(--light-gold));
+                        color: var(--dark);
+                        border: none;
+                        border-radius: 8px;
+                        font-size: 11px;
+                        letter-spacing: 2px;
+                        text-transform: uppercase;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: all 0.2s ease;
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        box-shadow: 0 8px 25px rgba(212, 175, 55, 0.3);
+                    }
+
+                    .btn-edit-profile:hover {
+                        transform: translateY(-4px);
+                        box-shadow: 0 12px 35px rgba(212, 175, 55, 0.5);
+                    }
+
+                    .info-grid {
+                        display: grid;
+                        grid-template-columns: repeat(2, 1fr);
+                        gap: 35px;
+                        margin-bottom: 50px;
+                    }
+
+                    .info-item {
+                        background: rgba(0, 0, 0, 0.25);
+                        padding: 25px 30px;
+                        border-radius: 10px;
+                        border: 1px solid rgba(196, 165, 123, 0.1);
+                        transition: all 0.2s ease;
+                    }
+
+                    .info-item:hover {
+                        border-color: rgba(212, 175, 55, 0.3);
+                        transform: translateY(-3px);
+                        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                    }
+
+                    .info-label {
+                        font-size: 10px;
+                        letter-spacing: 2px;
+                        text-transform: uppercase;
+                        color: var(--light-brown);
+                        margin-bottom: 12px;
+                        display: block;
+                        font-weight: 500;
+                    }
+
+                    .info-value {
+                        font-size: 16px;
+                        color: rgba(255, 255, 255, 0.95);
+                        letter-spacing: 1px;
+                        font-weight: 300;
+                    }
+
+                    .security-section {
+                        background: rgba(212, 175, 55, 0.03);
+                        padding: 40px;
+                        border-radius: 10px;
+                        border: 1px solid rgba(212, 175, 55, 0.15);
+                    }
+
+                    .subsection-title {
+                        font-family: 'Cormorant Garamond', serif;
+                        font-size: 28px;
+                        font-weight: 300;
+                        letter-spacing: 4px;
+                        margin-bottom: 25px;
+                        color: var(--gold);
+                    }
+
+                    .security-item {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        background: rgba(0, 0, 0, 0.2);
+                        padding: 25px 30px;
+                        border-radius: 8px;
+                        border: 1px solid rgba(196, 165, 123, 0.1);
+                    }
+
+                    .security-left {
+                        flex: 1;
+                    }
+
+                    .btn-change {
+                        padding: 12px 30px;
+                        background: transparent;
+                        border: 1px solid var(--gold);
+                        color: var(--gold);
+                        border-radius: 6px;
+                        font-size: 10px;
+                        letter-spacing: 2px;
+                        text-transform: uppercase;
+                        cursor: pointer;
+                        transition: all 0.2s ease;
+                        font-weight: 500;
+                    }
+
+                    .btn-change:hover {
+                        background: linear-gradient(135deg, var(--gold), var(--light-gold));
+                        color: var(--dark);
+                        transform: translateX(-5px);
+                        box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
+                    }
+
+                    /* Modal Styles */
+                    .modal-overlay {
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: rgba(0, 0, 0, 0.6);
+                        backdrop-filter: blur(5px);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        z-index: 10000;
+                        opacity: 0;
+                        visibility: hidden;
+                        transition: all 0.3s ease;
+                    }
+
+                    .modal-overlay.active {
+                        opacity: 1;
+                        visibility: visible;
+                    }
+
+                    .modal-content {
+                        background: rgba(26, 26, 26, 0.95);
+                        border: 1px solid rgba(212, 175, 55, 0.3);
+                        border-radius: 16px;
+                        width: 90%;
+                        max-width: 700px;
+                        max-height: 90vh;
+                        overflow-y: auto;
+                        padding: 50px;
+                        position: relative;
+                        transform: translateY(50px);
+                        opacity: 0;
+                        transition: all 0.3s ease 0.1s;
+                        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7);
+                    }
+
+                    .modal-overlay.active .modal-content {
+                        transform: translateY(0);
+                        opacity: 1;
+                    }
+
+                    .modal-close {
+                        position: absolute;
+                        top: 25px;
+                        right: 25px;
+                        width: 45px;
+                        height: 45px;
+                        background: rgba(0, 0, 0, 0.5);
+                        border: 1px solid rgba(212, 175, 55, 0.3);
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: var(--gold);
+                        font-size: 24px;
+                        cursor: pointer;
+                        transition: all 0.2s ease;
+                        z-index: 10;
+                    }
+
+                    .modal-close:hover {
+                        background: rgba(212, 175, 55, 0.2);
+                        transform: rotate(90deg);
+                    }
+
+                    .modal-header {
+                        margin-bottom: 40px;
+                        text-align: center;
+                    }
+
+                    .modal-title {
+                        font-family: 'Cormorant Garamond', serif;
+                        font-size: 42px;
+                        font-weight: 300;
+                        letter-spacing: 6px;
+                        color: var(--gold);
+                        margin-bottom: 15px;
+                    }
+
+                    .modal-subtitle {
+                        font-size: 14px;
+                        letter-spacing: 3px;
+                        color: var(--light-brown);
+                        text-transform: uppercase;
+                    }
+
+                    .modal-avatar-section {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        margin-bottom: 40px;
+                        padding-bottom: 40px;
+                        border-bottom: 1px solid rgba(196, 165, 123, 0.15);
+                    }
+
+                    .modal-avatar-wrapper {
+                        position: relative;
+                        margin-bottom: 20px;
+                    }
+
+                    .modal-avatar {
+                        width: 120px;
+                        height: 120px;
+                        border-radius: 50%;
+                        border: 3px solid var(--gold);
+                        background: linear-gradient(135deg, var(--brown), var(--light-brown));
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 42px;
+                        font-family: 'Cormorant Garamond', serif;
+                        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+                    }
+
+                    .modal-avatar-edit {
+                        position: absolute;
+                        bottom: 5px;
+                        right: 5px;
+                        width: 35px;
+                        height: 35px;
+                        background: linear-gradient(135deg, var(--gold), var(--light-gold));
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        cursor: pointer;
+                        border: 2px solid var(--dark);
+                        transition: all 0.2s ease;
+                        font-size: 14px;
+                    }
+
+                    .modal-avatar-edit:hover {
+                        transform: scale(1.1) rotate(10deg);
+                        box-shadow: 0 5px 15px rgba(212, 175, 55, 0.6);
+                    }
+
+                    .modal-avatar-text {
+                        font-size: 12px;
+                        letter-spacing: 2px;
+                        color: var(--light-brown);
+                        text-transform: uppercase;
+                    }
+
+                    .modal-form-grid {
+                        display: grid;
+                        grid-template-columns: repeat(2, 1fr);
+                        gap: 25px;
+                        margin-bottom: 40px;
+                    }
+
+                    .modal-form-group {
+                        position: relative;
+                    }
+
+                    .modal-form-group.full-width {
+                        grid-column: 1 / -1;
+                    }
+
+                    .modal-form-label {
+                        display: block;
+                        font-size: 11px;
+                        letter-spacing: 2px;
+                        text-transform: uppercase;
+                        color: var(--light-brown);
+                        margin-bottom: 10px;
+                        font-weight: 500;
+                    }
+
+                    .modal-form-input,
+                    .modal-form-select,
+                    .modal-form-textarea {
+                        width: 100%;
+                        padding: 14px 18px;
+                        background: rgba(0, 0, 0, 0.4);
+                        border: 1px solid rgba(196, 165, 123, 0.2);
+                        border-radius: 8px;
+                        color: #fff;
+                        font-size: 14px;
+                        font-family: 'Montserrat', sans-serif;
+                        transition: all 0.2s ease;
+                        letter-spacing: 1px;
+                    }
+
+                    .modal-form-input:focus,
+                    .modal-form-select:focus,
+                    .modal-form-textarea:focus {
+                        outline: none;
+                        border-color: var(--gold);
+                        background: rgba(212, 175, 55, 0.05);
+                        box-shadow: 0 0 15px rgba(212, 175, 55, 0.15);
+                    }
+
+                    .modal-form-textarea {
+                        resize: vertical;
+                        min-height: 100px;
+                    }
+
+                    .modal-form-actions {
+                        display: flex;
+                        gap: 20px;
+                        justify-content: flex-end;
+                        margin-top: 30px;
+                        padding-top: 30px;
+                        border-top: 1px solid rgba(196, 165, 123, 0.15);
+                    }
+
+                    /* OTP Modal Styles */
+                    .otp-modal-content {
+                        max-width: 500px;
+                    }
+
+                    .otp-input-group {
+                        display: flex;
+                        justify-content: center;
+                        gap: 10px;
+                        margin: 30px 0;
+                    }
+
+                    .otp-input {
+                        width: 50px;
+                        height: 60px;
+                        text-align: center;
+                        font-size: 24px;
+                        background: rgba(0, 0, 0, 0.4);
+                        border: 1px solid rgba(196, 165, 123, 0.2);
+                        border-radius: 8px;
+                        color: #fff;
+                        transition: all 0.2s ease;
+                    }
+
+                    .otp-input:focus {
+                        outline: none;
+                        border-color: var(--gold);
+                        background: rgba(212, 175, 55, 0.05);
+                        box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+                    }
+
+                    .otp-timer {
+                        text-align: center;
+                        margin: 20px 0;
+                        font-size: 14px;
+                        color: var(--light-brown);
+                    }
+
+                    .otp-actions {
+                        display: flex;
+                        gap: 15px;
+                        justify-content: center;
+                        margin-top: 30px;
+                    }
+
+                    .btn-resend {
+                        background: transparent;
+                        color: var(--gold);
+                        border: 1px solid var(--gold);
+                        padding: 12px 25px;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        transition: all 0.2s ease;
+                        font-size: 12px;
+                        letter-spacing: 1px;
+                    }
+
+                    .btn-resend:hover {
+                        background: rgba(212, 175, 55, 0.1);
+                    }
+
+                    .btn-resend:disabled {
+                        opacity: 0.5;
+                        cursor: not-allowed;
+                    }
+
+                    .message {
+                        padding: 15px;
+                        border-radius: 8px;
+                        margin: 20px 0;
+                        text-align: center;
+                        font-size: 14px;
+                    }
+
+                    .message.success {
+                        background: rgba(76, 175, 80, 0.2);
+                        color: #4CAF50;
+                        border: 1px solid rgba(76, 175, 80, 0.3);
+                    }
+
+                    .message.error {
+                        background: rgba(244, 67, 54, 0.2);
+                        color: #f44336;
+                        border: 1px solid rgba(244, 67, 54, 0.3);
+                    }
+
+                    /* Password Change Modal */
+                    .password-modal {
+                        background: rgba(26,26,26,0.95);
+                        border: 1px solid rgba(212,175,55,0.3);
+                        border-radius: 16px;
+                        padding: 40px;
+                        width: 90%;
+                        max-width: 400px;
+                        color: white;
+                        position: fixed;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%) scale(0.9);
+                        opacity: 0;
+                        visibility: hidden;
+                        z-index: 10001;
+                        transition: all 0.2s ease;
+                    }
+
+                    .password-modal.active {
+                        transform: translate(-50%, -50%) scale(1);
+                        opacity: 1;
+                        visibility: visible;
+                    }
+
+                    .password-modal h3 {
+                        color: #d4af37;
+                        margin-bottom: 20px;
+                        font-family: 'Cormorant Garamond', serif;
+                    }
+
+                    .password-modal input {
+                        width: 100%;
+                        padding: 12px;
+                        background: rgba(0,0,0,0.4);
+                        border: 1px solid rgba(196,165,123,0.2);
+                        border-radius: 6px;
+                        color: white;
+                        font-size: 14px;
+                        margin-bottom: 20px;
+                    }
+
+                    .password-modal-actions {
+                        display: flex;
+                        gap: 15px;
+                        justify-content: flex-end;
+                    }
+
+                    .password-modal-actions button {
+                        padding: 12px 25px;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        font-weight: bold;
+                    }
+
+                    .btn-cancel-password {
+                        background: transparent;
+                        border: 1px solid #d4af37;
+                        color: #d4af37;
+                    }
+
+                    .btn-submit-password {
+                        background: linear-gradient(135deg, #d4af37, #f4e4c1);
+                        color: #0a0a0a;
+                        border: none;
+                    }
+                    .error-message {
+  color: #d32f2f;
+  background: none;
+  font-size: 0.96em;         /* Smaller than 1em */
+  font-family: 'Montserrat', sans-serif;
+  border-radius: 4px;
+  padding: 3px 0 0 2px;     /* Minimal padding, no box */
+  margin: 0 0 4px 0;        /* Tight spacing */
+  display: none;
+  line-height: 1.3;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+}
+input.error, select.error {
+  border-color: #d32f2f;
+  background: #fff8f5;
+}
+
+
+                    /* ================================
+   Address Modal (Scoped & Clean)
+================================ */
+
+.address-modal {
+  display: none; /* hidden by default */
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(20, 20, 20, 0.65);
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(2px);
+  animation: fadeInOverlay 0.25s ease-in;
+}
+
+/* Modal content box */
+.address-modal-content {
+  background: #ffffff;
+  padding: 32px 28px;
+  border-radius: 16px;
+  width: 420px;
+  max-width: 90%;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  animation: fadeInModal 0.3s ease-out;
+  font-family: "Poppins", sans-serif;
+}
+
+/* Header title */
+.address-modal-title {
+  text-align: center;
+  margin-bottom: 4px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #222;
+}
+
+.address-modal-subtitle {
+  text-align: center;
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 24px;
+}
+
+/* Close button (×) */
+.address-modal-close {
+  position: absolute;
+  right: 18px;
+  top: 12px;
+  font-size: 24px;
+  cursor: pointer;
+  color: #999;
+  transition: color 0.2s;
+}
+
+.address-modal-close:hover {
+  color: #000;
+}
+
+/* Form field styling */
+.address-form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+.address-form-group label {
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.address-form-group input,
+.address-form-group select {
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.address-form-group input:focus,
+.address-form-group select:focus {
+  border-color: #222;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+  outline: none;
+}
+
+/* Submit button */
+.btn-save-address {
+  width: 100%;
+  background: linear-gradient(135deg, #222, #555);
+  color: #fff;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.btn-save-address:hover {
+  background: linear-gradient(135deg, #000, #444);
+  transform: translateY(-1px);
+}
+
+/* Small fade animations */
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInModal {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+
+                    @media (max-width: 1200px) {
+                        .profile-grid {
+                            grid-template-columns: 1fr;
+                        }
+                        
+                        .profile-sidebar {
+                            position: relative;
+                            top: 0;
+                        }
+                    }
+
+                    @media (max-width: 768px) {
+                        .profile-container {
+                            padding: 0 30px 80px;
+                        }
+
+                        .profile-main {
+                            padding: 30px 25px;
+                        }
+
+                        .profile-name {
+                            font-size: 36px;
+                            letter-spacing: 4px;
+                        }
+
+                        .info-grid {
+                            grid-template-columns: 1fr;
+                        }
+
+                        .btn-edit-profile {
+                            padding: 12px 30px;
+                            font-size: 10px;
+                        }
+
+                        .modal-content {
+                            padding: 30px 25px;
+                        }
+
+                        .modal-form-grid {
+                            grid-template-columns: 1fr;
+                        }
+                    }
+
+                
+
+                

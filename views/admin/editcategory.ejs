@@ -1,4 +1,3 @@
-
 <%- include('../partials/admin/sidebar') %>
 
 <!DOCTYPE html>
@@ -7,6 +6,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Edit Category</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css"/>
   <style>
     :root {
       --primary: #1a1a1a;
@@ -127,23 +127,69 @@
   <div class="content-main">
     <div class="content-header">
       <h1 class="content-title">Edit Category</h1>
-      <button class="btn-primary">Save Category</button>
     </div>
 
     <div class="card">
       <div class="card-body">
-        <form action="/admin/editcategory/<%= category._id %>" method="POST" class="form-container">
-  <label class="form-label" for="categoryName">Category Name</label>
-  <input type="text" id="categoryName" name="categoryName" class="form-control" value="<%= category.name %>" required>
+        <form id="editCategoryForm" class="form-container">
+          <label class="form-label" for="categoryName">Category Name</label>
+          <input type="text" id="categoryName" name="categoryName" class="form-control" value="<%= category.name %>" required>
 
-  <label class="form-label" for="description">Category Description</label>
-  <textarea id="description" name="description" class="form-control" required><%= category.description %></textarea>
+          <label class="form-label" for="description">Category Description</label>
+          <textarea id="description" name="description" class="form-control" required><%= category.description %></textarea>
 
-  <button type="submit" class="btn-primary">Update Category</button>
-</form>
-
+          <button type="submit" class="btn-primary">Update Category</button>
+        </form>
       </div>
     </div>
   </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
+  <script>
+    document.getElementById('editCategoryForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      
+      const categoryName = document.getElementById('categoryName').value.trim();
+      const description = document.getElementById('description').value.trim();
+      const categoryId = '<%= category._id %>';
+
+      fetch(`/admin/editcategory/${categoryId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          categoryName: categoryName,
+          description: description
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: data.error
+          });
+        } else if (data.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: data.message
+          }).then(() => {
+            window.location.href = '/admin/category';
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'An unexpected error occurred'
+        });
+      });
+    });
+  </script>
 </body>
 </html>

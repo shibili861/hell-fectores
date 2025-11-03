@@ -19,16 +19,19 @@ const getproductAddpage = async (req, res) => {
 };
 const addProducts = async (req, res) => {
     try {
-      
-
         if (mongoose.connection.readyState !== 1) {
+            
             return res.json({
                 success: false,
                 message: "Database connection failed. Please check if MongoDB is running."
             });
         }
-
-        const { productName, category, regularPrice, salePrice, stockQty, description, shortDescription } = req.body;
+         console.log('=== BACKEND RECEIVED DATA ===');
+        console.log('req.body.sizes:', req.body.sizes);
+        console.log('req.body.quantities:', req.body.quantities);
+        console.log('req.body.enableVariants:', req.body.enableVariants);
+         
+        const { productName, category, regularPrice, salePrice, stockQty, description, shortDescription, sizes, quantities } = req.body;
 
         if (!productName || !category || !regularPrice || !stockQty || !description) {
             return res.json({
@@ -86,6 +89,29 @@ const addProducts = async (req, res) => {
 
         let status = parseInt(stockQty) === 0 ? 'Out of stock' : 'Available';
 
+        // Handle size variants (only sizes and quantities)
+        const sizeVariants = [];
+        let hasVariants = false;
+        
+        if (sizes && Array.isArray(sizes)) {
+            for (let i = 0; i < sizes.length; i++) {
+                if (sizes[i] && quantities[i]) {
+                    sizeVariants.push({
+                        size: sizes[i],
+                        quantity: parseInt(quantities[i]) || 0
+                    });
+                }
+            }
+            hasVariants = sizeVariants.length > 0;
+        }
+
+        // Calculate total quantity from variants if they exist
+        let totalQuantity = parseInt(stockQty);
+        if (hasVariants) {
+            totalQuantity = sizeVariants.reduce((total, variant) => total + variant.quantity, 0);
+            status = totalQuantity === 0 ? 'Out of stock' : 'Available';
+        }
+
         const newProduct = new Product({
             productName,
             description,
@@ -93,11 +119,13 @@ const addProducts = async (req, res) => {
             category: categoryDoc._id,
             regularPrice: parseFloat(regularPrice),
             salePrice: salePrice ? parseFloat(salePrice) : 0,
-            quantity: parseInt(stockQty),
+            quantity: totalQuantity,
             productImage,
-            status
+            status,
+            sizeVariants,
+            hasVariants
         });
-
+   console.log("user saved")
         await newProduct.save();
 
         return res.json({
@@ -121,10 +149,10 @@ const addProductsbutton = async (req, res) => {
         // Fetch categories from database
         const categories = await Category.find({ isListed: true });
         
-        console.log('Categories found:', categories.length); // Debug log
+        console.log('Categories found:', categories.length); 
         
         res.render("admin/products-add", { 
-            cat: categories  // Pass categories as 'cat' to match EJS template
+            cat: categories  
         });
     } catch (error) {
         console.error("Error loading add products page:", error);
@@ -254,7 +282,6 @@ const deleteProduct = async (req, res) => {
 
 
 // edit products
-
 const getEditProductPage = async (req, res) => {
     try {
         const productId = req.query.id;
@@ -270,6 +297,9 @@ const getEditProductPage = async (req, res) => {
             return res.redirect("/admin/allproducts");
         }
         
+        if (!product.hasVariants) product.hasVariants = false;
+        if (!product.sizeVariants) product.sizeVariants = [];
+        
         res.render("admin/editproducts", {
             product: product,
             cat: categories
@@ -280,7 +310,6 @@ const getEditProductPage = async (req, res) => {
         res.redirect("/admin-error");
     }
 };
-
 // --- UPDATE PRODUCT ---
 const updateProduct = async (req, res) => {
     try {
@@ -299,7 +328,10 @@ const updateProduct = async (req, res) => {
             salePrice, 
             stockQty, 
             description, 
-            shortDescription 
+            shortDescription,
+            sizes,
+            quantities,
+            enableVariants
         } = req.body;
 
         // Validate required fields
@@ -319,7 +351,7 @@ const updateProduct = async (req, res) => {
             });
         }
 
-        // Check for duplicate product name (excluding current product)
+       
         const duplicateProduct = await Product.findOne({
             productName: productName,
             _id: { $ne: productId }
@@ -349,7 +381,7 @@ const updateProduct = async (req, res) => {
                 
                 for (const imageIndex of removedImages) {
                     if (updatedImages[imageIndex]) {
-                        // Delete image file from filesystem
+                        // Delete image file 
                         const imagePath = path.join(__dirname, '../../public', updatedImages[imageIndex]);
                         if (fs.existsSync(imagePath)) {
                             fs.unlinkSync(imagePath);
@@ -391,9 +423,31 @@ const updateProduct = async (req, res) => {
             }
         }
 
+        // Handle size variants (only sizes and quantities)
+        const sizeVariants = [];
+        let hasVariants = false;
+        let totalQuantity = parseInt(stockQty);
+
+        if (enableVariants && sizes && Array.isArray(sizes)) {
+            for (let i = 0; i < sizes.length; i++) {
+                if (sizes[i] && quantities[i] !== undefined && quantities[i] !== '') {
+                    sizeVariants.push({
+                        size: sizes[i],
+                        quantity: parseInt(quantities[i]) || 0
+                    });
+                }
+            }
+            hasVariants = sizeVariants.length > 0;
+            
+            // Calculate total quantity from variants
+            if (hasVariants) {
+                totalQuantity = sizeVariants.reduce((total, variant) => total + variant.quantity, 0);
+            }
+        }
+
         // Update status based on stock quantity
         let status = 'Available';
-        if (parseInt(stockQty) === 0) {
+        if (totalQuantity === 0) {
             status = 'Out of stock';
         }
 
@@ -407,9 +461,11 @@ const updateProduct = async (req, res) => {
                 category: category,
                 regularPrice: parseFloat(regularPrice),
                 salePrice: salePrice ? parseFloat(salePrice) : 0,
-                quantity: parseInt(stockQty),
+                quantity: totalQuantity,
                 productImage: updatedImages,
                 status: status,
+                sizeVariants: sizeVariants,
+                hasVariants: hasVariants,
                 updatedAt: Date.now()
             },
             { new: true }
@@ -452,9 +508,8 @@ module.exports = {
     updateProduct,
     addProductsbutton
 
-
-
 };
+
 
 
 

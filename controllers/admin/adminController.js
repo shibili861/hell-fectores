@@ -10,8 +10,24 @@ const pageerror = async (req, res) => {
 
 
 // Load login page
+
 const loadlogin = (req, res) => {
-  res.render("admin/login", { message: null });
+  try {
+    if (req.session.adminId) {
+      // Admin already logged in → prevent seeing login again
+      return res.redirect("/admin/dashboard");
+    }
+
+    // Not logged in → render login page (with no-cache headers)
+    res.set("Cache-Control", "no-cache, no-store, must-revalidate");
+    res.set("Pragma", "no-cache");
+    res.set("Expires", "0");
+
+    res.render("admin/login", { message: null });
+  } catch (error) {
+    console.error("Admin login load error:", error);
+    res.redirect("/admin/page-error");
+  }
 };
 
 // Handle login
@@ -43,17 +59,27 @@ const loaddashbord = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
-
-// Logout
+// Logout - ADMIN
 const logout = (req, res) => {
-  req.session.destroy((err) => {
-    if (err) {
-      console.log("Error destroying session:", err);
+  try {
+    // Validate session exists
+    if (!req.session) {
+      console.log("No session found during admin logout");
+      return res.redirect("/admin/login");
     }
+    
+    // Clear admin-specific session data
+    req.session.adminId = null;
+    
+    console.log("Admin logged out successfully");
     res.redirect("/admin/login");
-  });
+    
+  } catch (error) {
+    console.error("Error in admin logout controller:", error);
+    // Ensure user is redirected even on error
+    res.redirect("/admin/login");
+  }
 };
-
 
 
 
