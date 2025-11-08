@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Order Details - ÉLÉGANCE</title>
+  <link rel="stylesheet" href="/user/order-details.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(135deg, #0a0a0a, #1a1410);
+      color: #fff;
+      padding: 40px;
+    }
+
+    .order-details-container {
+      max-width: 900px;
+      margin: auto;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(212,175,55,0.3);
+      border-radius: 16px;
+      padding: 40px 60px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+    }
+
+    .page-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 42px;
+      color: #d4af37;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .order-id, .order-date {
+      text-align: center;
+      color: #aaa;
+      margin-bottom: 5px;
+    }
+
+    section { margin-top: 40px; }
+
+    h2 {
+      color: #d4af37;
+      font-family: 'Cormorant Garamond', serif;
+      border-bottom: 1px solid rgba(212,175,55,0.2);
+      padding-bottom: 8px;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    img {
+      width: 60px;
+      height: 60px;
+      border-radius: 6px;
+      object-fit: cover;
+    }
+
+    .summary-section p {
+      margin: 8px 0;
+      font-size: 16px;
+    }
+
+    .summary-section strong {
+      color: #f4e4c1;
+    }
+
+    .button-group {
+      text-align: center;
+      margin-top: 40px;
+    }
+
+    .btn {
+      padding: 12px 30px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-secondary {
+      border: 1px solid #d4af37;
+      color: #d4af37;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(212,175,55,0.1);
+      transform: translateY(-2px);
+    }
+
+    .action-btn {
+      background: linear-gradient(135deg, #d4af37, #b8941f);
+      color: #0b0b0f;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-right: 10px;
+      transition: 0.3s ease;
+    }
+
+    .action-btn:hover {
+      box-shadow: 0 0 12px rgba(212,175,55,0.6);
+      transform: translateY(-2px);
+    }
+
+    /* === Order Tracker === */
+    .order-tracker {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 30px;
+      position: relative;
+    }
+
+    .order-tracker::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: rgba(255,255,255,0.1);
+      z-index: 1;
+    }
+
+    .tracker-step {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      flex: 1;
+    }
+
+    .tracker-circle {
+      width: 25px;
+      height: 25px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      margin: auto;
+      margin-bottom: 6px;
+      border: 2px solid rgba(212,175,55,0.4);
+    }
+
+    .tracker-step.active .tracker-circle {
+      background: linear-gradient(135deg, #d4af37, #b8941f);
+      border-color: #d4af37;
+      box-shadow: 0 0 12px rgba(212,175,55,0.6);
+    }
+
+    .tracker-label {
+      font-size: 13px;
+      color: #f4e4c1;
+      opacity: 0.8;
+    }
+
+    /* === Modal === */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(6px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .modal-content {
+      background: #0b0b0f;
+      border: 1px solid rgba(212,175,55,0.4);
+      border-radius: 16px;
+      width: 90%;
+      max-width: 420px;
+      padding: 25px;
+      color: #fff;
+      text-align: center;
+      box-shadow: 0 0 25px rgba(212,175,55,0.3);
+      transform: scale(0.95);
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+
+    .modal.show .modal-content {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    select, textarea {
+      width: 100%;
+      margin: 10px 0;
+      border-radius: 10px;
+      border: 1px solid rgba(212,175,55,0.4);
+      padding: 10px;
+      background: rgba(255,255,255,0.05);
+      color: #fff;
+      font-size: 14px;
+    }
+
+    .modal-content button {
+      margin: 10px 8px;
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .confirm-btn {
+      background: linear-gradient(135deg, #d4af37, #b8941f);
+      color: #0b0b0f;
+    }
+
+    .close-btn {
+      border: 1px solid rgba(212,175,55,0.4);
+      background: transparent;
+      color: #d4af37;
+    }
+
+    .close-btn:hover {
+      background: rgba(212,175,55,0.1);
+    }
+    @media print {
+  body {
+    background: #fff;
+    color: #000;
+  }
+
+  .order-details-container {
+    box-shadow: none;
+    border: none;
+    background: #fff;
+    color: #000;
+  }
+
+  .btn, .action-btn, .modal, .button-group {
+    display: none !important;
+  }
+
+  .page-title {
+    color: #000;
+    font-size: 28px;
+  }
+
+  .order-tracker, .tracker-circle {
+    display: none !important;
+  }
+
+  h2 {
+    color: #000;
+    border-bottom: 1px solid #000;
+  }
+
+  table {
+    width: 100%;
+    border: 1px solid #000;
+  }
+
+  th, td {
+    border: 1px solid #000;
+    padding: 6px;
+    color: #000;
+  }
+
+  img {
+    border: 1px solid #000;
+  }
+}
+
+  </style>
+</head>
+
+<body>
+  <div class="order-details-container">
+    <h1 class="page-title">🧾 Order Details</h1>
+    <p class="order-id">Order ID: <strong><%= order.orderId %></strong></p>
+    <p class="order-date">Placed On: <%= new Date(order.createdOn).toLocaleDateString() %></p>
+  <div style="text-align:right; margin-bottom:20px;">
+  <button onclick="printInvoice()" 
+          class="btn btn-secondary" 
+          style="font-size:14px; padding:8px 16px;">
+    🧾 Print / Save as PDF
+  </button>
+</div>
+
+
+
+    <!-- 🟡 Order Tracker -->
+    <div class="order-tracker">
+      <div class="tracker-step <%= ['Pending','Processing','Shipped','Delivered'].includes(order.status) ? 'active' : '' %>">
+        <div class="tracker-circle"></div>
+        <div class="tracker-label">Ordered</div>
+      </div>
+      <div class="tracker-step <%= ['Processing','Shipped','Delivered'].includes(order.status) ? 'active' : '' %>">
+        <div class="tracker-circle"></div>
+        <div class="tracker-label">Processing</div>
+      </div>
+      <div class="tracker-step <%= ['Shipped','Delivered'].includes(order.status) ? 'active' : '' %>">
+        <div class="tracker-circle"></div>
+        <div class="tracker-label">Shipped</div>
+      </div>
+      <div class="tracker-step <%= order.status === 'Delivered' ? 'active' : '' %>">
+        <div class="tracker-circle"></div>
+        <div class="tracker-label">Delivered</div>
+      </div>
+    </div>
+
+    <!-- 🏠 Address -->
+    <section>
+      <h2>Shipping Address</h2>
+      <p><%= order.address?.name %></p>
+      <p><%= order.address?.city %>, <%= order.address?.state %> - <%= order.address?.pincode %></p>
+      <p>Phone: <%= order.address?.phone %></p>
+    </section>
+
+    <!-- 🛍️ Products -->
+    <section>
+      <h2>Ordered Items</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Image</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>Subtotal</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% order.orderedItems.forEach(item => { %>
+            <tr>
+              <td><%= item.product?.productName %></td>
+              <td><img src="<%= item.product?.productImage?.[0] %>" alt=""></td>
+              <td><%= item.quantity %></td>
+              <td>₹<%= item.price.toLocaleString() %></td>
+              <td>₹<%= (item.price * item.quantity).toLocaleString() %></td>
+              <td><strong><%= item.status %></strong></td>
+              <td>
+                <% if (item.status === "Pending" || item.status === "Processing") { %>
+                  <button class="action-btn" onclick="openCancelModal('<%= order.orderId %>', '<%= item._id %>')">Cancel</button>
+                <% } else if (item.status === "Delivered" && !item.returnRequested) { %>
+                  <button class="action-btn" onclick="openReturnModal('<%= order.orderId %>', '<%= item._id %>')">Return</button>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 💰 Summary -->
+    <section>
+      <h2>Payment Summary</h2>
+      <p>Subtotal: ₹<%= order.totalPrice.toLocaleString() %></p>
+      <p>Discount: ₹<%= order.discount.toLocaleString() %></p>
+      <p><strong>Total Paid: ₹<%= order.finalAmount.toLocaleString() %></strong></p>
+      <p>Payment Method: <strong><%= order.paymentMethod %></strong></p>
+      <p>Status: <strong><%= order.status %></strong></p>
+    </section>
+
+    <!-- Buttons -->
+    <div class="button-group">
+      <% if (order.status === "Pending" || order.status === "Processing") { %>
+        <button class="action-btn" onclick="openCancelModal('<%= order.orderId %>')">Cancel Entire Order</button>
+      <% } %>
+      <a href="/collections" class="btn btn-secondary">← Continue Shopping</a>
+    </div>
+  </div>
+
+  <!-- Cancel Modal -->
+  <div id="cancelModal" class="modal">
+    <div class="modal-content">
+      <h3>Cancel Order</h3>
+      <p>Select a reason for cancellation:</p>
+      <select id="cancelReasonSelect">
+        <option value="">Select reason</option>
+        <option value="Ordered by mistake">Ordered by mistake</option>
+        <option value="Found cheaper elsewhere">Found cheaper elsewhere</option>
+        <option value="Delivery time too long">Delivery time too long</option>
+        <option value="Need to change address">Need to change address</option>
+        <option value="Other">Other</option>
+      </select>
+      <textarea id="cancelReasonText" placeholder="If Other, please specify..." style="display:none;"></textarea>
+      <button class="confirm-btn" id="confirmCancelBtn">Confirm Cancel</button>
+      <button class="close-btn" onclick="closeCancelModal()">Close</button>
+    </div>
+  </div>
+
+  <!-- Return Modal -->
+  <div id="returnModal" class="modal">
+    <div class="modal-content">
+      <h3>Return Item</h3>
+      <textarea id="returnReason" placeholder="Reason (required)"></textarea>
+      <button class="confirm-btn" id="confirmReturnBtn">Submit Return</button>
+      <button class="close-btn" onclick="closeReturnModal()">Close</button>
+    </div>
+  </div>
+
+  <script>
+    let currentOrderId = null;
+    let currentItemId = null;
+
+    const reasonSelect = document.getElementById("cancelReasonSelect");
+    const reasonText = document.getElementById("cancelReasonText");
+
+    reasonSelect.addEventListener("change", () => {
+      reasonText.style.display = reasonSelect.value === "Other" ? "block" : "none";
+    });
+
+    function openCancelModal(orderId, itemId = null) {
+      currentOrderId = orderId;
+      currentItemId = itemId;
+      document.getElementById("cancelModal").style.display = "flex";
+      setTimeout(() => document.getElementById("cancelModal").classList.add("show"), 50);
+    }
+
+    function closeCancelModal() {
+      const modal = document.getElementById("cancelModal");
+      modal.classList.remove("show");
+      setTimeout(() => modal.style.display = "none", 200);
+      reasonSelect.value = "";
+      reasonText.value = "";
+    }
+
+    document.getElementById("confirmCancelBtn").addEventListener("click", async () => {
+      let reason = reasonSelect.value === "Other" ? reasonText.value : reasonSelect.value;
+      const endpoint = currentItemId ? "/cancel-item" : "/cancel-order";
+      const body = { orderId: currentOrderId, reason };
+      if (currentItemId) body.itemId = currentItemId;
+
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      alert(data.message);
+      if (data.success) location.reload();
+    });
+
+    function openReturnModal(orderId, itemId) {
+      currentOrderId = orderId;
+      currentItemId = itemId;
+      document.getElementById("returnModal").style.display = "flex";
+      setTimeout(() => document.getElementById("returnModal").classList.add("show"), 50);
+    }
+
+    function closeReturnModal() {
+      const modal = document.getElementById("returnModal");
+      modal.classList.remove("show");
+      setTimeout(() => modal.style.display = "none", 200);
+      document.getElementById("returnReason").value = "";
+    }
+
+    document.getElementById("confirmReturnBtn").addEventListener("click", async () => {
+      const reason = document.getElementById("returnReason").value.trim();
+      if (!reason) return alert("Please enter a reason for return.");
+
+      const res = await fetch("/return-item", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId: currentOrderId, itemId: currentItemId, reason })
+      });
+      const data = await res.json();
+      alert(data.message);
+      if (data.success) location.reload();
+    });
+
+    function printInvoice() {
+  // Hide buttons and modals during print
+  const buttons = document.querySelectorAll(".button-group, .action-btn, .btn, .modal");
+  buttons.forEach(el => el.style.display = "none");
+
+  window.print();
+
+  // Restore buttons after printing
+  setTimeout(() => {
+    buttons.forEach(el => el.style.display = "");
+  }, 500);
+}
+
+  </script>
+</body>
+</html>

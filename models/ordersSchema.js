@@ -1,64 +1,121 @@
-const mongoose=require(mongoose);
-const {Schema}=mongoose;
-const {v4:uuidv4}=require('uuid');
-const address = require('./addressSchema');
+const mongoose = require('mongoose');
+const { Schema } = mongoose;
+const { v4: uuidv4 } = require('uuid');
 
-const orderSchema=new Schema({
-    orderId:{
-        type:String,
-        default:()=>uuidv4(),
-        unique:true
-    },
-    orderedItems:[{
-        product:{
-           type:Schema.Types.ObjectId,
-           ref:"product",
-           required:true 
-        },
-        quantity:{
-            type:Number,
-            required:true
-        },
-        price:{
-            type:Number,
-            default:0
-        }
-    }],
-    totalPrice:{
-        type:Number,
-        required:true
+// Sub-schema for individual order items
+const orderedItemSchema = new Schema({
+  product: {
+    type: Schema.Types.ObjectId,
+    ref: "Product",
+    required: true
+  },
+  quantity: {
+    type: Number,
+    required: true
+  },
+  price: {
+    type: Number,
+    default: 0
+  },
+  size: { type: String, required: true },
 
-    },
-    discount:{
-        type:Number,
-        default:0
-    },
-    finalAmount:{
-        type:Number,
-        required:true
-    },
-    address:{
-         type:Schema.Types.ObjectId,
-         ref:"user",
-         requird:true
-    },
-    invoiceDate:{
-        type:Date
-    },
-    status:{
-        type:String,
-        required:true,
-        enum:['pending','processing','shipped','deliverd','cancelled','return Request','Returned']
-    },
-    createdOn:{
-        type:Date,
-        default:Date.now,
-        required:true
-    },
-    couponApplied:{
-       type:Boolean,
-       default:false 
-    }
-})
-const order=mongoose.model('order',ordersSchema);
-module.exports=order;
+  // ✅ Track individual item-level status INCLUDING "Out for Delivery"
+  status: {
+    type: String,
+    enum: [
+      'Pending',
+      'Processing',
+      'Shipped',
+      'Out for Delivery',
+      'Delivered',
+      'Cancelled',
+      'Returned'
+    ],
+    default: 'Pending'
+  },
+
+  cancelReason: { type: String },
+  returnReason: { type: String },
+
+  // ✅ To flag when user requests return
+  returnRequested: { type: Boolean, default: false },
+
+}, { timestamps: true });
+
+
+// Main order schema
+const orderSchema = new Schema({
+  orderId: {
+    type: String,
+    default: () => uuidv4(),
+    unique: true
+  },
+
+  userId: {
+    type: Schema.Types.ObjectId,
+    ref: 'user',
+    required: true
+  },
+
+  orderedItems: [orderedItemSchema],
+
+  totalPrice: {
+    type: Number,
+    required: true
+  },
+
+  discount: {
+    type: Number,
+    default: 0
+  },
+
+  finalAmount: {
+    type: Number,
+    required: true
+  },
+
+  address: {
+    type: Object,
+    required: true
+  },
+
+  paymentMethod: {
+    type: String,
+    enum: ['COD', 'Online'],
+    default: 'COD'
+  },
+
+  // ✅ Main order-level status
+  status: {
+    type: String,
+    enum: [
+      'Pending',
+      'Processing',
+      'Shipped',
+      'Out for Delivery',
+      'Delivered',
+      'Cancelled',
+      'Returned',
+      'requested'
+    ],
+    default: 'Pending'
+  },
+
+  invoiceDate: {
+    type: Date,
+    default: Date.now
+  },
+
+  couponApplied: {
+    type: Boolean,
+    default: false
+  },
+
+  createdOn: {
+    type: Date,
+    default: Date.now
+  }
+
+}, { timestamps: true });
+
+module.exports = mongoose.model('Order', orderSchema);

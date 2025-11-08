@@ -296,17 +296,29 @@
             color: #4ade80;
         }
 
-        .out-of-stock {
-            color: #f87171;
-        }
+       .size-option.out-of-stock {
+    opacity: 0.5;
+    background: rgba(255, 255, 255, 0.1);
+    cursor: not-allowed;
+    position: relative;
+}
 
-        .in-stock .stock-dot {
-            background: #4ade80;
-        }
+.size-option.out-of-stock:hover {
+    transform: none;
+    border-color: rgba(196, 165, 123, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+}
 
-        .out-of-stock .stock-dot {
-            background: #f87171;
-        }
+.size-option.out-of-stock::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 10%;
+    width: 80%;
+    height: 1px;
+    background: #f87171;
+    transform: rotate(-45deg);
+}
 
         @keyframes pulse {
             0%, 100% { opacity: 1; }
@@ -636,44 +648,52 @@
                     <span class="reviews">(<%= product.reviews || '1222' %> reviews)</span>
                 </div>
 
-                <div class="price-section">
-                    <div class="price-wrapper">
-                        <% if (product.salePrice && product.salePrice < product.regularPrice) { %>
-                            <span class="current-price">₹<%= product.salePrice %></span>
-                            <span class="original-price">₹<%= product.regularPrice %></span>
-                            <% 
-                            const discount = Math.round(((product.regularPrice - product.salePrice) / product.regularPrice) * 100);
-                            if (discount > 0) { %>
-                                <span class="discount-badge"><%= discount %>% OFF</span>
-                            <% } %>
-                        <% } else { %>
-                            <span class="current-price">₹<%= product.regularPrice %></span>
-                        <% } %>
-                    </div>
-                    <div class="stock-status <%= product.quantity > 0 ? 'in-stock' : 'out-of-stock' %>">
-                        <span class="stock-dot"></span>
-                        <span><%= product.quantity > 0 ? 'IN STOCK' : 'OUT OF STOCK' %></span>
-                    </div>
-                </div>
+             <div class="price-section">
+    <div class="price-wrapper">
+        <% if (product.salePrice && product.salePrice < product.regularPrice) { %>
+            <span class="current-price">₹<%= product.salePrice %></span>
+            <span class="original-price">₹<%= product.regularPrice %></span>
+            <% 
+            const discount = Math.round(((product.regularPrice - product.salePrice) / product.regularPrice) * 100);
+            if (discount > 0) { %>
+                <span class="discount-badge"><%= discount %>% OFF</span>
+            <% } %>
+        <% } else { %>
+            <span class="current-price">₹<%= product.regularPrice %></span>
+        <% } %>
+    </div>
+    <!-- Dynamic Stock Status - Will be updated by JavaScript -->
+    <div class="stock-status" id="stockStatus">
+        <span class="stock-dot"></span>
+        <span id="stockText">Select Size</span>
+    </div>
+</div>
 
-               <!-- Size Selection -->
-    <!-- Size Selection - SIMPLE FIX -->
+   <!-- Size Selection - FIXED VERSION -->
 <div class="size-section">
     <p class="section-label">Select Size</p>
     <div class="size-grid">
         <% if (product.sizeVariants && product.sizeVariants.length > 0) { %>
-            <!-- Show size variants -->
+            <!-- Show size variants with proper stock status -->
             <% product.sizeVariants.forEach((variant, index) => { %>
-                <button class="size-option" data-size="<%= variant.size %>">
+                <button 
+                    class="size-option <%= variant.quantity > 0 ? '' : 'out-of-stock' %> <%= index === 0 && variant.quantity > 0 ? 'active' : '' %>" 
+                    data-size="<%= variant.size %>"
+                    data-quantity="<%= variant.quantity %>"
+                    <%= variant.quantity <= 0 ? 'disabled' : '' %>
+                >
                     <%= variant.size %>
+                    <% if (variant.quantity <= 0) { %>
+                        <br><small style="font-size: 10px; color: #f87171;">Out of Stock</small>
+                    <% } %>
                 </button>
             <% }); %>
         <% } else { %>
             <!-- Show regular sizes if no variants -->
-            <button class="size-option active" data-size="S">S</button>
-            <button class="size-option" data-size="M">M</button>
-            <button class="size-option" data-size="L">L</button>
-            <button class="size-option" data-size="XL">XL</button>
+            <button class="size-option active" data-size="S" data-quantity="<%= product.quantity %>">S</button>
+            <button class="size-option" data-size="M" data-quantity="<%= product.quantity %>">M</button>
+            <button class="size-option" data-size="L" data-quantity="<%= product.quantity %>">L</button>
+            <button class="size-option" data-size="XL" data-quantity="<%= product.quantity %>">XL</button>
         <% } %>
     </div>
 </div>
@@ -689,14 +709,22 @@
                         </div>
                     </div>
                 </div>
+<% 
+let inStock = false;
+if (product.sizeVariants && product.sizeVariants.length > 0) {
+  inStock = product.sizeVariants.some(v => v.quantity > 0);
+} else {
+  inStock = product.quantity > 0;
+}
+%>
 
-      <!-- Action Buttons - Only Add to Cart -->
 <button 
     class="btn-add-cart" 
     id="addToCartBtn"
-    <%= product.quantity <= 0 ? 'disabled' : '' %>>
-    <%= product.quantity > 0 ? 'Add to Cart' : 'Out of Stock' %>
+    disabled>
+    Select Size
 </button>
+
 
 
 
@@ -763,12 +791,57 @@
             }
         }
 
-   // Simple Size Selection
-document.querySelectorAll('.size-option').forEach(btn => {
-    btn.addEventListener('click', function() {
-        document.querySelectorAll('.size-option').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
+  // Size Selection with Stock Management
+document.addEventListener('DOMContentLoaded', function() {
+    const sizeButtons = document.querySelectorAll('.size-option:not(.out-of-stock)');
+    const stockStatus = document.getElementById('stockStatus');
+    const stockText = document.getElementById('stockText');
+    const stockDot = document.querySelector('.stock-dot');
+    const addToCartBtn = document.getElementById('addToCartBtn');
+
+    // Initialize - auto-select first available size
+    const firstAvailableSize = document.querySelector('.size-option:not(.out-of-stock)');
+    if (firstAvailableSize) {
+        firstAvailableSize.classList.add('active');
+        updateStockStatus(firstAvailableSize.getAttribute('data-quantity'));
+    } else {
+        // No sizes available
+        stockStatus.className = 'stock-status out-of-stock';
+        stockText.textContent = 'OUT OF STOCK';
+        addToCartBtn.disabled = true;
+        addToCartBtn.textContent = 'Out of Stock';
+    }
+
+    // Size selection
+    sizeButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (this.classList.contains('out-of-stock')) return;
+            
+            document.querySelectorAll('.size-option').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            const quantity = this.getAttribute('data-quantity');
+            updateStockStatus(quantity);
+        });
     });
+
+    function updateStockStatus(quantity) {
+        const qty = parseInt(quantity);
+        
+        if (qty > 0) {
+            stockStatus.className = 'stock-status in-stock';
+            stockText.textContent = 'IN STOCK';
+            stockDot.style.background = '#4ade80';
+            addToCartBtn.disabled = false;
+            addToCartBtn.textContent = 'Add to Cart';
+        } else {
+            stockStatus.className = 'stock-status out-of-stock';
+            stockText.textContent = 'OUT OF STOCK';
+            stockDot.style.background = '#f87171';
+            addToCartBtn.disabled = true;
+            addToCartBtn.textContent = 'Out of Stock';
+        }
+    }
 });
 
 // Function to update stock status based on selected size
@@ -968,44 +1041,61 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // ========== ADD TO CART FUNCTIONALITY ==========
     
-    // Add to cart function for product page
     async function addToCart(productId, quantity = 1) {
-        try {
-            console.log('Adding to cart:', { productId, quantity });
-            
-            const response = await fetch('/api/cart/add', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    productId: productId,
-                    quantity: quantity
-                })
-            });
+    try {
+        // ✅ Check if size selection exists (only in details page)
+        const sizeButtons = document.querySelectorAll('.size-option');
+        let size = null;
 
-            const data = await response.json();
-            console.log('Add to cart response:', data);
-            
-            if (data.success) {
-                // Show success message
-                showToast('✅ Product added to cart!');
-                
-                // Update cart count
-                updateCartCount();
-                
-                // Redirect to cart page after 1 second
-                setTimeout(() => {
-                    window.location.href = '/cart';
-                }, 1000);
-            } else {
-                showToast('❌ ' + (data.message || 'Failed to add to cart'));
+        if (sizeButtons.length > 0) {
+            const selectedSize = document.querySelector('.size-option.active');
+            if (!selectedSize) {
+                showToast('⚠️ Please select a size before adding to cart');
+                return;
             }
-        } catch (error) {
-            console.error('Error adding to cart:', error);
-            showToast('❌ Error adding to cart');
+            size = selectedSize.getAttribute('data-size');
         }
+
+        // ✅ Send request
+        const response = await fetch('/api/cart/add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId, quantity, size })
+        });
+
+        const data = await response.json();
+        console.log('Add to cart response:', data);
+
+        if (data.success) {
+            showToast('✅ Product added to cart!');
+            updateCartCount();
+
+            // Optional redirect after 1s
+            setTimeout(() => {
+                window.location.href = '/cart';
+            }, 1000);
+        } else {
+            showToast(`❌ ${data.message || 'Failed to add to cart'}`);
+        }
+
+    } catch (error) {
+        console.error('Error adding to cart:', error);
+        showToast('❌ Error adding to cart');
     }
+}
+
+document.getElementById('addToCartBtn').addEventListener('click', function() {
+    const productId = "<%= product._id %>";
+    const quantity = parseInt(document.getElementById('quantity').value) || 1;
+
+    if (this.disabled) {
+        showToast('❌ Product is out of stock');
+        return;
+    }
+
+    console.log('Add to cart button clicked:', { productId, quantity });
+    addToCart(productId, quantity);
+});
 
     // Toast function for product page
     function showToast(message) {
@@ -1056,48 +1146,18 @@ document.addEventListener('DOMContentLoaded', function() {
             to { transform: translateX(0); opacity: 1; }
         }
     `;
-    
+
     document.head.appendChild(toastStyles);
 
-    document.getElementById('addToCartBtn').addEventListener('click', function() {
-        const productId = "<%= product._id %>";
-        const quantity = parseInt(document.getElementById('quantity').value) || 1;
-        
-        // Check if button is disabled (out of stock)
-        if (this.disabled) {
-            showToast('❌ Product is out of stock');
-            return;
-        }
-        
-        console.log('Add to cart button clicked:', { productId, quantity });
-        addToCart(productId, quantity);
-    });
+  
 
     // ========== END ADD TO CART FUNCTIONALITY ==========
 
 
-  // Debug: Check if routes are working
-async function testCartRoutes() {
-    try {
-        console.log('Testing cart routes...');
-        
-        // Test if cart page is accessible
-        const cartPageResponse = await fetch('/cart');
-        console.log('Cart page status:', cartPageResponse.status);
-        
-        // Test if API endpoint is accessible
-        const apiResponse = await fetch('/api/cart');
-        console.log('API cart status:', apiResponse.status);
-        
-    } catch (error) {
-        console.error('Route test failed:', error);
-    }
-}
-
 // Run test on page load
 document.addEventListener('DOMContentLoaded', function() {
     testCartRoutes();
-    updateCartCount(); // Initialize cart count
+    updateCartCount();
 });
 
     </script>

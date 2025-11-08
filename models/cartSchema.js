@@ -29,6 +29,10 @@ const cartSchema = new Schema({
         required: true,
         min: 0,
       },
+      size: {
+        type: String,
+         default: null, // ✅ Added this field
+      },
       status: {
         type: String,
         default: "placed",

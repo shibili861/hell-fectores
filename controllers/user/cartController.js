@@ -2,15 +2,42 @@ const mongoose = require("mongoose");
 const Cart = require("../../models/cartSchema");
 const Product = require("../../models/productSchema");
 const Category = require("../../models/categorySchema");
+const User = require("../../models/userSchema");
+
+
+
+
+
+
+
+const renderCartPage=async (req, res) => {
+  try {
+    const userId = req.session.userId;
+    const user = userId ? await User.findById(userId) : null;
+
+    
+    const cart = userId ? await Cart.findOne({ userId }) : null;
+    const cartCount = cart ? cart.items.length : 0;
+
+    // ✅ Render EJS and pass user + cart count
+    res.render("user/cart", { user, cartCount });
+  } catch (err) {
+    console.error("Render cart error:", err);
+    res.render("user/cart", { user: null, cartCount: 0 });
+  }
+};
+
 
 const addToCart = async (req, res) => {
   try {
     const userId = req.session.userId;
-    const { productId, quantity = 1 } = req.body;
-    if (!userId) return res.status(401).json({ success: false, message: "Not authenticated" });
+    const { productId, quantity = 1, size } = req.body; // ✅ Include size
+    if (!userId)
+      return res.status(401).json({ success: false, message: "Not authenticated" });
 
     const product = await Product.findById(productId).populate("category");
-    if (!product) return res.status(404).json({ success: false, message: "Product not found" });
+    if (!product)
+      return res.status(404).json({ success: false, message: "Product not found" });
 
     if (product.isBlocked || product.status !== "Available")
       return res.status(400).json({ success: false, message: "Product unavailable" });
@@ -18,60 +45,119 @@ const addToCart = async (req, res) => {
     if (!product.category.isListed)
       return res.status(400).json({ success: false, message: "Category unlisted" });
 
+    // ✅ Optional: Require size only if product has size options
+    if (product.sizes && product.sizes.length > 0 && !size) {
+      return res.status(400).json({ success: false, message: "Please select a size" });
+    }
+
     let cart = await Cart.findOne({ userId });
     const unitPrice = product.salePrice || product.regularPrice;
 
+    // ✅ When adding new cart item, include size
     if (!cart) {
-      cart = new Cart({ userId, items: [{ productId, quantity, price: unitPrice, totalprice: unitPrice * quantity }] });
+      cart = new Cart({
+        userId,
+        items: [
+          {
+            productId,
+            quantity,
+            price: unitPrice,
+            totalprice: unitPrice * quantity,
+            ...(size && { size }), // include size only if provided
+          },
+        ],
+      });
     } else {
-      const item = cart.items.find(i => i.productId.equals(productId));
+      // Check if same product + same size already exists
+      const item = cart.items.find(
+        (i) =>
+          i.productId.equals(productId) &&
+          (!size || i.size === size) // handle case with/without size
+      );
+
       if (item) {
         const newQty = item.quantity + quantity;
         if (newQty > 3)
-          return res.status(400).json({ success: false, message: "Maximum 3 items allowed per product" });
+          return res
+            .status(400)
+            .json({ success: false, message: "Maximum 3 items allowed per product" });
+
         item.quantity = newQty;
         item.totalprice = unitPrice * newQty;
       } else {
-        cart.items.push({ productId, quantity, price: unitPrice, totalprice: unitPrice * quantity });
+        cart.items.push({
+          productId,
+          quantity,
+          price: unitPrice,
+          totalprice: unitPrice * quantity,
+          ...(size && { size }),
+        });
       }
     }
 
     await cart.save();
-    res.json({ success: true, message: "Added to cart", cart });
+    console.log("products added")
+
+    return res.json({
+      success: true,
+      message: size
+        ? `Added size ${size} to cart`
+        : "Added to cart",
+      cart,
+    });
   } catch (err) {
-    console.error(err);
+    console.error("Add to cart error:", err);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
-// ✅ Get Cart
+
+//  Get Cart with User Data
 const getCart = async (req, res) => {
   try {
     const userId = req.session.userId;
     if (!userId) return res.status(401).json({ success: false, message: "Not authenticated" });
+    
     const cart = await Cart.findOne({ userId }).populate("items.productId");
-    res.json({ success: true, cart: cart || { items: [] } });
-  } catch {
+    const user = await User.findById(userId).select('name email'); // Get user details
+    
+    console.log("🛒 Cart fetched for user:", userId);
+    console.log("Session userId:", req.session.userId);
+    console.log("Cart data:", JSON.stringify(cart, null, 2));
+    
+    res.json({ 
+      success: true, 
+      cart: cart || { items: [] },
+      user: user || null // Include user data in response
+    });
+  } catch (error) {
+    console.error("Get cart error:", error);
     res.status(500).json({ success: false, message: "Error fetching cart" });
   }
 };
 
-// ✅ Remove Item
 const removeFromCart = async (req, res) => {
   try {
     const userId = req.session.userId;
-    const { productId } = req.params;
+    const { productId, size } = req.params;   // ✅ size included in params
+
     const cart = await Cart.findOne({ userId });
     if (!cart) return res.json({ success: true, cart: { items: [] } });
 
-    cart.items = cart.items.filter(i => !i.productId.equals(productId));
+    // ✅ Filter out only the matching product + size
+    cart.items = cart.items.filter(
+      (i) => !(i.productId.equals(productId) && i.size === size)
+    );
+
     await cart.save();
 
     res.json({ success: true, message: "Item removed", cart });
   } catch (err) {
+    console.error("❌ Error removing item:", err);
     res.status(500).json({ success: false, message: "Error removing item" });
   }
 };
+
 
 // ✅ Update Quantity
 const updateQuantity = async (req, res) => {
@@ -105,12 +191,72 @@ const updateQuantity = async (req, res) => {
   }
 };
 
+const validateCartBeforeCheckout = async (req, res) => {
+  try {
+    const userId = req.session.userId;
+    if (!userId) return res.json({ success: false, message: "Login required" });
+
+    const cart = await Cart.findOne({ userId }).populate("items.productId");
+    if (!cart || cart.items.length === 0)
+      return res.json({ success: false, message: "Cart is empty" });
+
+    const invalidItems = [];
+
+    cart.items.forEach((item) => {
+      const product = item.productId;
+
+      // ✅ Product check
+      if (!product || product.isBlocked || product.status === "Discontinued") {
+        invalidItems.push({
+          name: product?.productName || "Removed Product",
+          reason: "Product unavailable",
+        });
+        return;
+      }
+
+      // ✅ Size variant stock check (if applicable)
+      if (product.hasVariants && item.size) {
+        const variant = product.sizeVariants.find((v) => v.size === item.size);
+
+        if (!variant || variant.quantity < item.quantity) {
+          invalidItems.push({
+            name: product.productName,
+            reason: `Only ${variant?.quantity || 0} left for size ${item.size}`,
+          });
+        }
+      } else {
+        // ✅ Normal quantity check
+        if (product.quantity < item.quantity) {
+          invalidItems.push({
+            name: product.productName,
+            reason: `Only ${product.quantity} left in stock`,
+          });
+        }
+      }
+    });
+
+    if (invalidItems.length > 0) {
+      return res.json({
+        success: false,
+        invalidItems,
+        message: "Some items in cart are unavailable",
+      });
+    }
+
+    return res.json({ success: true }); 
+  } catch (error) {
+    console.error("Cart validation error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
 
 module.exports={
     addToCart,
     getCart,
     removeFromCart,
-    updateQuantity
+    updateQuantity,
+    renderCartPage,
+     validateCartBeforeCheckout
 
 
 

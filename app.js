@@ -8,6 +8,7 @@ const userRouter = require("./routes/userRouter");
 const passport = require("./config/passport")
 const adminRouter = require("./routes/adminRouter")
 const User = require("./models/userSchema"); // 
+const Cart = require('./models/cartSchema');
 db()
 
 app.use(express.json());
@@ -45,7 +46,16 @@ if (req.session.userId && req.session.userId !== null) {
 }
   next();
 });
-
+            //  for cart dotin cart button
+app.use(async (req, res, next) => {
+  if (req.session.userId) {
+    const cart = await Cart.findOne({ userId: req.session.userId });
+    res.locals.cartCount = cart ? cart.items.length : 0;
+  } else {
+    res.locals.cartCount = 0;
+  }
+  next();
+});
 
 
 

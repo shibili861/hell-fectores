@@ -6,8 +6,11 @@ const { userAuth,checkUserStatus } = require('../middlewares/auth');
 const Product = require('../models/productSchema');
 const productController=require("../controllers/user/productController");
 const profileController=require("../controllers/user/profileController");
-const cartController = require("../controllers/user/cartController")
-
+const cartController = require("../controllers/user/cartController");
+const checkoutController=require("../controllers/user/checkoutController");
+const orderController=require("../controllers/user/orderController")
+const path = require('path');
+const multer = require('multer');
 
 
 router.get("/pagenotfound",userController.pagenotfound)
@@ -89,6 +92,21 @@ router.post('/update-profile', profileController.updateProfile);
 router.post('/update-password', profileController.updatePassword);
 
 
+                             // Profile image upload
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, 'public/uploads/profile'),
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    cb(null, `user-${req.session.userId}-${Date.now()}${ext}`);
+  }
+});
+
+const upload = multer({ storage });
+
+// ✅ Upload cropped profile image
+router.post('/upload-profile-image', upload.single('profileImage'), profileController.uploadProfileImage);
+
 
 
 // // Address Routes
@@ -98,17 +116,38 @@ router.post("/add-address", profileController.addAddress);
 router.get("/addresses", profileController.renderAddressesPage);
 router.post("/edit-address/:id", profileController.editAddress);
 router.delete("/delete-address/:id", profileController.deleteAddress);
+                 
 
+                //   cart MANAGEMENT
 
-    router.get('/cart', (req, res) => {
-  if (!req.session.userId) return res.redirect('/login');
-  res.render('user/cart', { user: req.session.user });
-});
+router.get("/cart", cartController.renderCartPage);
 
 router.post('/api/cart/add', cartController.addToCart);
 router.get('/api/cart', cartController.getCart);
-router.delete('/api/cart/:productId', cartController.removeFromCart);
+router.delete('/api/cart/:productId/:size', cartController.removeFromCart);
+
 router.put('/api/cart/:productId/quantity', cartController.updateQuantity);
+
+                        // checkout MANAGEMENT
+
+router.get("/cart/validate", cartController.validateCartBeforeCheckout);
+router.get("/checkout",checkoutController.getCheckoutPage)
+
+
+                        // order Managment
+          // Place order
+router.post('/place-order', orderController.placeOrder);
+router.get('/order-success', orderController.orderSuccessPage);
+router.get('/order-details/:id',orderController.getOrderDetailsPage);
+router.get('/my-orders', orderController.getMyOrdersPage);
+
+
+router.post('/cancel-order', orderController.cancelOrder);
+router.post('/cancel-item', orderController.cancelItem);
+router.post('/return-item', orderController.requestReturn);
+
+
+
 
 
 module.exports=router;

@@ -26,10 +26,7 @@ const addProducts = async (req, res) => {
                 message: "Database connection failed. Please check if MongoDB is running."
             });
         }
-         console.log('=== BACKEND RECEIVED DATA ===');
-        console.log('req.body.sizes:', req.body.sizes);
-        console.log('req.body.quantities:', req.body.quantities);
-        console.log('req.body.enableVariants:', req.body.enableVariants);
+         
          
         const { productName, category, regularPrice, salePrice, stockQty, description, shortDescription, sizes, quantities } = req.body;
 
@@ -178,7 +175,9 @@ const getallproducts = async (req, res) => {
 
         // Get products with pagination
         const productData = await Product.find(searchQuery)
-            .limit(limit)
+           
+            .sort({ createdAt: -1 })  
+             .limit(limit)
             .skip((page - 1) * limit)
             .populate('category')
             .exec();
@@ -461,11 +460,13 @@ const updateProduct = async (req, res) => {
                 category: category,
                 regularPrice: parseFloat(regularPrice),
                 salePrice: salePrice ? parseFloat(salePrice) : 0,
-                quantity: totalQuantity,
+              
                 productImage: updatedImages,
                 status: status,
                 sizeVariants: sizeVariants,
                 hasVariants: hasVariants,
+                quantity: totalQuantity,
+
                 updatedAt: Date.now()
             },
             { new: true }

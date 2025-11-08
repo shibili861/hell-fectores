@@ -6,6 +6,9 @@ const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const dotenv = require("dotenv").config();
 const Address = require("../../models/addressSchema");
+const path = require('path');
+const fs = require('fs');
+
 
 /* =====================================================
    Email Configuration & OTP Storage
@@ -66,16 +69,18 @@ const loadProfile = async (req, res) => {
     const addressDoc = await Address.findOne({ userId });
     const addresses = addressDoc ? addressDoc.address : [];
 
-    const formattedUser = {
-      ...user._doc,
-      createdOn: user.createdAt
-        ? new Date(user.createdAt).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          })
-        : "Not available",
-    };
+   const formattedUser = {
+  ...user._doc,
+  profileImage: user.profileImage || null, // ✅ ensure field always exists
+  createdOn: user.createdAt
+    ? new Date(user.createdAt).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    : "Not available",
+};
+
 
     res.render("user/profile", { 
       user: formattedUser, 
@@ -473,25 +478,59 @@ const editAddress = async (req, res) => {
   }
 };
 
-// Delete address
+// ✅ Delete address (atomic + clean)
 const deleteAddress = async (req, res) => {
   try {
     const userId = req.session.userId;
     const { id } = req.params;
 
-    const addressDoc = await Address.findOne({ userId });
-    if (!addressDoc) return res.status(404).json({ success: false, message: "No addresses found" });
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Not authenticated" });
+    }
 
-    addressDoc.address = addressDoc.address.filter(a => a._id.toString() !== id);
-    await addressDoc.save();
+    // Use MongoDB $pull for nested array deletion
+    const result = await Address.findOneAndUpdate(
+      { userId },
+      { $pull: { address: { _id: id } } },
+      { new: true }
+    );
 
-    res.json({ success: true });
+    if (!result) {
+      return res.status(404).json({ success: false, message: "Address not found" });
+    }
+
+    res.json({
+      success: true,
+      message: "Address deleted successfully",
+      addresses: result.address
+    });
   } catch (err) {
-    console.error(err);
+    console.error("Error deleting address:", err);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
+
+const uploadProfileImage = async (req, res) => {
+  try {
+    if (!req.session.userId) {
+      return res.status(401).json({ success: false, message: 'Not logged in' });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No image uploaded' });
+    }
+
+    const imageUrl = `/uploads/profile/${req.file.filename}`;
+
+    await User.findByIdAndUpdate(req.session.userId, { profileImage: imageUrl });
+
+    return res.json({ success: true, imageUrl });
+  } catch (err) {
+    console.error('Error uploading profile image:', err);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
 
 module.exports = {
   loadProfile,
@@ -506,7 +545,10 @@ module.exports = {
      getAddresses,
      renderAddressesPage,
      editAddress,
-     deleteAddress
+     deleteAddress,
+     uploadProfileImage,
+    
+     
 
 
 };

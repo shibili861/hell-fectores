@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <%- include('../partials/user/header') %>
   <meta charset="UTF-8" />
   <title>My Addresses</title>
   <style>
@@ -448,203 +449,148 @@ input.error, select.error {
 
 
 
-
-  <script>
- function validateAddressForm(form) {
-  // Remove all previous error highlights/messages
-  Array.from(form.elements).forEach(field => {
-    if (field.type !== 'submit' && field.type !== 'button') {
-      field.classList.remove('error');
-      if (field.nextElementSibling && field.nextElementSibling.classList.contains('error-message')) {
-        field.nextElementSibling.textContent = '';
-        field.nextElementSibling.style.display = 'none';
-      }
-    }
-  });
-
-  let valid = true;
-
-  // Field references
-  const addressType = form.elements["addressType"];
-  const name = form.elements["name"];
-  const city = form.elements["city"];
-  const landMark = form.elements["landMark"];
-  const state = form.elements["state"];
-  const pincode = form.elements["pincode"];
-  const phone = form.elements["phone"];
-  const altphone = form.elements["altphone"];
-
-  // ✅ FIXED: Better regex patterns
-  const namePattern = /^[A-Za-z\s.'-]{2,50}$/; // Allows apostrophes, hyphens, 2-50 chars
-  const pincodePattern = /^\d{6}$/;
-  const phonePattern = /^[6-9]\d{9}$/;
-  const textPattern = /^[A-Za-z0-9\s.,'-]{2,100}$/; // General text validation
-
-  // ✅ Validate addressType
-  if (!addressType.value || addressType.value === "") {
-    valid = false;
-    showError(addressType, "Please select an address type.");
-  }
-
-  // ✅ Validate name
-  if (!name.value.trim()) {
-    valid = false;
-    showError(name, "Name is required.");
-  } else if (!namePattern.test(name.value.trim())) {
-    valid = false;
-    showError(name, "Enter a valid name (2-50 letters, spaces, hyphens, apostrophes only).");
-  }
-
-  // ✅ Validate city
-  if (!city.value.trim()) {
-    valid = false;
-    showError(city, "City is required.");
-  } else if (!textPattern.test(city.value.trim())) {
-    valid = false;
-    showError(city, "Enter a valid city name.");
-  }
-
-  // ✅ Validate landmark (FIXED: was missing)
-  if (!landMark.value.trim()) {
-    valid = false;
-    showError(landMark, "Landmark is required.");
-  } else if (!textPattern.test(landMark.value.trim())) {
-    valid = false;
-    showError(landMark, "Enter a valid landmark.");
-  }
-
-  // ✅ Validate state
-  if (!state.value.trim()) {
-    valid = false;
-    showError(state, "State is required.");
-  } else if (!textPattern.test(state.value.trim())) {
-    valid = false;
-    showError(state, "Enter a valid state name.");
-  }
-
-  // ✅ Validate pincode
-  if (!pincode.value.trim()) {
-    valid = false;
-    showError(pincode, "Pincode is required.");
-  } else if (!pincodePattern.test(pincode.value.trim())) {
-    valid = false;
-    showError(pincode, "Enter a valid 6-digit pincode.");
-  }
-
-  // ✅ Validate phone
-  if (!phone.value.trim()) {
-    valid = false;
-    showError(phone, "Phone number is required.");
-  } else if (!phonePattern.test(phone.value.trim())) {
-    valid = false;
-    showError(phone, "Enter a valid 10-digit phone number starting with 6-9.");
-  }
-
-  // ✅ Validate altphone (FIXED: better handling)
-  if (altphone.value.trim() && !phonePattern.test(altphone.value.trim())) {
-    valid = false;
-    showError(altphone, "Alternate phone must be a valid 10-digit number starting with 6-9.");
-  }
-
-  return valid;
-}
-
-// ✅ Helper function to show errors
+<script>
+// ========== VALIDATION HELPERS ==========
 function showError(field, message) {
   field.classList.add('error');
-  if (field.nextElementSibling && field.nextElementSibling.classList.contains('error-message')) {
-    field.nextElementSibling.textContent = message;
-    field.nextElementSibling.style.display = 'block';
-  } else {
-    // Create error message element if it doesn't exist
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'error-message';
-    errorDiv.textContent = message;
-    errorDiv.style.display = 'block';
-    field.parentNode.insertBefore(errorDiv, field.nextSibling);
+  let err = field.nextElementSibling;
+  if (!err || !err.classList.contains('error-message')) {
+    err = document.createElement('div');
+    err.className = 'error-message';
+    field.parentNode.insertBefore(err, field.nextSibling);
   }
+  err.textContent = message;
+  err.style.display = 'block';
 }
-// Add real-time validation as user types
-document.querySelectorAll('#addForm input, #addForm select').forEach(field => {
-  field.addEventListener('blur', function() {
-    validateSingleField(this);
-  });
-});
 
 function validateSingleField(field) {
-  const form = field.form;
   const value = field.value.trim();
-  
-  // Remove existing error
-  field.classList.remove('error');
-  if (field.nextElementSibling && field.nextElementSibling.classList.contains('error-message')) {
-    field.nextElementSibling.style.display = 'none';
-  }
-  
-  // Define patterns
   const namePattern = /^[A-Za-z\s.'-]{2,50}$/;
   const pincodePattern = /^\d{6}$/;
   const phonePattern = /^[6-9]\d{9}$/;
   const textPattern = /^[A-Za-z0-9\s.,'-]{2,100}$/;
-  
-  let isValid = true;
-  let message = '';
-  
-  switch(field.name) {
+  let valid = true, message = '';
+
+  switch (field.name) {
     case 'addressType':
-      isValid = value !== '';
-      message = 'Please select an address type.';
-      break;
-      
+      valid = value !== ''; message = 'Please select an address type.'; break;
     case 'name':
-      isValid = value && namePattern.test(value);
-      message = 'Enter a valid name (2-50 letters, spaces, hyphens, apostrophes only).';
-      break;
-      
+      valid = value && namePattern.test(value); message = 'Enter a valid name.'; break;
     case 'city':
-      isValid = value && textPattern.test(value);
-      message = 'Enter a valid city name.';
-      break;
-      
+      valid = value && textPattern.test(value); message = 'Enter a valid city name.'; break;
     case 'landMark':
-      isValid = value && textPattern.test(value);
-      message = 'Enter a valid landmark.';
-      break;
-      
+      valid = value && textPattern.test(value); message = 'Enter a valid landmark.'; break;
     case 'state':
-      isValid = value && textPattern.test(value);
-      message = 'Enter a valid state name.';
-      break;
-      
+      valid = value && textPattern.test(value); message = 'Enter a valid state name.'; break;
     case 'pincode':
-      isValid = pincodePattern.test(value);
-      message = 'Enter a valid 6-digit pincode.';
-      break;
-      
+      valid = pincodePattern.test(value); message = 'Enter a valid 6-digit pincode.'; break;
     case 'phone':
-      isValid = phonePattern.test(value);
-      message = 'Enter a valid 10-digit phone number starting with 6-9.';
-      break;
-      
+      valid = phonePattern.test(value); message = 'Enter a valid phone number.'; break;
     case 'altphone':
-      isValid = !value || phonePattern.test(value);
-      message = 'Alternate phone must be a valid 10-digit number starting with 6-9.';
-      break;
+      valid = !value || phonePattern.test(value); message = 'Enter a valid alternate phone number.'; break;
   }
-  
-  if (!isValid && value !== '') {
-    showError(field, message);
-  }
-  
-  return isValid;
+
+  field.classList.remove('error');
+  if (!valid) showError(field, message);
+  return valid;
 }
 
+function validateAddressForm(form) {
+  let valid = true;
+  Array.from(form.elements).forEach(field => {
+    if (['submit','button','hidden'].includes(field.type)) return;
+    if (!validateSingleField(field)) valid = false;
+  });
+  return valid;
+}
 
-  // 🟢 Modify Add Form submission
-  document.getElementById('addForm').addEventListener('submit', async e => {
+// Real-time validation
+document.querySelectorAll('#addForm input, #addForm select').forEach(field => {
+  field.addEventListener('blur', () => validateSingleField(field));
+});
+
+// ========== ADDRESS CRUD ==========
+async function loadAddresses() {
+  const res = await fetch('/get-addresses');
+  const data = await res.json();
+  const list = document.getElementById('addressList');
+  if (!list) return;
+
+  list.innerHTML = '';
+  if (!data.addresses || !data.addresses.length) {
+    list.innerHTML = `
+      <p>No saved addresses yet.</p>
+      <button class="add" type="button" onclick="openAddModal()">➕ Add Address</button>
+    `;
+    return;
+  }
+
+  data.addresses.forEach(addr => {
+    const div = document.createElement('div');
+    div.className = 'address-card';
+    div.innerHTML = `
+      <b>${addr.addressType}</b><br/>
+      ${addr.name}<br/>
+      ${addr.city}, ${addr.state}, ${addr.pincode}<br/>
+      ${addr.landMark ? addr.landMark + '<br/>' : ''}
+      Phone: ${addr.phone}
+      ${addr.altphone ? '<br/>Alt: ' + addr.altphone : ''}
+      <div class="actions">
+        <button class="edit" onclick='openEdit(${JSON.stringify(addr)})'>✏️ Edit</button>
+        <button class="delete" onclick="deleteAddress('${addr._id}')">🗑️ Delete</button>
+      </div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+async function deleteAddress(id) {
+  if (!confirm('Delete this address?')) return;
+  const res = await fetch(`/delete-address/${id}`, { method: 'DELETE' });
+  const data = await res.json();
+  if (data.success) {
+    alert('Address deleted successfully');
+    loadAddresses();
+  } else {
+    alert(data.message || 'Failed to delete address');
+  }
+}
+
+// ========== MODALS ==========
+function openAddModal() {
+  document.getElementById('addModal').style.display = 'flex';
+}
+function closeAddModal() {
+  document.getElementById('addModal').style.display = 'none';
+}
+function openEdit(addr) {
+  document.getElementById('editId').value = addr._id;
+  document.getElementById('editType').value = addr.addressType;
+  document.getElementById('editName').value = addr.name;
+  document.getElementById('editCity').value = addr.city;
+  document.getElementById('editLandmark').value = addr.landMark || '';
+  document.getElementById('editState').value = addr.state;
+  document.getElementById('editPincode').value = addr.pincode;
+  document.getElementById('editPhone').value = addr.phone;
+  document.getElementById('editAltphone').value = addr.altphone || '';
+  document.getElementById('editModal').style.display = 'flex';
+}
+function closeModal() {
+  document.getElementById('editModal').style.display = 'none';
+}
+document.addEventListener('keydown', e => {
+  if (e.key === "Escape") {
+    closeAddModal();
+    closeModal();
+  }
+});
+
+// ========== FORM SUBMISSIONS ==========
+const addForm = document.getElementById('addForm');
+if (addForm && !addForm.dataset.listenerAdded) {
+  addForm.addEventListener('submit', async e => {
     e.preventDefault();
-    if (!validateAddressForm(e.target)) return; // stop if invalid
-
+    if (!validateAddressForm(e.target)) return;
     const formData = Object.fromEntries(new FormData(e.target));
     const res = await fetch('/add-address', {
       method: 'POST',
@@ -653,6 +599,7 @@ function validateSingleField(field) {
     });
     const data = await res.json();
     if (data.success) {
+      alert('Address added successfully');
       e.target.reset();
       closeAddModal();
       loadAddresses();
@@ -660,12 +607,14 @@ function validateSingleField(field) {
       alert(data.message || 'Failed to add address');
     }
   });
+  addForm.dataset.listenerAdded = 'true';
+}
 
-  // 🟢 Modify Edit Form submission
-  document.getElementById('editForm').addEventListener('submit', async e => {
+const editForm = document.getElementById('editForm');
+if (editForm && !editForm.dataset.listenerAdded) {
+  editForm.addEventListener('submit', async e => {
     e.preventDefault();
-    if (!validateAddressForm(e.target)) return; // stop if invalid
-
+    if (!validateAddressForm(e.target)) return;
     const id = document.getElementById('editId').value;
     const formData = Object.fromEntries(new FormData(e.target));
     const res = await fetch(`/edit-address/${id}`, {
@@ -675,123 +624,19 @@ function validateSingleField(field) {
     });
     const result = await res.json();
     if (result.success) {
+      alert('Address updated successfully');
       closeModal();
       loadAddresses();
     } else {
       alert(result.message || 'Failed to edit');
     }
   });
-    async function loadAddresses() {
-      const res = await fetch('/get-addresses');
-      const data = await res.json();
-      const list = document.getElementById('addressList');
-      list.innerHTML = '';
-
-      if (!data.addresses || data.addresses.length === 0) {
-        list.innerHTML = '<p>No saved addresses yet.</p>';
-        return;
-      }
-
-      data.addresses.forEach(addr => {
-        const div = document.createElement('div');
-        div.className = 'address-card';
-        div.innerHTML = `
-          <b>${addr.addressType}</b><br/>
-          ${addr.name}<br/>
-          ${addr.city}, ${addr.state}, ${addr.pincode}<br/>
-          ${addr.landMark ? addr.landMark + '<br/>' : ''}
-          Phone: ${addr.phone}
-          ${addr.altphone ? '<br/>Alt: ' + addr.altphone : ''}
-          <div class="actions">
-            <button class="edit" onclick='openEdit(${JSON.stringify(addr)})'>Edit</button>
-            <button class="delete" onclick="deleteAddress('${addr._id}')">Delete</button>
-          </div>
-        `;
-        list.appendChild(div);
-      });
-    }
-
-   
-
-    // Delete address
-    async function deleteAddress(id) {
-      if (!confirm('Delete this address?')) return;
-      const res = await fetch(`/delete-address/${id}`, { method: 'DELETE' });
-      const data = await res.json();
-      if (data.success) loadAddresses();
-    }
-
-    // Edit modal
-    function openEdit(addr) {
-      document.getElementById('editId').value = addr._id;
-      document.getElementById('editType').value = addr.addressType;
-      document.getElementById('editName').value = addr.name;
-      document.getElementById('editCity').value = addr.city;
-      document.getElementById('editLandmark').value = addr.landMark || '';
-      document.getElementById('editState').value = addr.state;
-      document.getElementById('editPincode').value = addr.pincode;
-      document.getElementById('editPhone').value = addr.phone;
-      document.getElementById('editAltphone').value = addr.altphone || '';
-      document.getElementById('editModal').style.display = 'flex';
-    }
-
-    function closeModal() {
-      document.getElementById('editModal').style.display = 'none';
-    }
-
-    // Save edited address
-    document.getElementById('editForm').addEventListener('submit', async e => {
-      e.preventDefault();
-      const id = document.getElementById('editId').value;
-      const data = Object.fromEntries(new FormData(e.target));
-      const res = await fetch(`/edit-address/${id}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      const result = await res.json();
-      if (result.success) {
-        closeModal();
-        loadAddresses();
-      } else {
-        alert(result.message || 'Failed to edit');
-      }
-    });
-
-    loadAddresses();
-    // Modal handlers for Add Address
-document.getElementById('openAddModal').onclick = function() {
-  document.getElementById('addModal').style.display = 'flex';
-};
-function closeAddModal() {
-  document.getElementById('addModal').style.display = 'none';
+  editForm.dataset.listenerAdded = 'true';
 }
-// When submitting, close modal only on success (your logic already does this)
-document.getElementById('addForm').addEventListener('submit', async e => {
-  e.preventDefault();
-  const formData = Object.fromEntries(new FormData(e.target));
-  const res = await fetch('/add-address', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(formData)
-  });
-  const data = await res.json();
-  if (data.success) {
-    e.target.reset();
-    closeAddModal();
-    loadAddresses();
-  } else {
-    alert(data.message || 'Failed to add address');
-  }
-});
-document.addEventListener('keydown', function(e) {
-  if (e.key === "Escape") {
-    // Try closing both modals safely
-    closeAddModal();
-    closeModal();
-  }
-});
 
-  </script>
+// ========== INITIAL LOAD ==========
+document.addEventListener('DOMContentLoaded', loadAddresses);
+</script>
+
 
 </html>

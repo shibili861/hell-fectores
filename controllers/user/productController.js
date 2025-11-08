@@ -13,12 +13,14 @@ const User=require("../../models/userSchema");
 const productDetails = async (req, res) => {
     try {
             
-        const userId = req.session.user;
+        const userId = req.session.userId;
         const userData = await User.findById(userId);
         const productId = req.query.id;
         const product = await Product.findById(productId).populate("category");
         const findCategory = product.category;
-        
+        console.log('userdata',userData)
+         console.log('productdata',product)
+         console.log( product.quantity)
         res.render("user/productsDetailpage", {
             user: userData,
             product: product,

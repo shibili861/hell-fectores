@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/user/header') %>
+  <title>Checkout</title>
+      <link rel="stylesheet" href="/user/checkout.css">
+</head>
+<body>
+ <div class="checkout-container">
+
+  <!-- LEFT SIDE -->
+  <section class="left-section">
+
+    <!-- 🛒 CART TABLE -->
+    <h2 class="section-heading">🛒 Your Cart</h2>
+
+    <% if (cart && cart.items.length > 0) { %>
+      <table class="cart-table">
+  <thead>
+    <tr>
+      <th>Image</th>
+      <th>Product</th>
+      <th>Size</th>
+      <th>Quantity</th>
+      <th>Price</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% cart.items.forEach(item => { %>
+      <tr>
+        <td>
+          <img src="<%= item.productId?.productImage?.[0] || '/images/no-image.jpg' %>" 
+               alt="<%= item.productId?.productName || 'Product' %>">
+        </td>
+        <td><%= item.productId?.productName || 'Unknown Product' %></td>
+        <td><%= item.size %></td>
+        <td><%= item.quantity %></td>
+        <td>₹<%= item.totalprice.toLocaleString() %></td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
+
+    <% } else { %>
+      <p>No items in cart.</p>
+    <% } %>
+
+    <!-- SAVED ADDRESSES -->
+<h2 class="section-heading">🏠 Shipping Address</h2>
+
+<% if (address) { %>
+  <div class="address-card">
+    <input type="hidden" name="addressId" value="<%= address._id %>">
+    <b><%= address.addressType %></b>
+    <div>
+      <%= address.name %><br>
+      <%= address.city %>, <%= address.state %><br>
+      Pincode: <%= address.pincode %><br>
+      Phone: <%= address.phone %>
+    </div>
+    <div class="actions">
+      <button class="edit" type="button" onclick="openEditModal('<%= address._id %>')">✏️ Edit</button>
+      <button class="delete" type="button" onclick="deleteAddress('<%= address._id %>')">🗑️ Delete</button>
+    </div>
+  </div>
+<% } else { %>
+  <p>No saved address found.</p>
+  <button class="add" id="openAddModal"><span class="btn-icon">➕</span> Add Address</button>
+<% } %>
+
+
+  </section>
+
+  <!-- RIGHT SIDE -->
+<section class="right-section">
+
+  <h2 class="section-heading">💳 Order Summary</h2>
+  <div class="order-summary">
+    <p>Subtotal: <span>₹<%= subtotal.toLocaleString() %></span></p>
+    <p>Tax (5%): <span>₹<%= tax.toLocaleString() %></span></p>
+    <p>Shipping: <span>₹<%= shipping.toLocaleString() %></span></p>
+    <p><strong>Total: <span>₹<%= finalTotal.toLocaleString() %></span></strong></p>
+  </div>
+
+  <!-- 🏦 PAYMENT OPTIONS -->
+  <div class="payment-section">
+    <h3>Select Payment Method</h3>
+    <div class="payment-options">
+      <label class="payment-option">
+        <input type="radio" name="paymentMethod" value="COD" checked>
+        <span>💵 Cash on Delivery</span>
+      </label>
+
+      <label class="payment-option disabled">
+        <input type="radio" name="paymentMethod" value="Razorpay" disabled>
+        <span>💳 Razorpay (Coming Soon)</span>
+      </label>
+
+      <label class="payment-option disabled">
+        <input type="radio" name="paymentMethod" value="Wallet" disabled>
+        <span>👛 Wallet (Coming Soon)</span>
+      </label>
+    </div>
+  </div>
+
+  <!--  PLACE ORDER BUTTON -->
+  <div class="final-checkout-actions">
+    <button id="placeOrderBtn" class="confirm-order-btn">Confirm & Place Order</button>
+  </div>
+
+</section>
+
+</div>
+
+<!-- 🪄 ADD ADDRESS MODAL -->
+ </main>
+<div id="addModal" style="display:none;" role="dialog" aria-modal="true">
+  <div class="modal-content">
+    <h3>Add New Address</h3>
+    <form id="addForm" autocomplete="off">
+      <select name="addressType" >
+        <option value="">Type</option>
+        <option value="Home">🏡 Home</option>
+        <option value="Work">🏢 Work</option>
+      </select>
+      <input name="name" placeholder="Full name" />
+      <div class="error-message"></div>
+      <input name="city" placeholder="City"  />
+      <div class="error-message"></div>
+      <input name="landMark" placeholder="Landmark" />
+      <div class="error-message"></div>
+      <input name="state" placeholder="State"  />
+      <div class="error-message"></div>
+      <input name="pincode" placeholder="Pincode" type="number"  />
+      <div class="error-message"></div>
+      <input name="phone" placeholder="Phone"  />
+      <div class="error-message"></div>
+      <input name="altphone" placeholder="Alternate phone" />
+      <div class="error-message"></div>
+      <div class="modal-actions">
+        <button class="add" type="submit"><span class="btn-icon">➕</span> Add Address</button>
+        <button class="cancel-btn" type="button" onclick="closeAddModal()"><span class="btn-icon">❌</span> Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+  <!-- Modal content here -->
+
+      
+  <div id="editModal">
+    <div class="modal-content">
+      <h3>Edit Address</h3>
+      <form id="editForm">
+        <input type="hidden" id="editId" name="id" />
+        <select id="editType" name="addressType" required>
+          <option value="Home">🏡 Home</option>
+          <option value="Work">🏢 Work</option>
+        </select>
+        <input id="editName" name="name" placeholder="Full name" />
+        <div class="error-message"></div>
+        <input id="editCity" name="city" placeholder="City" />
+        <div class="error-message"></div>
+        <input id="editLandmark" name="landMark" placeholder="Landmark" />
+        <div class="error-message"></div>
+        <input id="editState" name="state" placeholder="State"  />
+        <div class="error-message"></div>
+        <input id="editPincode" name="pincode" placeholder="Pincode" type="number"  />
+        <div class="error-message"></div>
+        <input id="editPhone" name="phone" placeholder="Phone"  />
+         <div class="error-message"></div>
+        
+        <input id="editAltphone" name="altphone" placeholder="Alternate phone" />
+         <div class="error-message"></div>
+        <div class="modal-actions">
+          <button class="edit" type="submit"><span class="btn-icon">💾</span> Save</button>
+          <button class="cancel-btn" type="button" onclick="closeModal()"><span class="btn-icon">❌</span> Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+ 
+<script>
+/* =============================
+   🔔 Toast Notification System
+============================= */
+function showToast(message, type = "info") {
+  let root = document.getElementById("toast-root");
+  if (!root) {
+    root = document.createElement("div");
+    root.id = "toast-root";
+    root.style.position = "fixed";
+    root.style.bottom = "30px";
+    root.style.right = "30px";
+    root.style.zIndex = "9999";
+    document.body.appendChild(root);
+  }
+
+  const toast = document.createElement("div");
+  toast.textContent = message;
+  toast.style.background =
+    type === "error" ? "#E74C3C" : "linear-gradient(135deg, #D4AF37, #B8941F)";
+  toast.style.color = type === "error" ? "#fff" : "#0B0B0F";
+  toast.style.padding = "14px 28px";
+  toast.style.borderRadius = "12px";
+  toast.style.fontWeight = "600";
+  toast.style.letterSpacing = "0.5px";
+  toast.style.boxShadow = "0 8px 20px rgba(0,0,0,0.4)";
+  toast.style.marginTop = "12px";
+  toast.style.opacity = "0";
+  toast.style.transition = "all 0.4s ease";
+
+  root.appendChild(toast);
+  setTimeout(() => (toast.style.opacity = "1"), 100);
+
+  setTimeout(() => {
+    toast.style.opacity = "0";
+    toast.style.transform = "translateY(10px)";
+    setTimeout(() => toast.remove(), 400);
+  }, 2500);
+}
+
+/* =============================
+   🏠 Render Single Address (AJAX)
+============================= */
+async function renderAddress() {
+  try {
+    const res = await fetch("/get-addresses");
+    const data = await res.json();
+    const container = document.querySelector(".left-section");
+    const cartTable = container.querySelector(".cart-table");
+    let html = `<h2 class="section-heading">🏠 Shipping Address</h2>`;
+
+    if (data.addresses && data.addresses.length > 0) {
+      const latest = data.addresses[data.addresses.length - 1];
+      html += `
+        <div class="address-card">
+          <input type="hidden" name="addressId" value="${latest._id}">
+          <b>${latest.addressType}</b>
+          <div style="margin-top:10px;">
+            ${latest.name}<br>
+            ${latest.city}, ${latest.state} - ${latest.pincode}<br>
+            Phone: ${latest.phone}
+          </div>
+          <div class="actions" style="margin-top:10px;">
+            <button class="edit" type="button" onclick="openEditModal('${latest._id}')">✏️ Edit</button>
+            <button class="delete" type="button" onclick="deleteAddress('${latest._id}')">🗑️ Delete</button>
+          </div>
+        </div>`;
+    } else {
+      html += `
+        <p>No saved address found.</p>
+        <button class="add" type="button" onclick="openAddModal()">➕ Add Address</button>`;
+    }
+
+    container.innerHTML = `
+      <h2 class="section-heading">🛒 Your Cart</h2>
+      ${cartTable ? cartTable.outerHTML : ""}
+      ${html}
+    `;
+  } catch (err) {
+    showToast("⚠️ Failed to load address", "error");
+  }
+}
+
+/* =============================
+   ➕ Add / ✏️ Edit / ❌ Delete
+============================= */
+function openAddModal() {
+  document.getElementById("addModal").style.display = "flex";
+}
+function closeAddModal() {
+  document.getElementById("addModal").style.display = "none";
+}
+function closeModal() {
+  document.getElementById("editModal").style.display = "none";
+}
+
+function openEditModal(id) {
+  fetch("/get-addresses")
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.addresses && data.addresses.length > 0) {
+        const addr = data.addresses.find((a) => a._id === id);
+        if (!addr) return showToast("Address not found", "error");
+
+        document.getElementById("editId").value = addr._id;
+        document.getElementById("editType").value = addr.addressType;
+        document.getElementById("editName").value = addr.name;
+        document.getElementById("editCity").value = addr.city;
+        document.getElementById("editLandmark").value = addr.landMark || "";
+        document.getElementById("editState").value = addr.state;
+        document.getElementById("editPincode").value = addr.pincode;
+        document.getElementById("editPhone").value = addr.phone;
+        document.getElementById("editAltphone").value = addr.altphone || "";
+        document.getElementById("editModal").style.display = "flex";
+      }
+    });
+}
+
+/* =============================
+   📬 Add Address (AJAX)
+============================= */
+document.getElementById("addForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const formData = Object.fromEntries(new FormData(e.target));
+
+  const res = await fetch("/add-address", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(formData),
+  });
+  const data = await res.json();
+
+  if (data.success) {
+    showToast("✅ Address added successfully");
+    closeAddModal();
+    e.target.reset();
+    await renderAddress();
+  } else {
+    showToast(data.message || "Failed to add address", "error");
+  }
+});
+
+/* =============================
+   ✏️ Edit Address (AJAX)
+============================= */
+document.getElementById("editForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const id = document.getElementById("editId").value;
+  const formData = Object.fromEntries(new FormData(e.target));
+
+  const res = await fetch(`/edit-address/${id}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(formData),
+  });
+  const data = await res.json();
+
+  if (data.success) {
+    showToast("💾 Address updated successfully");
+    closeModal();
+    await renderAddress();
+  } else {
+    showToast(data.message || "Failed to update address", "error");
+  }
+});
+
+/* =============================
+   ❌ Delete Address (AJAX)
+============================= */
+async function deleteAddress(id) {
+  if (!confirm("Delete this address?")) return;
+  const res = await fetch(`/delete-address/${id}`, { method: "DELETE" });
+  const data = await res.json();
+
+  if (data.success) {
+    showToast("🗑️ Address deleted successfully");
+    await renderAddress();
+  } else {
+    showToast(data.message || "Failed to delete address", "error");
+  }
+}
+document.getElementById("placeOrderBtn").addEventListener("click", async () => {
+  const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked');
+  if (!selectedPayment) {
+    showToast("⚠️ Please select a payment method", "error");
+    return;
+  }
+
+  const paymentMethod = selectedPayment.value;
+
+  if (paymentMethod !== "COD") {
+    showToast("💳 Only Cash on Delivery is available right now.", "error");
+    return;
+  }
+
+  try {
+    const res = await fetch("/place-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ paymentMethod }),
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      showToast("Order placed successfully!", "success");
+
+      // Add a short delay for UX effect, then redirect
+      setTimeout(() => {
+        window.location.href = `/order-success?orderId=${data.orderId}`;
+      }, 1000);
+    } else {
+      showToast(data.message || " Order placement failed", "error");
+    }
+  } catch (err) {
+    console.error("Order placement error:", err);
+    showToast(" Something went wrong. Try again.", "error");
+  }
+});
+
+/* =============================
+   ⚙️ Initialize
+============================= */
+document.addEventListener("DOMContentLoaded", renderAddress);
+document.addEventListener("keydown", function (e) {
+  if (e.key === "Escape") {
+    closeAddModal();
+    closeModal();
+  }
+});
+</script>
+
+
+
+
+
+
+</body>
+</html>

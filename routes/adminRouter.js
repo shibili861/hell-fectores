@@ -5,7 +5,8 @@ const {userAuth,adminAuth}=require("../middlewares/auth");
 const customerController=require("../controllers/admin/customerController");
 const Category = require('../models/categorySchema');
 const categoryController=require("../controllers/admin/categoryController")
-const productController=require("../controllers/admin/productController")
+const productController=require("../controllers/admin/productController");
+const orderController=require("../controllers/admin/orderController")
 const multer = require('multer');
 
 
@@ -61,4 +62,17 @@ router.delete('/delete-product/:id', productController.deleteProduct);
 router.get('/editproducts', productController.getEditProductPage);
 router.post('/updateProduct', upload.array('newImages', 5), productController.updateProduct);
    
+
+
+        // ordeer Management
+ router.get("/orders", adminAuth,orderController.listOrders);
+// Single order view page 
+router.get("/orders/:orderId", adminAuth,orderController.viewOrder);
+
+// New route to change status
+router.post("/orders/:orderId/status", adminAuth,orderController.updateOrderStatus);
+router.post("/orders/:orderId/approve-return", adminAuth, orderController.approveReturn);
+router.post("/orders/:orderId/reject-return", adminAuth, orderController.rejectReturn);
+
+
 module.exports=router;

@@ -462,31 +462,25 @@ const resetPassword = async (req, res) => {
  // collection page
 const loadcollectionpage = async (req, res) => {
   try {
-    const user = req.session.user;
+    const userId = req.session.userId; // 👈 Use consistent key
     let userData = null;
-    if (user) {
-      userData = await User.findOne({ _id: user });
+
+    if (userId) {
+      userData = await User.findById(userId).lean();
     }
 
     const categories = await Category.find({ isListed: true });
-  
-    
+
     const page = parseInt(req.query.page) || 1;
     const limit = 9;
     const skip = (page - 1) * limit;
 
-    // Base query with filters
-    const query = { 
-      isBlocked: false, 
-      quantity: { $gt: 0 } 
-    };
-
-    // Only add category filter if we have categories
+    const query = { isBlocked: false, quantity: { $gt: 0 } };
     if (categories && categories.length > 0) {
       const categoryIds = categories.map(cat => cat._id);
       query.category = { $in: categoryIds };
     }
-     
+
     const products = await Product.find(query)
       .populate('category', 'name')
       .sort({ createdAt: -1 })
@@ -499,24 +493,23 @@ const loadcollectionpage = async (req, res) => {
 
     const productsWithCategory = products.map(product => ({
       ...product,
-      categoryName: product.category ? product.category.name : 'Uncategorized'
+      categoryName: product.category ? product.category.name : 'Uncategorized',
     }));
 
-    res.render("user/collection", {
+    res.render('user/collection', {
       user: userData,
       products: productsWithCategory,
       category: categories,
       totalProducts,
       currentPage: page,
       totalPages,
-      
-
     });
   } catch (error) {
-    console.error("Error loading collection page:", error);
-    res.status(500).send("Internal Server Error");
+    console.error('Error loading collection page:', error);
+    res.status(500).send('Internal Server Error');
   }
 };
+
 /// Filter products
 const filterProducts = async (req, res) => {
   try {
