@@ -6,6 +6,7 @@ const customerinfo = async (req, res) => {
             console.log('Query Params:', req.query);
         }
 
+        
         let search = req.query.search || "";
         let page = parseInt(req.query.page) || 1;
        
@@ -18,6 +19,7 @@ const customerinfo = async (req, res) => {
                 { email: { $regex: ".*" + search + ".*", $options: "i" } }
             ],
         })
+
         .sort({ createdAt: -1 })   
         .skip((page - 1) * limit)
         .limit(limit)
@@ -77,5 +79,3 @@ module.exports = {
 
 
 };
-
-

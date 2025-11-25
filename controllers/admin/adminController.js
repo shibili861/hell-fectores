@@ -60,26 +60,22 @@ const loaddashbord = async (req, res) => {
   }
 };
 // Logout - ADMIN
-const logout = (req, res) => {
-  try {
-    // Validate session exists
-    if (!req.session) {
-      console.log("No session found during admin logout");
-      return res.redirect("/admin/login");
+const adminLogout = (req, res) => {
+    if (req.session) {
+        req.session.destroy(err => {
+            if (err) {
+                console.log("Admin logout error:", err);
+                return res.redirect("/admin/dashboard");
+            }
+
+            res.clearCookie("admin_session"); // important!
+            return res.redirect("/admin/login");
+        });
+    } else {
+        return res.redirect("/admin/login");
     }
-    
-    // Clear admin-specific session data
-    req.session.adminId = null;
-    
-    console.log("Admin logged out successfully");
-    res.redirect("/admin/login");
-    
-  } catch (error) {
-    console.error("Error in admin logout controller:", error);
-    // Ensure user is redirected even on error
-    res.redirect("/admin/login");
-  }
 };
+
 
 
 
@@ -88,5 +84,5 @@ module.exports = {
     login,
     loaddashbord,
     pageerror,
-    logout
+    adminLogout
 };

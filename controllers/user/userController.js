@@ -278,7 +278,7 @@ const login = async (req, res) => {
   }
 };
 // Logout - USER
-const logout = (req, res) => {
+const userLogout= (req, res) => {
   try {
     // Clear session data
    req.session.userId = null;
@@ -613,7 +613,8 @@ module.exports = {
   resendotp,
   loadlogin,
   login,
-  logout,
+  userLogout,
+  
 
 loadForgotPassword,
   forgotPasswordSendOtp,

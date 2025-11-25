@@ -546,6 +546,31 @@
     border-color: rgba(196, 165, 123, 0.3);
     background: rgba(255, 255, 255, 0.1);
 }
+.toast {
+    visibility: hidden;
+    min-width: 260px;
+    background: rgba(30, 30, 30, 0.95);
+    color: #fff;
+    text-align: center;
+    border-radius: 12px;
+    padding: 14px 18px;
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    font-size: 15px;
+    z-index: 9999;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity .4s ease, transform .4s ease;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(6px);
+}
+
+.toast.show {
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0);
+}
 
         @media (max-width: 1200px) {
             .product-wrapper {
@@ -580,6 +605,8 @@
         }
     </style>
 </head>
+<div id="toast" class="toast"></div>
+
 <body>
     <div class="cursor"></div>
     <div class="cursor-follower"></div>
@@ -775,21 +802,41 @@ if (product.sizeVariants && product.sizeVariants.length > 0) {
                 follower.style.top = e.clientY + 'px';
             }, 100);
         });
+function showToast(message) {
+    const toast = document.getElementById("toast");
+    toast.textContent = message;
+    toast.classList.add("show");
 
-        // Quantity Controls
-        function increaseQty() {
-            const qtyInput = document.getElementById('quantity');
-            let currentValue = parseInt(qtyInput.value);
-            qtyInput.value = currentValue + 1;
-        }
+    setTimeout(() => {
+        toast.classList.remove("show");
+    }, 2500); // toast disappears after 2.5s
+}
 
-        function decreaseQty() {
-            const qtyInput = document.getElementById('quantity');
-            let currentValue = parseInt(qtyInput.value);
-            if (currentValue > 1) {
-                qtyInput.value = currentValue - 1;
-            }
-        }
+      // Quantity Controls with MAX 3 and stock limit
+let currentSizeStock = 3; // this will be updated when selecting size
+
+function increaseQty() {
+    const qtyInput = document.getElementById('quantity');
+    let currentValue = parseInt(qtyInput.value);
+
+    const maxAllowed = Math.min(currentSizeStock, 3);
+
+    if (currentValue < maxAllowed) {
+        qtyInput.value = currentValue + 1;
+    } else {
+        showToast(`Maximum ${maxAllowed} items allowed for this size`);
+    }
+}
+
+function decreaseQty() {
+    const qtyInput = document.getElementById('quantity');
+    let currentValue = parseInt(qtyInput.value);
+
+    if (currentValue > 1) {
+        qtyInput.value = currentValue - 1;
+    }
+}
+
 
   // Size Selection with Stock Management
 document.addEventListener('DOMContentLoaded', function() {
@@ -826,22 +873,29 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function updateStockStatus(quantity) {
-        const qty = parseInt(quantity);
-        
-        if (qty > 0) {
-            stockStatus.className = 'stock-status in-stock';
-            stockText.textContent = 'IN STOCK';
-            stockDot.style.background = '#4ade80';
-            addToCartBtn.disabled = false;
-            addToCartBtn.textContent = 'Add to Cart';
-        } else {
-            stockStatus.className = 'stock-status out-of-stock';
-            stockText.textContent = 'OUT OF STOCK';
-            stockDot.style.background = '#f87171';
-            addToCartBtn.disabled = true;
-            addToCartBtn.textContent = 'Out of Stock';
-        }
+    const qty = parseInt(quantity);
+    currentSizeStock = qty; // <-- IMPORTANT
+
+    const stockStatus = document.querySelector('.stock-status');
+    const stockDot = document.querySelector('.stock-dot');
+    const stockText = stockStatus.querySelector('span:last-child');
+    const addToCartBtn = document.getElementById('addToCartBtn');
+
+    if (qty > 0) {
+        stockStatus.className = 'stock-status in-stock';
+        stockText.textContent = 'IN STOCK';
+        stockDot.style.background = '#4ade80';
+        addToCartBtn.disabled = false;
+        addToCartBtn.textContent = 'Add to Cart';
+    } else {
+        stockStatus.className = 'stock-status out-of-stock';
+        stockText.textContent = 'OUT OF STOCK';
+        stockDot.style.background = '#f87171';
+        addToCartBtn.disabled = true;
+        addToCartBtn.textContent = 'Out of Stock';
     }
+}
+
 });
 
 // Function to update stock status based on selected size
@@ -1043,7 +1097,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     async function addToCart(productId, quantity = 1) {
     try {
-        // ✅ Check if size selection exists (only in details page)
+        //  Check if size selection exists (only in details page)
         const sizeButtons = document.querySelectorAll('.size-option');
         let size = null;
 
@@ -1056,7 +1110,7 @@ document.addEventListener('DOMContentLoaded', function() {
             size = selectedSize.getAttribute('data-size');
         }
 
-        // ✅ Send request
+        //  Send request
         const response = await fetch('/api/cart/add', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1067,13 +1121,10 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Add to cart response:', data);
 
         if (data.success) {
-            showToast('✅ Product added to cart!');
+            showToast(' Product added to cart!');
             updateCartCount();
 
-            // Optional redirect after 1s
-            setTimeout(() => {
-                window.location.href = '/cart';
-            }, 1000);
+         
         } else {
             showToast(`❌ ${data.message || 'Failed to add to cart'}`);
         }

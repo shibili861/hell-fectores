@@ -275,12 +275,122 @@
     border: 1px solid #000;
   }
 }
+.toast {
+    visibility: hidden;
+    min-width: 280px;
+    background: linear-gradient(135deg, #1a1a1a, #3d3d3d);
+    color: #f8d47b;
+    text-align: left;
+    border-left: 6px solid #f8d47b;
+    border-radius: 12px;
+    padding: 16px 20px;
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    font-size: 15px;
+    z-index: 99999;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity .35s ease, transform .35s ease;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.3);
+    backdrop-filter: blur(6px);
+}
+
+.toast.show {
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0);
+}
+/* -------- ORDER TRACKER (Amazon / Myntra Style) -------- */
+
+.order-tracker {
+  margin: 30px 0;
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  padding: 0 15px;
+}
+
+.order-tracker::before {
+  content: "";
+  position: absolute;
+  top: 22px;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #ddd;
+  z-index: 1;
+  border-radius: 5px;
+}
+
+.tracker-step {
+  text-align: center;
+  width: 20%;
+  position: relative;
+  z-index: 2;
+}
+
+.tracker-circle {
+  width: 22px;
+  height: 22px;
+  background: #ccc;
+  border-radius: 50%;
+  margin: 0 auto;
+  position: relative;
+  z-index: 3;
+  border: 3px solid #fff;
+  box-shadow: 0 0 5px #0002;
+}
+
+.tracker-label {
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+}
+
+/* Active Step */
+.tracker-step.active .tracker-circle {
+  background: #28a745; /* Green like Amazon */
+  box-shadow: 0 0 6px #28a745;
+}
+
+.tracker-step.active .tracker-label {
+  color: #28a745;
+}
+
+/* Fill progress bar */
+.order-tracker .active ~ .tracker-step .tracker-circle {
+  background: #ccc !important;
+  box-shadow: none !important;
+}
+
+.order-tracker .tracker-step.active ~ .tracker-step::before {
+  background: #28a745;
+}
+
+.order-tracker::after {
+  content: "";
+  position: absolute;
+  top: 22px;
+  left: 0;
+  height: 4px;
+  width: calc(
+    (var(--active-step, 1) - 1) *
+    (100% / 4)
+  );
+  background: #28a745;
+  z-index: 1;
+  border-radius: 5px;
+}
+
 
   </style>
 </head>
-
+<div id="toast" class="toast"></div>
+<div class="order-details-container">
 <body>
-  <div class="order-details-container">
+  
     <h1 class="page-title">🧾 Order Details</h1>
     <p class="order-id">Order ID: <strong><%= order.orderId %></strong></p>
     <p class="order-date">Placed On: <%= new Date(order.createdOn).toLocaleDateString() %></p>
@@ -294,25 +404,47 @@
 
 
 
-    <!-- 🟡 Order Tracker -->
-    <div class="order-tracker">
-      <div class="tracker-step <%= ['Pending','Processing','Shipped','Delivered'].includes(order.status) ? 'active' : '' %>">
-        <div class="tracker-circle"></div>
-        <div class="tracker-label">Ordered</div>
-      </div>
-      <div class="tracker-step <%= ['Processing','Shipped','Delivered'].includes(order.status) ? 'active' : '' %>">
-        <div class="tracker-circle"></div>
-        <div class="tracker-label">Processing</div>
-      </div>
-      <div class="tracker-step <%= ['Shipped','Delivered'].includes(order.status) ? 'active' : '' %>">
-        <div class="tracker-circle"></div>
-        <div class="tracker-label">Shipped</div>
-      </div>
-      <div class="tracker-step <%= order.status === 'Delivered' ? 'active' : '' %>">
-        <div class="tracker-circle"></div>
-        <div class="tracker-label">Delivered</div>
-      </div>
-    </div>
+  <!-- 🟡 ORDER TRACKER (Now Fully Working With CSS) -->
+<div class="order-tracker" style="--active-step:<%= 
+  order.status === 'Pending' ? 1 :
+  order.status === 'Processing' ? 2 :
+  order.status === 'Shipped' ? 3 :
+  order.status === 'Out for Delivery' ? 4 :
+  order.status === 'Delivered' ? 5 : 1 
+%>">
+
+  <!-- Ordered -->
+  <div class="tracker-step <%= ['Pending','Processing','Shipped','Out for Delivery','Delivered'].includes(order.status) ? 'active' : '' %>">
+    <div class="tracker-circle"></div>
+    <div class="tracker-label">Ordered</div>
+  </div>
+
+  <!-- Processing -->
+  <div class="tracker-step <%= ['Processing','Shipped','Out for Delivery','Delivered'].includes(order.status) ? 'active' : '' %>">
+    <div class="tracker-circle"></div>
+    <div class="tracker-label">Processing</div>
+  </div>
+
+  <!-- Shipped -->
+  <div class="tracker-step <%= ['Shipped','Out for Delivery','Delivered'].includes(order.status) ? 'active' : '' %>">
+    <div class="tracker-circle"></div>
+    <div class="tracker-label">Shipped</div>
+  </div>
+
+  <!-- Out for Delivery -->
+  <div class="tracker-step <%= ['Out for Delivery','Delivered'].includes(order.status) ? 'active' : '' %>">
+    <div class="tracker-circle"></div>
+    <div class="tracker-label">Out for Delivery</div>
+  </div>
+
+  <!-- Delivered -->
+  <div class="tracker-step <%= order.status === 'Delivered' ? 'active' : '' %>">
+    <div class="tracker-circle"></div>
+    <div class="tracker-label">Delivered</div>
+  </div>
+
+</div>
+
 
     <!-- 🏠 Address -->
     <section>
@@ -321,6 +453,56 @@
       <p><%= order.address?.city %>, <%= order.address?.state %> - <%= order.address?.pincode %></p>
       <p>Phone: <%= order.address?.phone %></p>
     </section>
+      
+         
+<!-- Rejected Returns (Only if any exist) -->
+<%
+  const rejectedItems = order.orderedItems.filter(i => i.returnRejected);
+%>
+
+<% if (rejectedItems.length > 0) { %>
+<section style="margin-top:25px;">
+  <h2 style="margin-bottom:15px;">Rejected Returns</h2>
+
+  <% rejectedItems.forEach(item => { %>
+    <div style="
+      padding:18px;
+      background:#efeaea;
+      border:1px solid #f5c2c2;
+      border-radius:10px;
+      margin-bottom:12px;
+    ">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+        
+        <!-- LEFT SIDE -->
+        <div>
+          <div style="font-weight:600; font-size:15px;">
+            <%= item.product?.productName %>
+            (Size: <%= item.size %>, Qty: <%= item.quantity %>)
+          </div>
+
+          <div style="margin-top:6px; color:#b40000;">
+            <strong>Reason:</strong>
+            <%= item.rejectReason || "No reason provided" %>
+          </div>
+        </div>
+
+        <!-- RIGHT SIDE -->
+        <div style="color:#555; font-size:14px;">
+          Rejected on:
+          <%= item.rejectedOn ? new Date(item.rejectedOn).toLocaleDateString() : "N/A" %>
+        </div>
+
+      </div>
+    </div>
+  <% }) %>
+
+</section>
+<% } %>
+
+
+<!-- 🛍️ Products -->
+<section>
 
     <!-- 🛍️ Products -->
     <section>
@@ -338,6 +520,8 @@
           </tr>
         </thead>
         <tbody>
+            
+
           <% order.orderedItems.forEach(item => { %>
             <tr>
               <td><%= item.product?.productName %></td>
@@ -345,14 +529,62 @@
               <td><%= item.quantity %></td>
               <td>₹<%= item.price.toLocaleString() %></td>
               <td>₹<%= (item.price * item.quantity).toLocaleString() %></td>
-              <td><strong><%= item.status %></strong></td>
               <td>
-                <% if (item.status === "Pending" || item.status === "Processing") { %>
-                  <button class="action-btn" onclick="openCancelModal('<%= order.orderId %>', '<%= item._id %>')">Cancel</button>
-                <% } else if (item.status === "Delivered" && !item.returnRequested) { %>
-                  <button class="action-btn" onclick="openReturnModal('<%= order.orderId %>', '<%= item._id %>')">Return</button>
-                <% } %>
-              </td>
+  <% if (item.status === "Delivered") { %>
+      <span style="color:#0f9d58; font-weight:600;">Delivered</span>
+  <% } else if (item.status === "Processing") { %>
+      <span style="color:#007bff; font-weight:600;">Processing</span>
+  <% } else if (item.status === "Pending") { %>
+      <span style="color:#555; font-weight:600;">Pending</span>
+  <% } else if (item.status === "Cancelled") { %>
+      <span style="color:#d90429; font-weight:600;">Cancelled</span>
+  <% } else { %>
+      <strong><%= item.status %></strong>
+  <% } %>
+</td>
+
+    <td>
+  <% if (item.status === "Pending" || item.status === "Processing") { %>
+
+      <!-- USER CAN CANCEL -->
+      <button class="action-btn"
+        onclick="openCancelModal('<%= order.orderId %>', '<%= item._id %>')">
+        Cancel
+      </button>
+
+  <% } else if (item.status === "Delivered") { %>
+
+      <% if (item.returnApproved) { %>
+
+          <!-- APPROVED: NO BUTTON -->
+          <span class="text-success"><strong>Return Approved</strong></span>
+
+      <% } else if (item.returnRejected) { %>
+
+         
+        <span style="color:#d90429; font-weight:600;">
+  Return Rejected
+</span>
+
+      <% } else if (item.returnRequested) { %>
+
+          
+          <span class="text-warning"><strong>Return Requested</strong></span>
+
+      <% } else { %>
+
+         
+          <button class="action-btn"
+            onclick="openReturnModal('<%= order.orderId %>', '<%= item._id %>')">
+            Return
+          </button>
+
+      <% } %>
+
+  <% } %>
+</td>
+
+
             </tr>
           <% }) %>
         </tbody>
@@ -396,100 +628,195 @@
       <button class="close-btn" onclick="closeCancelModal()">Close</button>
     </div>
   </div>
+<!-- Modern Return Modal -->
+<div id="returnModal" class="modal">
+  <div class="modal-content" style="max-width:400px;">
 
-  <!-- Return Modal -->
-  <div id="returnModal" class="modal">
-    <div class="modal-content">
-      <h3>Return Item</h3>
-      <textarea id="returnReason" placeholder="Reason (required)"></textarea>
-      <button class="confirm-btn" id="confirmReturnBtn">Submit Return</button>
-      <button class="close-btn" onclick="closeReturnModal()">Close</button>
-    </div>
+    <h3 style="margin-bottom:10px;">📦 Return Item</h3>
+
+    <label for="returnReasonSelect"><strong>Select a Reason</strong></label>
+    <select id="returnReasonSelect" class="form-select"
+      style="width:100%; padding:8px; margin-top:5px; border-radius:6px; border:1px solid #ccc;">
+      <option value="">Choose a reason</option>
+      <option value="Product damaged / broken">Product damaged / broken</option>
+      <option value="Received wrong item">Received wrong item</option>
+      <option value="Size does not fit">Size does not fit</option>
+      <option value="Poor quality">Poor quality</option>
+      <option value="Item defective / not working">Item defective / not working</option>
+      <option value="Arrived late">Arrived late</option>
+      <option value="Not satisfied with the product">Not satisfied with the product</option>
+      <option value="Other">Other (specify below)</option>
+    </select>
+
+    <!-- Other Reason (Hidden until selected) -->
+    <textarea id="returnReasonText"
+      placeholder="Please specify your reason..."
+      style="display:none; width:100%; height:80px; margin-top:10px; padding:10px; border-radius:6px; border:1px solid #ccc;">
+    </textarea>
+
+    <!-- Buttons -->
+    <button class="confirm-btn" id="confirmReturnBtn"
+      style="width:100%; margin-top:15px; background:#1f1fff;">
+      Submit Return Request
+    </button>
+    <button class="close-btn"
+      onclick="closeReturnModal()"
+      style="width:100%; margin-top:8px;">
+      Cancel
+    </button>
+
   </div>
+</div>
 
-  <script>
+</div>
+ <script>
     let currentOrderId = null;
     let currentItemId = null;
 
     const reasonSelect = document.getElementById("cancelReasonSelect");
     const reasonText = document.getElementById("cancelReasonText");
 
+    reasonText.style.display = "none";
+
     reasonSelect.addEventListener("change", () => {
-      reasonText.style.display = reasonSelect.value === "Other" ? "block" : "none";
+        reasonText.style.display = reasonSelect.value === "Other" ? "block" : "none";
     });
 
+
+    /* ----------------- PREMIUM TOAST ----------------- */
+    function showToast(message) {
+        const toast = document.getElementById("toast");
+        toast.textContent = message;
+        toast.classList.add("show");
+
+        setTimeout(() => {
+            toast.classList.remove("show");
+        }, 2500);
+    }
+    /* ------------------------------------------------- */
+
+
     function openCancelModal(orderId, itemId = null) {
-      currentOrderId = orderId;
-      currentItemId = itemId;
-      document.getElementById("cancelModal").style.display = "flex";
-      setTimeout(() => document.getElementById("cancelModal").classList.add("show"), 50);
+        currentOrderId = orderId;
+        currentItemId = itemId;
+
+        const modal = document.getElementById("cancelModal");
+        modal.style.display = "flex";
+
+        // Fix: Force reflow for animation + ensure content is visible
+        modal.querySelector("textarea")?.blur();
+        modal.offsetHeight;
+
+        setTimeout(() => modal.classList.add("show"), 30);
     }
 
     function closeCancelModal() {
-      const modal = document.getElementById("cancelModal");
-      modal.classList.remove("show");
-      setTimeout(() => modal.style.display = "none", 200);
-      reasonSelect.value = "";
-      reasonText.value = "";
+        const modal = document.getElementById("cancelModal");
+        modal.classList.remove("show");
+        setTimeout(() => modal.style.display = "none", 200);
+
+        reasonSelect.value = "";
+        reasonText.value = "";
+        reasonText.style.display = "none";
     }
 
     document.getElementById("confirmCancelBtn").addEventListener("click", async () => {
-      let reason = reasonSelect.value === "Other" ? reasonText.value : reasonSelect.value;
-      const endpoint = currentItemId ? "/cancel-item" : "/cancel-order";
-      const body = { orderId: currentOrderId, reason };
-      if (currentItemId) body.itemId = currentItemId;
+        let reason =
+            reasonSelect.value === "Other" ? reasonText.value.trim() : reasonSelect.value;
 
-      const res = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body)
-      });
-      const data = await res.json();
-      alert(data.message);
-      if (data.success) location.reload();
+        if (!reason) return showToast("Please select a reason.");
+
+        const endpoint = currentItemId ? "/cancel-item" : "/cancel-order";
+        const body = { orderId: currentOrderId, reason };
+        if (currentItemId) body.itemId = currentItemId;
+
+        const res = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+        });
+
+        const data = await res.json();
+        showToast(data.message);
+
+        if (data.success) setTimeout(() => location.reload(), 1200);
     });
 
-    function openReturnModal(orderId, itemId) {
-      currentOrderId = orderId;
-      currentItemId = itemId;
-      document.getElementById("returnModal").style.display = "flex";
-      setTimeout(() => document.getElementById("returnModal").classList.add("show"), 50);
-    }
 
-    function closeReturnModal() {
-      const modal = document.getElementById("returnModal");
-      modal.classList.remove("show");
-      setTimeout(() => modal.style.display = "none", 200);
-      document.getElementById("returnReason").value = "";
-    }
+    /* ------------------- RETURN MODAL ------------------- */
 
-    document.getElementById("confirmReturnBtn").addEventListener("click", async () => {
-      const reason = document.getElementById("returnReason").value.trim();
-      if (!reason) return alert("Please enter a reason for return.");
+document.getElementById("returnReasonSelect").addEventListener("change", () => {
+  const select = document.getElementById("returnReasonSelect").value;
+  const textArea = document.getElementById("returnReasonText");
 
-      const res = await fetch("/return-item", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderId: currentOrderId, itemId: currentItemId, reason })
-      });
-      const data = await res.json();
-      alert(data.message);
-      if (data.success) location.reload();
-    });
+  if (select === "Other") {
+    textArea.style.display = "block";
+  } else {
+    textArea.style.display = "none";
+    textArea.value = "";
+  }
+});
 
-    function printInvoice() {
-  // Hide buttons and modals during print
-  const buttons = document.querySelectorAll(".button-group, .action-btn, .btn, .modal");
-  buttons.forEach(el => el.style.display = "none");
+function openReturnModal(orderId, itemId) {
+  currentOrderId = orderId;
+  currentItemId = itemId;
 
-  window.print();
-
-  // Restore buttons after printing
-  setTimeout(() => {
-    buttons.forEach(el => el.style.display = "");
-  }, 500);
+  const modal = document.getElementById("returnModal");
+  modal.style.display = "flex";
+  setTimeout(() => modal.classList.add("show"), 30);
 }
 
-  </script>
+function closeReturnModal() {
+  const modal = document.getElementById("returnModal");
+  modal.classList.remove("show");
+  setTimeout(() => modal.style.display = "none", 200);
+
+  document.getElementById("returnReasonSelect").value = "";
+  document.getElementById("returnReasonText").value = "";
+  document.getElementById("returnReasonText").style.display = "none";
+}
+
+document.getElementById("confirmReturnBtn").addEventListener("click", async () => {
+  const selectReason = document.getElementById("returnReasonSelect").value;
+  const otherReason = document.getElementById("returnReasonText").value.trim();
+
+  let finalReason = (selectReason === "Other") ? otherReason : selectReason;
+
+  if (!finalReason) {
+    return showToast("Please select or enter a valid reason.");
+  }
+
+  const res = await fetch("/return-item", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      orderId: currentOrderId,
+      itemId: currentItemId,
+      reason: finalReason
+    })
+  });
+
+  const data = await res.json();
+  showToast(data.message);
+
+  if (data.success) {
+    setTimeout(() => location.reload(), 1200);
+  }
+});
+
+    /* ------------------- PRINT FIX ------------------- */
+    function printInvoice() {
+        const buttons = document.querySelectorAll(".button-group, .action-btn, .btn, .modal");
+        buttons.forEach(el => el.style.display = "none");
+
+        window.print();
+
+        setTimeout(() => {
+            buttons.forEach(el => el.style.display = "");
+        }, 500);
+    }
+
+</script>
+
 </body>
 </html>

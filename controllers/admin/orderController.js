@@ -14,9 +14,9 @@ const listOrders = async (req, res) => {
 
     const query = {};
 
-    // ✅ Search logic (supports OrderId, user name, user email)
+  
     if (search.trim() !== "") {
-      // 1️⃣ First find matching users
+      
       const matchingUsers = await User.find({
         $or: [
           { name: { $regex: search, $options: "i" } },
@@ -24,10 +24,10 @@ const listOrders = async (req, res) => {
         ]
       }).select("_id");
 
-      // extract user ids
+    
       const userIds = matchingUsers.map(u => u._id);
 
-      // 2️⃣ Apply OR condition to order search
+    
       query.$or = [
         { orderId: { $regex: search, $options: "i" } },
         { userId: { $in: userIds } }
@@ -58,14 +58,17 @@ const listOrders = async (req, res) => {
       status,
       sort,
       currentPage: page,
-      totalPages
+      totalPages,
+      
     });
 
   } catch (err) {
-    console.error("❌ Error loading orders:", err);
+    console.error("Error loading orders:", err);
     res.status(500).render("admin/error", { message: "Failed to load orders" });
   }
 };
+
+
 const viewOrder = async (req, res) => {
   try {
     const { orderId } = req.params;
@@ -112,7 +115,7 @@ const updateOrderStatus = async (req, res) => {
     const order = await Order.findOne({ orderId });
     if (!order) return res.status(404).json({ success: false, message: "Order not found" });
 
-    // Prevent updating if already delivered / cancelled
+    // Prevent updating 
     if (["Delivered", "Cancelled"].includes(order.status)) {
       return res.status(400).json({
         success: false,
@@ -124,10 +127,10 @@ const updateOrderStatus = async (req, res) => {
     order.status = status;
     order.orderedItems.forEach(item => (item.status = status));
 
-    // ✅ If switching to Cancelled → restore product stock
+    // If switching to Cancelled → restore product stock
     if (status === "Cancelled" && previousStatus !== "Cancelled") {
       for (const item of order.orderedItems) {
-        await Product.updateOne(// size stocked variant
+        await Product.updateOne(
           { $inc: { "sizeVariants.$.quantity": item.quantity } }  
         );
       }
@@ -141,49 +144,104 @@ const updateOrderStatus = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
-
 const approveReturn = async (req, res) => {
-  const { orderId } = req.params;
-  const { itemId } = req.body;
-
   try {
-    const order = await Order.findOne({ orderId });
+    const { orderId } = req.params;
+    const { itemId } = req.body;
+
+    const order = await Order.findOne({ orderId })
+      .populate("orderedItems.product");
+
+    if (!order) return res.json({ success: false, message: "Order not found" });
+
     const item = order.orderedItems.id(itemId);
+    if (!item) return res.json({ success: false, message: "Item not found" });
 
-    //  Restore stock to selected variant
-    await Product.updateOne(
-      { _id: item.product, "sizeVariants.size": item.size },
-      { $inc: { "sizeVariants.$.quantity": item.quantity } }
-    );
+    // prevent repeated action
+    if (item.returnApproved)
+      return res.json({ success: false, message: "Already approved" });
 
-    item.status = "Returned";
+    if (item.returnRejected)
+      return res.json({ success: false, message: "Already rejected" });
+
+    // ============================
+    //  RESTORE PRODUCT STOCK FIXED
+    if (item.product) {
+  await Product.updateOne(
+    {
+      _id: item.product._id,
+      "sizeVariants.size": item.size
+    },
+    {
+      $inc: {
+        "sizeVariants.$.quantity": item.quantity,  
+        quantity: item.quantity                   
+      }
+    }
+  );
+}
+
+    // update item flags
     item.returnRequested = false;
-    await order.save();
+    item.returnApproved = true;
+    item.returnRejected = false;
+    item.returnedOn = new Date();
+   item.status = "Returned";
 
-    res.redirect(`/admin/orders/${orderId}`);
+
+order.status = "Returned";
+
+await order.save();
+
+
+    return res.json({ success: true, message: "Return approved successfully" });
+
   } catch (err) {
     console.error(err);
-    res.redirect("back");
+    res.json({ success: false, message: "Server error while approving return" });
   }
 };
+
+// ADMIN — REJECT RETURN
 const rejectReturn = async (req, res) => {
-  const { orderId } = req.params;
-  const { itemId } = req.body;
-
   try {
-    const order = await Order.findOne({ orderId });
+    const { orderId } = req.params;
+    const { itemId, adminReason } = req.body;
+
+    const order = await Order.findOne({ orderId }).populate("orderedItems.product");
+    if (!order) return res.json({ success: false, message: "Order not found" });
+
     const item = order.orderedItems.id(itemId);
+    if (!item) return res.json({ success: false, message: "Item not found" });
 
+    // prevent double-action
+    if (item.returnRejected)
+      return res.json({ success: false, message: "Already rejected" });
+
+    if (item.returnApproved)
+      return res.json({ success: false, message: "Already approved" });
+
+   
     item.returnRequested = false;
-    item.returnReason = null;
+    item.returnApproved = false;
+    item.returnRejected = true;
+    item.rejectReason = adminReason;
+    item.rejectedOn = new Date();
+item.status = "Return Rejected";
 
-    await order.save();
-    res.redirect(`/admin/orders/${orderId}`);
+// Automatically update main order status
+order.status = "Return Rejected";
+
+await order.save();
+
+
+    return res.json({ success: true, message: "Return rejected" });
+
   } catch (err) {
-    console.error(err);
-    res.redirect("back");
-  }
-};
+     console.error(" REJECT RETURN ERROR ==> ", err);
+  return res.json({ success: false, message: err.message });
+};}
+
 module.exports = {
   listOrders,
   viewOrder,

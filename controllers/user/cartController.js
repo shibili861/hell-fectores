@@ -19,7 +19,7 @@ const renderCartPage=async (req, res) => {
     const cart = userId ? await Cart.findOne({ userId }) : null;
     const cartCount = cart ? cart.items.length : 0;
 
-    // ✅ Render EJS and pass user + cart count
+    // Render EJS and pass user + cart count
     res.render("user/cart", { user, cartCount });
   } catch (err) {
     console.error("Render cart error:", err);
@@ -27,11 +27,11 @@ const renderCartPage=async (req, res) => {
   }
 };
 
-
 const addToCart = async (req, res) => {
   try {
     const userId = req.session.userId;
-    const { productId, quantity = 1, size } = req.body; // ✅ Include size
+    const { productId, quantity = 1, size } = req.body;
+
     if (!userId)
       return res.status(401).json({ success: false, message: "Not authenticated" });
 
@@ -45,16 +45,35 @@ const addToCart = async (req, res) => {
     if (!product.category.isListed)
       return res.status(400).json({ success: false, message: "Category unlisted" });
 
-    // ✅ Optional: Require size only if product has size options
+    // Check size requirement
     if (product.sizes && product.sizes.length > 0 && !size) {
       return res.status(400).json({ success: false, message: "Please select a size" });
+    }
+
+    let availableStock = product.stock; 
+
+  
+    if (product.sizes && product.sizes.length > 0) {
+      const sizeObj = product.sizes.find(s => s.size === size);
+      if (!sizeObj)
+        return res.status(400).json({ success: false, message: "Invalid size selected" });
+
+      availableStock = sizeObj.stock; // Stock of selected size
     }
 
     let cart = await Cart.findOne({ userId });
     const unitPrice = product.salePrice || product.regularPrice;
 
-    // ✅ When adding new cart item, include size
+    // If cart does NOT exist
     if (!cart) {
+      // check initial quantity > available stock
+      if (quantity > availableStock) {
+        return res.status(400).json({
+          success: false,
+          message: `Only ${availableStock} items available`,
+        });
+      }
+
       cart = new Cart({
         userId,
         items: [
@@ -63,28 +82,48 @@ const addToCart = async (req, res) => {
             quantity,
             price: unitPrice,
             totalprice: unitPrice * quantity,
-            ...(size && { size }), // include size only if provided
+            ...(size && { size }),
           },
         ],
       });
     } else {
-      // Check if same product + same size already exists
+      // cart exists → check if same item already exists
       const item = cart.items.find(
         (i) =>
           i.productId.equals(productId) &&
-          (!size || i.size === size) // handle case with/without size
+          (!size || i.size === size)
       );
 
       if (item) {
         const newQty = item.quantity + quantity;
-        if (newQty > 3)
-          return res
-            .status(400)
-            .json({ success: false, message: "Maximum 3 items allowed per product" });
+
+        // MAX 3 PER PRODUCT
+        if (newQty > 3) {
+          return res.status(400).json({
+            success: false,
+            message: "Maximum 3 items allowed per product",
+          });
+        }
+
+        // 3️ CHECK STOCK BEFORE INCREASE
+        if (newQty > availableStock) {
+          return res.status(400).json({
+            success: false,
+            message: `Only ${availableStock} items available`,
+          });
+        }
 
         item.quantity = newQty;
         item.totalprice = unitPrice * newQty;
       } else {
+        // New item to cart
+        if (quantity > availableStock) {
+          return res.status(400).json({
+            success: false,
+            message: `Only ${availableStock} items available`,
+          });
+        }
+
         cart.items.push({
           productId,
           quantity,
@@ -96,7 +135,6 @@ const addToCart = async (req, res) => {
     }
 
     await cart.save();
-    console.log("products added")
 
     return res.json({
       success: true,
@@ -105,12 +143,12 @@ const addToCart = async (req, res) => {
         : "Added to cart",
       cart,
     });
+
   } catch (err) {
     console.error("Add to cart error:", err);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
-
 
 //  Get Cart with User Data
 const getCart = async (req, res) => {
@@ -121,14 +159,14 @@ const getCart = async (req, res) => {
     const cart = await Cart.findOne({ userId }).populate("items.productId");
     const user = await User.findById(userId).select('name email'); // Get user details
     
-    console.log("🛒 Cart fetched for user:", userId);
+    console.log("Cart fetched for user:", userId);
     console.log("Session userId:", req.session.userId);
     console.log("Cart data:", JSON.stringify(cart, null, 2));
     
     res.json({ 
       success: true, 
       cart: cart || { items: [] },
-      user: user || null // Include user data in response
+      user: user || null 
     });
   } catch (error) {
     console.error("Get cart error:", error);
@@ -139,12 +177,12 @@ const getCart = async (req, res) => {
 const removeFromCart = async (req, res) => {
   try {
     const userId = req.session.userId;
-    const { productId, size } = req.params;   // ✅ size included in params
+    const { productId, size } = req.params;  
 
     const cart = await Cart.findOne({ userId });
     if (!cart) return res.json({ success: true, cart: { items: [] } });
 
-    // ✅ Filter out only the matching product + size
+    //  Filter out only the matching product + size
     cart.items = cart.items.filter(
       (i) => !(i.productId.equals(productId) && i.size === size)
     );
@@ -153,13 +191,13 @@ const removeFromCart = async (req, res) => {
 
     res.json({ success: true, message: "Item removed", cart });
   } catch (err) {
-    console.error("❌ Error removing item:", err);
+    console.error("Error removing item:", err);
     res.status(500).json({ success: false, message: "Error removing item" });
   }
 };
 
 
-// ✅ Update Quantity
+// Update Quantity
 const updateQuantity = async (req, res) => {
   try {
     const userId = req.session.userId;
@@ -205,7 +243,7 @@ const validateCartBeforeCheckout = async (req, res) => {
     cart.items.forEach((item) => {
       const product = item.productId;
 
-      // ✅ Product check
+      // Product check
       if (!product || product.isBlocked || product.status === "Discontinued") {
         invalidItems.push({
           name: product?.productName || "Removed Product",
@@ -214,7 +252,7 @@ const validateCartBeforeCheckout = async (req, res) => {
         return;
       }
 
-      // ✅ Size variant stock check (if applicable)
+      //  Size variant stock check (if applicable)
       if (product.hasVariants && item.size) {
         const variant = product.sizeVariants.find((v) => v.size === item.size);
 
@@ -225,7 +263,7 @@ const validateCartBeforeCheckout = async (req, res) => {
           });
         }
       } else {
-        // ✅ Normal quantity check
+        //  Normal quantity check
         if (product.quantity < item.quantity) {
           invalidItems.push({
             name: product.productName,

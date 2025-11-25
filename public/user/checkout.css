@@ -812,3 +812,34 @@ button {
   opacity: 0.5;
   cursor: not-allowed;
 }
+.premium-popup {
+  border-radius: 18px !important;
+  padding: 25px !important;
+  backdrop-filter: blur(12px);
+}
+
+.premium-confirm-btn {
+  background: linear-gradient(135deg, #ff4b4b, #ff1e1e) !important;
+  color: #fff !important;
+  padding: 10px 20px !important;
+  border-radius: 10px !important;
+  border: none !important;
+  font-weight: 600 !important;
+}
+
+.premium-cancel-btn {
+  background: #e5e7eb !important;
+  color: #111 !important;
+  padding: 10px 20px !important;
+  border-radius: 10px !important;
+  border: none !important;
+  font-weight: 500 !important;
+}
+
+.premium-confirm-btn:hover {
+  opacity: 0.9;
+}
+
+.premium-cancel-btn:hover {
+  background: #d1d5db !important;
+}

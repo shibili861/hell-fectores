@@ -16,7 +16,7 @@ router.post("/login", adminController.login);
 
 router.get("/", adminAuth, adminController.loaddashbord);             // /admin
 router.get("/dashboard", adminAuth, adminController.loaddashbord);   
-router.get("/logout", adminController.logout);
+router.get("/logout", adminController.adminLogout);
 
 
 // customer mangment
@@ -66,7 +66,7 @@ router.post('/updateProduct', upload.array('newImages', 5), productController.up
 
         // ordeer Management
  router.get("/orders", adminAuth,orderController.listOrders);
-// Single order view page 
+ 
 router.get("/orders/:orderId", adminAuth,orderController.viewOrder);
 
 // New route to change status

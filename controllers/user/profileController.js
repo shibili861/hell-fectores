@@ -96,6 +96,20 @@ const loadProfile = async (req, res) => {
    OTP Management
 ===================================================== */
 
+
+                    //   logout
+const userLogout = (req, res) => {
+    req.session.destroy(err => {
+        if (err) {
+            console.log("User logout error:", err);
+            return res.redirect("/profile");
+        }
+
+        res.clearCookie("user_session"); // important!
+        return res.redirect("/login");
+    });
+};
+
 // Send OTP
 const sendOtp = async (req, res) => {
   try {
@@ -547,6 +561,7 @@ module.exports = {
      editAddress,
      deleteAddress,
      uploadProfileImage,
+     userLogout 
     
      
 

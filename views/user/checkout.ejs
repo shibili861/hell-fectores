@@ -4,6 +4,8 @@
   <%- include('../partials/user/header') %>
   <title>Checkout</title>
       <link rel="stylesheet" href="/user/checkout.css">
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </head>
 <body>
  <div class="checkout-container">
@@ -353,17 +355,48 @@ document.getElementById("editForm").addEventListener("submit", async (e) => {
    ❌ Delete Address (AJAX)
 ============================= */
 async function deleteAddress(id) {
-  if (!confirm("Delete this address?")) return;
+  const result = await Swal.fire({
+    title: "Delete Address?",
+    text: "Are you sure you want to delete this address?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes, delete it",
+    cancelButtonText: "Cancel",
+    reverseButtons: true,
+    buttonsStyling: false,
+    customClass: {
+      popup: "premium-popup",
+      confirmButton: "premium-confirm-btn",
+      cancelButton: "premium-cancel-btn"
+    }
+  });
+
+  if (!result.isConfirmed) return;
+
   const res = await fetch(`/delete-address/${id}`, { method: "DELETE" });
   const data = await res.json();
 
   if (data.success) {
-    showToast("🗑️ Address deleted successfully");
+    Swal.fire({
+      icon: "success",
+      title: "Deleted!",
+      text: "The address has been removed.",
+      timer: 1500,
+      showConfirmButton: false,
+      customClass: { popup: "premium-popup" }
+    });
+
     await renderAddress();
   } else {
-    showToast(data.message || "Failed to delete address", "error");
+    Swal.fire({
+      icon: "error",
+      title: "Failed",
+      text: data.message || "Failed to delete address",
+      customClass: { popup: "premium-popup" }
+    });
   }
 }
+
 document.getElementById("placeOrderBtn").addEventListener("click", async () => {
   const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked');
   if (!selectedPayment) {

@@ -14,20 +14,44 @@ db()
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }))
 
-app.use(session({
+
+
+
+// ADMIN SESSION
+app.use(
+  "/admin",
+  session({
+    name: "admin_session",
+    secret: process.env.ADMIN_SESSION_SECRET || "adminSecret123",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: false,
+      httpOnly: true,
+      maxAge: 72 * 60 * 60 * 1000,
+    },
+  })
+);
+// 
+
+// USER SESSION
+app.use(
+  session({
+    name: "user_session",
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: false,   
+    saveUninitialized: false,
     cookie: {
-        secure: false,
-        httpOnly: true,
-        maxAge: 72 * 60 * 60 * 1000
-    }
-}));
+      secure: false,
+      httpOnly: true,
+      maxAge: 72 * 60 * 60 * 1000,
+    },
+  })
+);
 
-// 
 app.use(passport.initialize());
 app.use(passport.session());
+
 
 app.use(async (req, res, next) => {
  if (req.isAuthenticated() && !req.session.userId) {

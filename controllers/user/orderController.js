@@ -24,7 +24,7 @@ const placeOrder = async (req, res) => {
     if (!latestAddress)
       return res.json({ success: false, message: 'No address found' });
 
-    // ✅ Check stock availability
+    //  Check stock availability
     for (const item of cart.items) {
       const product = item.productId;
       const variant = product.sizeVariants.find(v => v.size === item.size);
@@ -62,7 +62,7 @@ const placeOrder = async (req, res) => {
 
     await order.save();
 
-    // ✅ Reduce only size variant stock
+    // Reduce only size variant stock
     for (const item of cart.items) {
       await Product.updateOne(
         { _id: item.productId._id, "sizeVariants.size": item.size },
@@ -70,10 +70,10 @@ const placeOrder = async (req, res) => {
       );
     }
 
-    // ✅ Define productIds FIRST
+    
     const productIds = [...new Set(cart.items.map(item => item.productId._id.toString()))];
 
-    // ✅ Update total quantity after reducing variant quantity
+    //  Update total quantity after reducing variant quantity
     for (const id of productIds) {
       const updatedProduct = await Product.findById(id);
       const newTotalQty = updatedProduct.sizeVariants.reduce((sum, v) => sum + v.quantity, 0);
@@ -126,7 +126,7 @@ const getOrderDetailsPage = async (req, res) => {
       .lean();
 
     if (!order) {
-      console.warn(`⚠️ Order not found for orderId: ${orderId}`);
+      console.warn(` Order not found for orderId: ${orderId}`);
       return res.redirect('/my-orders');
     }
 
@@ -219,7 +219,7 @@ const cancelItem = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
-// POST /user/return-item  (your existing endpoint)
+// USER — REQUEST RETURN
 const requestReturn = async (req, res) => {
   try {
     const { orderId, itemId, reason } = req.body;
@@ -229,36 +229,43 @@ const requestReturn = async (req, res) => {
       return res.json({ success: false, message: "Return reason is required" });
     }
 
-    const order = await Order.findOne({ orderId, userId }).populate('orderedItems.product');
+    const order = await Order.findOne({ orderId, userId }).populate("orderedItems.product");
     if (!order) return res.json({ success: false, message: "Order not found" });
 
     const item = order.orderedItems.id(itemId);
     if (!item) return res.json({ success: false, message: "Item not found" });
 
+    // ensure user cannot return rejected or approved items again
+    if (item.returnApproved) {
+      return res.json({ success: false, message: "Return already approved — cannot request again" });
+    }
+
+    if (item.returnRejected) {
+      return res.json({ success: false, message: "Return was rejected — cannot request again" });
+    }
+
+    if (item.returnRequested) {
+      return res.json({ success: false, message: "Return already requested" });
+    }
+
     if (item.status !== "Delivered") {
       return res.json({ success: false, message: "Only delivered items can be returned" });
     }
 
-    if (item.returnRequested) {
-      return res.json({ success: false, message: "Return already requested for this item" });
-    }
-
+    // create return request
     item.returnRequested = true;
     item.returnReason = reason;
     item.returnRequestedAt = new Date();
-    item.returnStatus = 'Requested';
 
     await order.save();
 
-    // TODO: notify admin (email/notification) that new return request arrived.
-
     return res.json({ success: true, message: "Return request submitted successfully" });
+
   } catch (error) {
     console.error("Return Request Error:", error);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
-
 
 
 

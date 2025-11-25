@@ -12,7 +12,7 @@ const getCheckoutPage = async (req, res) => {
   const cart = await Cart.findOne({ userId }).populate("items.productId");
   if (!cart || cart.items.length === 0) return res.redirect("/cart");
 
-  // ✅ Check for blocked or deleted products
+  
   const invalidItems = cart.items.filter(
     (item) => !item.productId || item.productId.isBlocked === true
   );
@@ -24,7 +24,7 @@ const getCheckoutPage = async (req, res) => {
     );
     await cart.save();
 
-    // redirect user
+   
     return res.redirect("/cart?blocked=true");
   }
 

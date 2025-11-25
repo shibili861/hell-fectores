@@ -19,26 +19,36 @@ const orderedItemSchema = new Schema({
   },
   size: { type: String, required: true },
 
-  // ✅ Track individual item-level status INCLUDING "Out for Delivery"
+  // Track individual item-level status INCLUDING "Out for Delivery"
   status: {
-    type: String,
-    enum: [
-      'Pending',
-      'Processing',
-      'Shipped',
-      'Out for Delivery',
-      'Delivered',
-      'Cancelled',
-      'Returned'
-    ],
-    default: 'Pending'
-  },
+  type: String,
+  enum: [
+    'Pending',
+    'Processing',
+    'Shipped',
+    'Out for Delivery',
+    'Delivered',
+    'Cancelled',
+    'Returned',
+    'Return Rejected',   // ✅ ADD THIS
+    'requested'
+  ],
+  default: 'Pending'
+},
+
 
   cancelReason: { type: String },
   returnReason: { type: String },
 
-  // ✅ To flag when user requests return
-  returnRequested: { type: Boolean, default: false },
+   returnRequested: { type: Boolean, default: false },
+
+  // NEW RETURN SYSTEM FIELDS
+  returnRequestedAt: { type: Date, default: null },
+  returnApproved: { type: Boolean, default: false },
+  returnRejected: { type: Boolean, default: false },
+  rejectReason: { type: String, default: null },
+  returnedOn: { type: Date, default: null },
+
 
 }, { timestamps: true });
 
@@ -86,20 +96,25 @@ const orderSchema = new Schema({
   },
 
   // ✅ Main order-level status
-  status: {
-    type: String,
-    enum: [
-      'Pending',
-      'Processing',
-      'Shipped',
-      'Out for Delivery',
-      'Delivered',
-      'Cancelled',
-      'Returned',
-      'requested'
-    ],
-    default: 'Pending'
-  },
+ status: {
+  type: String,
+  enum: [
+    'Pending',
+    'Processing',
+    'Shipped',
+    'Out for Delivery',
+    'Delivered',
+    'Cancelled',
+    'Returned',
+    'Return Rejected',   // <<< YOU MUST ADD HERE
+    'requested'
+  ],
+  default: 'Pending'
+},
+
+  rejectReason: { type: String, default: null },
+rejectedOn: { type: Date, default: null },
+
 
   invoiceDate: {
     type: Date,

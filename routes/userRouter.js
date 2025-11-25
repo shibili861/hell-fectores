@@ -55,7 +55,7 @@ router.post("/verifyotp",userController.verifyotp);
 router.post('/resendotp',userController.resendotp)
 router.get("/login",userController.loadlogin);
 router.post("/login",userController.login);
-router.get('/Logout',userController.logout);
+router.get('/Logout',userController.userLogout);
 
 // Forgot password routes
 router.get("/forgot-password", userController.loadForgotPassword);
@@ -78,18 +78,15 @@ router.get("/collection/filter",checkUserStatus,userController.filterProducts);
 // product managemet
 router.get("/productsDetailes",checkUserStatus,productController.productDetails);
 
-// Add this temporary test route
-router.post('/test-add-address', (req, res) => {
-  console.log("✅ TEST ROUTE HIT!");
-  console.log("Request body:", req.body);
-  res.json({ success: true, message: "Test route working!" });
-});
+
+
 // Profile routes
 router.get('/userprofile',profileController.loadProfile);
 router.post('/send-otp', profileController.sendOtp);
 router.post('/verify-otp', profileController.verifyOtp);
 router.post('/update-profile', profileController.updateProfile);
 router.post('/update-password', profileController.updatePassword);
+router.post("/logout", profileController.userLogout);
 
 
                              // Profile image upload
@@ -104,7 +101,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// ✅ Upload cropped profile image
+//  Upload cropped profile image
 router.post('/upload-profile-image', upload.single('profileImage'), profileController.uploadProfileImage);
 
 

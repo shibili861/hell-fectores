@@ -476,7 +476,6 @@
 
 <div id="toast-root"></div>
 <script>
-  // Format currency
   const currency = (amt) => '₹' + Number(amt).toFixed(2);
 
   // Simple toast message
@@ -489,7 +488,6 @@
     setTimeout(() => el.remove(), 3000);
   }
 
-  // Fetch cart data
  // Fetch cart data with user info
 async function fetchCart() {
   try {
@@ -526,7 +524,7 @@ function updateNavbar(user) {
     const data = await res.json();
 
     if (data.success) {
-      showToast("🗑️ Item removed");
+      showToast(" Item removed");
       renderCart(); // refresh cart UI
     } else {
       showToast(data.message || "Could not remove item", "error");
@@ -553,7 +551,7 @@ function updateNavbar(user) {
         row.querySelector('.qty-display').textContent = item.quantity;
         row.querySelector('td:nth-child(4)').textContent = '₹' + item.totalprice.toFixed(2);
       }
-      showToast("✅ Quantity updated");
+      showToast(" Quantity updated");
     } else {
       showToast(data.message || 'Could not update quantity', 'error');
     }
@@ -664,7 +662,7 @@ checkoutBtn.addEventListener("click", async () => {
       return;
     }
 
-    window.location.href = "/checkout";  // ✅ redirect
+    window.location.href = "/checkout";  //  redirect
 
   } catch (err) {
     console.error("Validation error:", err);

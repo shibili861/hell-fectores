@@ -146,20 +146,19 @@
                 <h2 class="modal-title">Edit Profile</h2>
                 <p class="modal-subtitle">Update your personal information</p>
             </div>
-            
-            <div class="modal-avatar-section">
-                <div class="modal-avatar-wrapper">
+                        
                     <div class="modal-avatar">
-                        <% if (user.name) { %>
-                            <%= user.name.split(' ').map(n => n[0].toUpperCase()).join('') %>
-                        <% } else { %>
-                            U
-                        <% } %>
-                    </div>
-                    <div class="modal-avatar-edit">📷</div>
-                </div>
-                <p class="modal-avatar-text">Change Profile Picture</p>
+                <% if (user && user.name) { %>
+                    <%= user.name
+                        .trim()
+                        .split(/\s+/)
+                        .map(n => n.charAt(0).toUpperCase())
+                        .join('') %>
+                <% } else { %>
+                    U
+                <% } %>
             </div>
+
             
             <form id="editProfileForm">
                 <div class="modal-form-grid">
@@ -340,6 +339,36 @@
 </body>
 
                 <script>
+                    // Sidebar Navigation ===
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle sidebar navigation
+    const sidebarLinks = document.querySelectorAll('.sidebar-nav a');
+    
+    sidebarLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            // Remove active class from all links
+            sidebarLinks.forEach(l => l.classList.remove('active'));
+            
+            // Add active class to clicked link
+            this.classList.add('active');
+            
+            // Handle internal anchor links
+            const href = this.getAttribute('href');
+            if (href.startsWith('#')) {
+                e.preventDefault();
+                const targetId = href.substring(1);
+                const targetElement = document.getElementById(targetId);
+                
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            }
+        });
+    });
+});
                  document.getElementById('addressForm').addEventListener('submit', function(e) {
   e.preventDefault();
 
@@ -555,16 +584,23 @@
                         return;
                     }
                     
-                    // Check if email is being changed
-                    const originalEmail = '<%= user.email %>';
-                    if (updatedData.email !== originalEmail) {
-                        isEmailChange = true;
-                        otpType = 'email';
-                        currentEmail = updatedData.email;
-                        await sendOtp(updatedData.email, 'email');
-                        showOtpModal();
-                    } else {
-                        // No email change, update profile directly
+                  // Check if email is being changed
+                const originalEmail = '<%= user.email %>';
+                if (updatedData.email !== originalEmail) {
+                    isEmailChange = true;
+                    otpType = 'email';
+                    currentEmail = updatedData.email;
+                    
+                    // Show OTP modal immediately without waiting for OTP send
+                    showOtpModal();
+                    
+                    // Send OTP in background without blocking UI
+                    sendOtp(updatedData.email, 'email').catch(error => {
+                        console.error('Failed to send OTP:', error);
+                        showMessage('Failed to send OTP. Please try again.', 'error');
+                    });
+                } else {
+                                        // No email change, update profile directly
                         await updateProfile(updatedData);
                     }
                 });
