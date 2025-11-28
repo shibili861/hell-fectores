@@ -534,31 +534,57 @@ function updateNavbar(user) {
   }
 }
 
-                //  change quantity
- async function changeQuantity(productId, delta) {
+async function changeQuantity(productId, delta) {
   try {
     const res = await fetch(`/api/cart/${productId}/quantity`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ quantityDelta: delta }),
     });
+
     const data = await res.json();
+
+    const row = document.querySelector(`tr[data-id="${productId}"]`);
+    const minusBtn = row.querySelector(".qty-minus");
+    const plusBtn = row.querySelector(".qty-plus");
 
     if (data.success) {
       const item = data.updatedItem;
-      const row = document.querySelector(`tr[data-id="${productId}"]`);
-      if (row && item) {
-        row.querySelector('.qty-display').textContent = item.quantity;
-        row.querySelector('td:nth-child(4)').textContent = '₹' + item.totalprice.toFixed(2);
-      }
-      showToast(" Quantity updated");
+
+      // update row
+  row.querySelector('.qty-display').textContent = item.quantity;
+  row.querySelector('td:nth-child(4)').textContent = '₹' + item.totalprice.toFixed(2);
+
+  // ★ UPDATE SUBTOTAL
+  if (data.totals) {
+    document.getElementById("subtotal").textContent = "₹" + data.totals.subtotal.toFixed(2);
+  }
+      //  BUTTONS ----
+      minusBtn.disabled = item.quantity <= 1;
+      plusBtn.disabled = item.quantity >= 3;
+
+      showToast("Quantity updated");
+
     } else {
-      showToast(data.message || 'Could not update quantity', 'error');
+     
+      if (data.type === "max") {
+        plusBtn.disabled = true;   
+        minusBtn.disabled = false; 
+      }
+
+      if (data.type === "min") {
+        minusBtn.disabled = true;  
+        plusBtn.disabled = false;
+      }
+
+      showToast(data.message, "error");
     }
+
   } catch {
-    showToast('Error updating quantity', 'error');
+    showToast("Error updating quantity", "error");
   }
 }
+
 
 
 async function renderCart() {
@@ -608,9 +634,17 @@ async function renderCart() {
           <td>${currency(price)}</td>
           <td>
             <div class="quantity-controls">
-              <button type="button" class="qty-btn" onclick="changeQuantity('${product._id}', -1)" ${qty <= 1 ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : ''}>−</button>
-            <div class="qty-display">${qty}</div>
-            <button type="button" class="qty-btn" onclick="changeQuantity('${product._id}', 1)" ${qty >= 3 ? 'disabled style="opacity:0.5;cursor:not-allowed;" title="Maximum 3 items allowed"' : ''}>+</button>
+             <button type="button" 
+        class="qty-btn qty-minus" 
+        onclick="changeQuantity('${product._id}', -1)" 
+        ${qty <= 1 ? 'disabled' : ''}>−</button>
+
+<div class="qty-display">${qty}</div>
+                             
+<button type="button" 
+        class="qty-btn qty-plus" 
+        onclick="changeQuantity('${product._id}', 1)" 
+        ${qty >= 3 ? 'disabled' : ''}>+</button>
 
             </div>
             ${qty >= 3 ? '<div style="color:#E74C3C;font-size:0.8rem;">Max limit reached</div>' : ''}

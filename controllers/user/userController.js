@@ -177,7 +177,8 @@ const verifyotp = async (req, res) => {
       });
 
       await newUser.save();
-      req.session.user = newUser._id;
+      req.session.userId = newUser._id;
+
 
       
       delete req.session.userOtp;
@@ -277,13 +278,12 @@ const login = async (req, res) => {
     });
   }
 };
+
 // Logout - USER
 const userLogout= (req, res) => {
   try {
-    // Clear session data
    req.session.userId = null;
     
-    // Also logout from Passport
     req.logout(function(err) {
       if (err) { 
         console.log("Passport logout error:", err);

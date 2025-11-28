@@ -110,7 +110,6 @@ const userLogout = (req, res) => {
     });
 };
 
-// Send OTP
 const sendOtp = async (req, res) => {
   try {
     const { email, type } = req.body;
@@ -119,131 +118,121 @@ const sendOtp = async (req, res) => {
       return res.json({ success: false, message: "Email is required" });
     }
 
-    // Generate OTP
+    // 🔥 Delete OLD OTP so user CANNOT reuse old codes
+    otpStore.delete(email);
+
+    // Generate new OTP
     const otp = generateOtp();
 
-    // Store OTP with expiration (10 minutes)
+    // Save OTP into store with expiry time & type
     otpStore.set(email, {
       otp,
-      expires: Date.now() + 10 * 60 * 1000, // 10 minutes
+      expires: Date.now() + 10 * 60 * 1000, // 10 min expiry
       type,
+      lastSent: Date.now()
     });
 
-    console.log(`OTP for ${email}: ${otp}`); // For development/testing
+    console.log(`OTP for ${email}: ${otp}`); // Dev only
 
-    // Email content based on type
-    const emailSubject =
+    // Email subject & message styling
+    const subject =
       type === "email"
         ? "Email Change Verification - ÉLÉGANCE"
         : "Password Change Verification - ÉLÉGANCE";
 
-    const emailPurpose =
+    const purpose =
       type === "email" ? "email address change" : "password change";
 
-    // Send email
+    // EMAIL TEMPLATE
     const mailOptions = {
       from: {
         name: "ÉLÉGANCE",
         address: process.env.NODEMAILER_EMAIL,
       },
       to: email,
-      subject: emailSubject,
+      subject: subject,
       html: `
-        <div style="font-family: 'Arial', sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
-          <div style="background: linear-gradient(135deg, #1a1410 0%, #0a0a0a 100%); padding: 30px; text-align: center;">
-            <h1 style="color: #d4af37; margin: 0; font-size: 28px; font-family: 'Georgia', serif;">ÉLÉGANCE</h1>
-            <p style="color: #f4e4c1; margin: 10px 0 0 0; font-size: 14px;">Luxury Redefined</p>
+        <div style="font-family: Arial; max-width: 600px; margin: auto;">
+          <h2 style="color:#d4af37;">Your OTP Code</h2>
+          <p>You are trying to complete a ${purpose}.</p>
+          <p>Your OTP:</p>
+          <div style="font-size:32px; font-weight:bold; background:#d4af37; color:#fff; padding:15px; text-align:center; border-radius:6px;">
+            ${otp}
           </div>
-          
-          <div style="padding: 30px; background: #f9f9f9;">
-            <h2 style="color: #333; margin-bottom: 20px;">OTP Verification</h2>
-            <p style="color: #666; line-height: 1.6;">
-              You are attempting to change your ${emailPurpose}. Use the following OTP to verify your identity:
-            </p>
-            
-            <div style="background: #d4af37; color: white; padding: 20px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 8px; border-radius: 8px; margin: 30px 0; font-family: 'Courier New', monospace;">
-              ${otp}
-            </div>
-            
-            <p style="color: #666; font-size: 14px; line-height: 1.6;">
-              <strong>Important:</strong>
-              <ul style="color: #666; font-size: 14px; margin: 15px 0; padding-left: 20px;">
-                <li>This OTP is valid for 10 minutes only</li>
-                <li>Do not share this code with anyone</li>
-                <li>If you didn't request this change, please ignore this email</li>
-              </ul>
-            </p>
-          </div>
-          
-          <div style="background: #0a0a0a; padding: 20px; text-align: center;">
-            <p style="color: #f4e4c1; margin: 0; font-size: 12px;">
-              &copy; 2024 ÉLÉGANCE. All rights reserved.
-            </p>
-            <p style="color: #c4a57b; margin: 5px 0 0 0; font-size: 11px;">
-              Luxury Fashion House
-            </p>
-          </div>
+          <p>This OTP is valid for 10 minutes.</p>
         </div>
-      `,
+      `
     };
 
+    // Send OTP email
     try {
       await transporter.sendMail(mailOptions);
-      console.log(`OTP email sent successfully to ${email}`);
-      return res.json({ success: true, message: "OTP sent successfully" });
-    } catch (emailError) {
-      console.error("Email sending error:", emailError);
-      // Still return success for development (OTP is logged to console)
+      console.log("OTP sent email:", email);
+
       return res.json({
         success: true,
-        message: "OTP generated successfully (check console for development)",
+        message: "OTP sent successfully"
+      });
+
+    } catch (emailErr) {
+      console.error("Email sending failed:", emailErr);
+
+      // during development accept even without email
+      return res.json({
+        success: true,
+        message: "OTP generated (check server console)"
       });
     }
-  } catch (error) {
-    console.error("Send OTP error:", error);
+
+  } catch (err) {
+    console.error("Send OTP error:", err);
     return res.json({ success: false, message: "Failed to send OTP" });
   }
 };
 
-// Verify OTP
+// =====================================
+//  VERIFY OTP
+// =====================================
 const verifyOtp = async (req, res) => {
   try {
     const { otp, email } = req.body;
 
     if (!otp || !email) {
-      return res.json({ success: false, message: "OTP and email are required" });
+      return res.json({ success: false, message: "OTP and Email required" });
     }
 
-    const storedOtpData = otpStore.get(email);
+    const otpData = otpStore.get(email);
 
-    if (!storedOtpData) {
+    if (!otpData) {
       return res.json({ success: false, message: "OTP not found or expired" });
     }
 
-    if (Date.now() > storedOtpData.expires) {
+    // Check expiration
+    if (Date.now() > otpData.expires) {
       otpStore.delete(email);
       return res.json({ success: false, message: "OTP expired" });
     }
 
-    if (storedOtpData.otp !== otp) {
+    // Check OTP match
+    if (otpData.otp !== otp) {
       return res.json({ success: false, message: "Invalid OTP" });
     }
 
-    // OTP is valid, remove it from store but keep the type for later use
-    const otpType = storedOtpData.type;
+    // VALID → remove OTP immediately
+    const otpType = otpData.type;
     otpStore.delete(email);
 
     return res.json({
       success: true,
       message: "OTP verified successfully",
-      type: otpType,
+      type: otpType
     });
-  } catch (error) {
-    console.error("Verify OTP error:", error);
+
+  } catch (err) {
+    console.error("Verify OTP error:", err);
     return res.json({ success: false, message: "Failed to verify OTP" });
   }
 };
-
 /* =====================================================
    Profile Management
 ===================================================== */
@@ -258,7 +247,39 @@ const updateProfile = async (req, res) => {
       return res.json({ success: false, message: "User not authenticated" });
     }
 
-    // Check if email is being changed and if it already exists
+    
+      //  VALIDATION SECTION 
+   
+
+    // Name validation
+    if (!name || !/^[A-Za-z\s]{3,}$/.test(name.trim())) {
+      return res.json({
+        success: false,
+        message: "Name must be at least 3 letters and contain only alphabets."
+      });
+    }
+
+    // Email validation
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      return res.json({
+        success: false,
+        message: "Invalid email format."
+      });
+    }
+
+    // Phone validation (optional)
+    if (phone) {
+      // Must start > 6 (i.e., 7/8/9) and digits only and length 7-15
+      if (!/^[7-9]\d{6,14}$/.test(phone)) {
+        return res.json({
+          success: false,
+          message: "Phone number must start with 7, 8, or 9 and be 7–15 digits long."
+        });
+      }
+    }
+
+
+    // Check if email exists
     if (email) {
       const existingUser = await User.findOne({ email, _id: { $ne: userId } });
       if (existingUser) {
@@ -267,40 +288,38 @@ const updateProfile = async (req, res) => {
     }
 
     const updateData = { name, phone };
-    if (email) {
-      updateData.email = email;
-    }
-
+    if (email) updateData.email = email;
+ 
     const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
       new: true,
-      runValidators: true,
+      runValidators: true
+     
     });
-
+ 
     if (!updatedUser) {
       return res.json({ success: false, message: "User not found" });
     }
 
-    // Update session if email was changed
-    if (email) {
-      req.session.userEmail = updatedUser.email;
-    }
+    if (email) req.session.userEmail = updatedUser.email;
 
     return res.json({
       success: true,
-      message: "Profile updated successfully",
-      user: updatedUser,
+      message: "Profile updated successfully!",
+      user: updatedUser
     });
+
   } catch (error) {
     console.error("Update profile error:", error);
 
     if (error.name === "ValidationError") {
-      const messages = Object.values(error.errors).map((err) => err.message);
+      const messages = Object.values(error.errors).map(err => err.message);
       return res.json({ success: false, message: messages.join(", ") });
     }
 
     return res.json({ success: false, message: "Failed to update profile" });
   }
 };
+
 
 // Update password
 const updatePassword = async (req, res) => {
@@ -355,22 +374,32 @@ const updatePassword = async (req, res) => {
   }
 };
 
+// RENDER PAGE
+const renderAddressesPage = async (req, res) => {
+  try {
+    const userId = req.session.userId;
+    if (!userId) return res.redirect("/login");
+
+    const addressDoc = await Address.findOne({
+      userId: new mongoose.Types.ObjectId(userId),
+    }).lean();
+
+    res.render("user/address", {
+      addresses: addressDoc ? addressDoc.address : [],
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error loading addresses");
+  }
+};
+
+// ADD ADDRESS (WITH DUPLICATE VALIDATIONS)
 const addAddress = async (req, res) => {
   try {
     const userId = req.session.userId;
-    if (!userId) {
-      console.log("❌ No user ID - not authenticated");
-      return res.status(401).json({ 
-        success: false, 
-        message: "Not authenticated" 
-      });
-    }
+    if (!userId)
+      return res.status(401).json({ success: false, message: "Not authenticated" });
 
-    console.log("4. Looking for address document...");
-    let addressDoc = await Address.findOne({ userId: new mongoose.Types.ObjectId(userId) });
-    console.log("5. Address document found:", !!addressDoc);
-
-    // ✅ STEP 1: Build newAddress first
     const newAddress = {
       addressType: req.body.addressType,
       name: req.body.name,
@@ -379,151 +408,180 @@ const addAddress = async (req, res) => {
       state: req.body.state,
       pincode: Number(req.body.pincode),
       phone: req.body.phone,
-      altphone: req.body.altphone,
+      altphone: req.body.altphone || "",
     };
 
-    console.log("6. New address data:", newAddress);
+    // REQUIRED VALIDATION
+    const required = ["addressType", "name", "city", "state", "pincode", "phone"];
+    for (const key of required) {
+      if (!newAddress[key] && newAddress[key] !== 0) {
+        return res.status(400).json({
+          success: false,
+          message: `${key} is required`,
+        });
+      }
+    }
 
-    // ✅ STEP 2: Validate before saving
-    if (Object.values(newAddress).some(v => !v && v !== 0)) {
-      console.log("❌ Validation failed - missing fields");
-      return res.status(400).json({ 
-        success: false, 
-        message: "All fields are required" 
+    // PINCODE FORMAT CHECK
+    if (!/^\d{6}$/.test(String(newAddress.pincode))) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid pincode",
       });
     }
 
-    // ✅ STEP 3: Create or update the document
+    const userObjId = new mongoose.Types.ObjectId(userId);
+    let addressDoc = await Address.findOne({ userId: userObjId });
+
+    // IF ADDRESS DOCUMENT EXISTS → VALIDATE DUPLICATES
+    if (addressDoc) {
+      const normalized = (v) => (v || "").trim().toLowerCase();
+
+      // === 1. Duplicate Address Check ===
+      const duplicateAddress = addressDoc.address.some((a) =>
+        normalized(a.addressType) === normalized(newAddress.addressType) &&
+        normalized(a.name) === normalized(newAddress.name) &&
+        normalized(a.city) === normalized(newAddress.city) &&
+        normalized(a.state) === normalized(newAddress.state) &&
+        String(a.pincode) === String(newAddress.pincode) &&
+        normalized(a.landMark) === normalized(newAddress.landMark) &&
+        a.phone.trim() === newAddress.phone.trim()
+      );
+
+      if (duplicateAddress) {
+        return res.status(400).json({
+          success: false,
+          message: "This address already exists",
+        });
+      }
+
+      // === 2. Duplicate Phone Validation ===
+      const duplicatePhone = addressDoc.address.some(
+        (a) =>
+          a.phone.trim() === newAddress.phone.trim() ||
+          (newAddress.altphone &&
+            a.phone.trim() === newAddress.altphone.trim()) ||
+          (a.altphone &&
+            a.altphone.trim() === newAddress.phone.trim()) ||
+          (a.altphone &&
+            newAddress.altphone &&
+            a.altphone.trim() === newAddress.altphone.trim())
+      );
+
+      if (duplicatePhone) {
+        return res.status(400).json({
+          success: false,
+          message: "Phone number already used in another address",
+        });
+      }
+    }
+
+    // SAVE ADDRESS
     if (!addressDoc) {
-      console.log("7. Creating new address document");
-      addressDoc = new Address({ userId, address: [newAddress] });
+      addressDoc = new Address({ userId: userObjId, address: [newAddress] });
     } else {
-      console.log("7. Adding to existing address document");
       addressDoc.address.push(newAddress);
     }
 
-    console.log("8. Saving to database...");
     await addressDoc.save();
-    console.log("✅ 9. Address saved successfully!");
+    const savedAddr = addressDoc.address[addressDoc.address.length - 1];
 
-    console.log("10. Sending JSON response...");
-    return res.json({ 
-      success: true, 
+    return res.json({
+      success: true,
       message: "Address added successfully",
-      address: newAddress 
+      address: savedAddr,
     });
-
   } catch (err) {
-    console.error("❌ ERROR in addAddress:", err);
-    console.error("Error stack:", err.stack);
-    return res.status(500).json({ 
-      success: false, 
-      message: "Failed to add address: " + err.message 
+    console.error("ERROR in addAddress:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to add address: " + err.message,
     });
   }
 };
 
+// GET ADDRESSES
 const getAddresses = async (req, res) => {
-  console.log("=== GET ADDRESSES CALLED ===");
   try {
     const userId = req.session.userId;
-    console.log("User ID:", userId);
-    
-    if (!userId) {
-      return res.status(401).json({ 
-        success: false, 
-        message: "Not authenticated" 
-      });
-    }
+    if (!userId)
+      return res.status(401).json({ success: false, message: "Not authenticated" });
 
-    const addressDoc = await Address.findOne({ userId });
-    console.log("Found addresses:", addressDoc ? addressDoc.address.length : 0);
-    
-    res.json({ 
-      success: true, 
-      addresses: addressDoc ? addressDoc.address : [] 
+    const addressDoc = await Address.findOne({
+      userId: new mongoose.Types.ObjectId(userId),
+    }).lean();
+
+    return res.json({
+      success: true,
+      addresses: addressDoc ? addressDoc.address : [],
     });
   } catch (err) {
     console.error("Error in getAddresses:", err);
-    res.status(500).json({ 
-      success: false, 
-      message: "Failed to fetch addresses" 
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch addresses",
     });
   }
 };
 
-
-// Render addresses page
-const renderAddressesPage = async (req, res) => {
-  try {
-    const userId = req.session.userId; 
-    if (!userId) return res.redirect('/login');
-
-    const addressDoc = await Address.findOne({ userId }).lean();
-    const addresses = addressDoc ? addressDoc.address : [];
-
-    res.render("user/address", { addresses });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Error loading addresses");
-  }
-};
-
-// Edit/update address
+// EDIT ADDRESS
 const editAddress = async (req, res) => {
   try {
     const userId = req.session.userId;
     const { id } = req.params;
 
-    // Find the user's address document first
-    const addressDoc = await Address.findOne({ userId });
-    if (!addressDoc) return res.status(404).json({ success: false, message: "No addresses found" });
+    if (!userId)
+      return res.status(401).json({ success: false, message: "Not authenticated" });
+
+    const addressDoc = await Address.findOne({
+      userId: new mongoose.Types.ObjectId(userId),
+    });
+
+    if (!addressDoc)
+      return res.status(404).json({ success: false, message: "No addresses found" });
 
     const address = addressDoc.address.id(id);
-    if (!address) return res.status(404).json({ success: false, message: "Address not found" });
+    if (!address)
+      return res.status(404).json({ success: false, message: "Address not found" });
 
-    Object.assign(address, req.body); // update fields
+    const updates = { ...req.body };
+    if (updates.pincode !== undefined) updates.pincode = Number(updates.pincode);
+
+    Object.assign(address, updates);
     await addressDoc.save();
 
-    res.json({ success: true, address });
+    return res.json({ success: true, address });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: "Server error" });
+    console.error("Error in editAddress:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 };
 
-// ✅ Delete address (atomic + clean)
+// DELETE ADDRESS
 const deleteAddress = async (req, res) => {
   try {
     const userId = req.session.userId;
     const { id } = req.params;
 
-    if (!userId) {
-      return res.status(401).json({ success: false, message: "Not authenticated" });
-    }
-
-    // Use MongoDB $pull for nested array deletion
     const result = await Address.findOneAndUpdate(
-      { userId },
+      { userId: new mongoose.Types.ObjectId(userId) },
       { $pull: { address: { _id: id } } },
       { new: true }
     );
 
-    if (!result) {
-      return res.status(404).json({ success: false, message: "Address not found" });
-    }
-
-    res.json({
+    return res.json({
       success: true,
       message: "Address deleted successfully",
-      addresses: result.address
+      addresses: result.address,
     });
   } catch (err) {
     console.error("Error deleting address:", err);
-    res.status(500).json({ success: false, message: "Server error" });
+    return res.status(500).json({ success: false, message: "Server error" });
   }
 };
-
 
 const uploadProfileImage = async (req, res) => {
   try {
@@ -550,6 +608,7 @@ module.exports = {
   loadProfile,
   sendOtp,
   verifyOtp,
+
   updateProfile,
   updatePassword,
 

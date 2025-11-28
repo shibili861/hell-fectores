@@ -211,23 +211,35 @@ const updateQuantity = async (req, res) => {
     if (!item) return res.status(404).json({ success: false, message: "Item not found" });
 
     const newQty = item.quantity + Number(quantityDelta);
-    if (newQty < 1) return res.json({ success: false, message: "Min quantity is 1" });
-    if (newQty > 3) return res.json({ success: false, message: "Max 3 items allowed" });
+    if (newQty < 1) return res.json({ success: false, type: "min", message: "Min quantity is 1" });
+    if (newQty > 3) return res.json({ success: false, type: "max", message: "Max 3 items allowed" });
 
     const product = await Product.findById(productId);
     const unitPrice = product.salePrice || product.regularPrice;
 
+    // Update values
     item.quantity = newQty;
     item.price = unitPrice;
     item.totalprice = unitPrice * newQty;
+
     await cart.save();
 
-    res.json({ success: true, message: "Quantity updated", updatedItem: item, cart });
+    // ★ Recalculate totals
+    const subtotal = cart.items.reduce((sum, i) => sum + i.totalprice, 0);
+
+    res.json({
+      success: true,
+      message: "Quantity updated",
+      updatedItem: item,
+      totals: { subtotal }
+    });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
 
 const validateCartBeforeCheckout = async (req, res) => {
   try {

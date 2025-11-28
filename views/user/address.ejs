@@ -326,6 +326,13 @@ input.error, select.error {
   border-color: #d32f2f;
   background: #fff8f5;
 }
+.form-error-box {
+  color: red;
+  font-size: 14px;
+  padding: 6px;
+  border-left: 3px solid red;
+  margin-top: 10px;
+}
 
 
 /* Responsive adjustments */
@@ -359,13 +366,15 @@ input.error, select.error {
 
 
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </head>
 <body>
   <main class="address-main">
     <header class="address-header">
       <h1>My Addresses</h1>
       <p class="address-subtitle">Effortlessly manage your delivery addresses in style.</p>
-      <button class="add" id="openAddModal"><span class="btn-icon">➕</span> Add Address</button>
+      <button class="add" onclick="openAddModal()" id="openAddModal"><span class="btn-icon" >➕</span> Add Address</button>
     </header>
 
     <!-- Addresses displayed here -->
@@ -448,195 +457,300 @@ input.error, select.error {
 
 
 
-
 <script>
-// ========== VALIDATION HELPERS ==========
+/* ============================================================
+/* ============================================================
+   VALIDATION HELPERS
+============================================================ */
 function showError(field, message) {
-  field.classList.add('error');
+  field.classList.add("error");
   let err = field.nextElementSibling;
-  if (!err || !err.classList.contains('error-message')) {
-    err = document.createElement('div');
-    err.className = 'error-message';
-    field.parentNode.insertBefore(err, field.nextSibling);
+
+  if (!err || !err.classList.contains("error-message")) {
+    err = document.createElement("div");
+    err.className = "error-message";
+    field.insertAdjacentElement("afterend", err);
   }
+
   err.textContent = message;
-  err.style.display = 'block';
+  err.style.display = "block";
+}
+
+function clearError(field) {
+  field.classList.remove("error");
+  let err = field.nextElementSibling;
+
+  if (err && err.classList.contains("error-message")) {
+    err.style.display = "none";
+  }
 }
 
 function validateSingleField(field) {
   const value = field.value.trim();
+
   const namePattern = /^[A-Za-z\s.'-]{2,50}$/;
   const pincodePattern = /^\d{6}$/;
   const phonePattern = /^[6-9]\d{9}$/;
   const textPattern = /^[A-Za-z0-9\s.,'-]{2,100}$/;
-  let valid = true, message = '';
+
+  let valid = true;
+  let message = "";
 
   switch (field.name) {
-    case 'addressType':
-      valid = value !== ''; message = 'Please select an address type.'; break;
-    case 'name':
-      valid = value && namePattern.test(value); message = 'Enter a valid name.'; break;
-    case 'city':
-      valid = value && textPattern.test(value); message = 'Enter a valid city name.'; break;
-    case 'landMark':
-      valid = value && textPattern.test(value); message = 'Enter a valid landmark.'; break;
-    case 'state':
-      valid = value && textPattern.test(value); message = 'Enter a valid state name.'; break;
-    case 'pincode':
-      valid = pincodePattern.test(value); message = 'Enter a valid 6-digit pincode.'; break;
-    case 'phone':
-      valid = phonePattern.test(value); message = 'Enter a valid phone number.'; break;
-    case 'altphone':
-      valid = !value || phonePattern.test(value); message = 'Enter a valid alternate phone number.'; break;
+    case "addressType":
+      valid = value !== "";
+      message = "Please select address type";
+      break;
+
+    case "name":
+      valid = namePattern.test(value);
+      message = "Enter a valid full name (letters only)";
+      break;
+
+    case "city":
+      valid = textPattern.test(value);
+      message = "Enter a valid city";
+      break;
+
+    case "landMark":
+      valid = textPattern.test(value);
+      message = "Enter a valid landmark";
+      break;
+
+    case "state":
+      valid = textPattern.test(value);
+      message = "Enter a valid state";
+      break;
+
+    case "pincode":
+      valid = pincodePattern.test(value);
+      message = "Enter a valid 6-digit pincode";
+      break;
+
+    case "phone":
+      valid = phonePattern.test(value);
+      message = "Enter a valid phone number";
+      break;
+
+    case "altphone":
+      valid = !value || phonePattern.test(value);
+      message = "Enter a valid alternate phone number";
+      break;
   }
 
-  field.classList.remove('error');
-  if (!valid) showError(field, message);
+  // REMOVE OR SHOW ERRORS PROPERLY
+  if (valid) {
+    clearError(field);
+  } else {
+    showError(field, message);
+  }
+
   return valid;
 }
 
 function validateAddressForm(form) {
   let valid = true;
-  Array.from(form.elements).forEach(field => {
-    if (['submit','button','hidden'].includes(field.type)) return;
+  [...form.elements].forEach((field) => {
+    if (["submit", "button", "hidden"].includes(field.type)) return;
     if (!validateSingleField(field)) valid = false;
   });
   return valid;
 }
 
-// Real-time validation
-document.querySelectorAll('#addForm input, #addForm select').forEach(field => {
-  field.addEventListener('blur', () => validateSingleField(field));
-});
-
-// ========== ADDRESS CRUD ==========
-async function loadAddresses() {
-  const res = await fetch('/get-addresses');
-  const data = await res.json();
-  const list = document.getElementById('addressList');
-  if (!list) return;
-
-  list.innerHTML = '';
-  if (!data.addresses || !data.addresses.length) {
-    list.innerHTML = `
-      <p>No saved addresses yet.</p>
-      <button class="add" type="button" onclick="openAddModal()">➕ Add Address</button>
-    `;
-    return;
-  }
-
-  data.addresses.forEach(addr => {
-    const div = document.createElement('div');
-    div.className = 'address-card';
-    div.innerHTML = `
-      <b>${addr.addressType}</b><br/>
-      ${addr.name}<br/>
-      ${addr.city}, ${addr.state}, ${addr.pincode}<br/>
-      ${addr.landMark ? addr.landMark + '<br/>' : ''}
-      Phone: ${addr.phone}
-      ${addr.altphone ? '<br/>Alt: ' + addr.altphone : ''}
-      <div class="actions">
-        <button class="edit" onclick='openEdit(${JSON.stringify(addr)})'>✏️ Edit</button>
-        <button class="delete" onclick="deleteAddress('${addr._id}')">🗑️ Delete</button>
-      </div>
-    `;
-    list.appendChild(div);
+/* REAL-TIME VALIDATION (input event → instant changes) */
+document.querySelectorAll("#addForm input, #addForm select, #editForm input, #editForm select")
+  .forEach((field) => {
+    field.addEventListener("input", () => validateSingleField(field));
   });
-}
 
-async function deleteAddress(id) {
-  if (!confirm('Delete this address?')) return;
-  const res = await fetch(`/delete-address/${id}`, { method: 'DELETE' });
-  const data = await res.json();
-  if (data.success) {
-    alert('Address deleted successfully');
-    loadAddresses();
-  } else {
-    alert(data.message || 'Failed to delete address');
-  }
-}
+/* ============================================================
+   LOAD ADDRESSES
+============================================================ */
+async function loadAddresses() {
+  const list = document.getElementById("addressList");
+  list.innerHTML = "";
 
-// ========== MODALS ==========
-function openAddModal() {
-  document.getElementById('addModal').style.display = 'flex';
-}
-function closeAddModal() {
-  document.getElementById('addModal').style.display = 'none';
-}
-function openEdit(addr) {
-  document.getElementById('editId').value = addr._id;
-  document.getElementById('editType').value = addr.addressType;
-  document.getElementById('editName').value = addr.name;
-  document.getElementById('editCity').value = addr.city;
-  document.getElementById('editLandmark').value = addr.landMark || '';
-  document.getElementById('editState').value = addr.state;
-  document.getElementById('editPincode').value = addr.pincode;
-  document.getElementById('editPhone').value = addr.phone;
-  document.getElementById('editAltphone').value = addr.altphone || '';
-  document.getElementById('editModal').style.display = 'flex';
-}
-function closeModal() {
-  document.getElementById('editModal').style.display = 'none';
-}
-document.addEventListener('keydown', e => {
-  if (e.key === "Escape") {
-    closeAddModal();
-    closeModal();
-  }
-});
-
-// ========== FORM SUBMISSIONS ==========
-const addForm = document.getElementById('addForm');
-if (addForm && !addForm.dataset.listenerAdded) {
-  addForm.addEventListener('submit', async e => {
-    e.preventDefault();
-    if (!validateAddressForm(e.target)) return;
-    const formData = Object.fromEntries(new FormData(e.target));
-    const res = await fetch('/add-address', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData)
-    });
+  try {
+    const res = await fetch("/get-addresses");
     const data = await res.json();
+    const addresses = data.addresses || [];
+
+    if (!addresses.length) {
+      list.innerHTML = `<p>No saved addresses yet.</p>`;
+      return;
+    }
+
+    addresses.forEach((addr) => {
+      const div = document.createElement("div");
+      div.className = "address-card";
+
+      div.innerHTML = `
+        <b>${addr.addressType}</b><br/>
+        ${addr.name}<br/>
+        ${addr.city}, ${addr.state}, ${addr.pincode}<br/>
+        ${addr.landMark ? addr.landMark + "<br/>" : ""}
+        Phone: ${addr.phone}
+        ${addr.altphone ? "<br/>Alt: " + addr.altphone : ""}
+        <div class="actions">
+          <button class="edit" data-id="${addr._id}">✏️ Edit</button>
+          <button class="delete" data-id="${addr._id}">🗑️ Delete</button>
+        </div>
+      `;
+
+      list.appendChild(div);
+    });
+
+    // EDIT BUTTON HANDLERS
+    document.querySelectorAll(".edit").forEach((btn) => {
+      btn.addEventListener("click", () => openEditModal(btn.dataset.id, addresses));
+    });
+
+    // DELETE BUTTON HANDLERS
+    document.querySelectorAll(".delete").forEach((btn) => {
+      btn.addEventListener("click", () => deleteAddress(btn.dataset.id));
+    });
+  } catch (err) {
+    Swal.fire("Error", "Failed to load addresses", "error");
+  }
+}
+
+
+/* ============================================================
+   DELETE ADDRESS
+============================================================ */
+async function deleteAddress(id) {
+  const conf = await Swal.fire({
+    title: "Are you sure?",
+    text: "This address will be permanently removed.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Delete",
+    cancelButtonText: "Cancel",
+  });
+
+  if (!conf.isConfirmed) return;
+
+  try {
+    const res = await fetch(`/delete-address/${id}`, { method: "DELETE" });
+    const data = await res.json();
+
     if (data.success) {
-      alert('Address added successfully');
+      Swal.fire("Deleted", "Address removed successfully", "success");
+      loadAddresses();
+    } else {
+      Swal.fire("Error", data.message, "error");
+    }
+  } catch (err) {
+    Swal.fire("Error", "Failed to delete address", "error");
+  }
+}
+
+
+/* ============================================================
+   MODALS
+============================================================ */
+function openAddModal() {
+  document.getElementById("addModal").style.display = "flex";
+}
+
+function closeAddModal() {
+  document.getElementById("addModal").style.display = "none";
+}
+
+function closeModal() {
+  document.getElementById("editModal").style.display = "none";
+}
+
+function openEditModal(id, list) {
+  const addr = list.find((a) => a._id === id);
+  if (!addr) return;
+
+  document.getElementById("editId").value = addr._id;
+  document.getElementById("editType").value = addr.addressType;
+  document.getElementById("editName").value = addr.name;
+  document.getElementById("editCity").value = addr.city;
+  document.getElementById("editLandmark").value = addr.landMark || "";
+  document.getElementById("editState").value = addr.state;
+  document.getElementById("editPincode").value = addr.pincode;
+  document.getElementById("editPhone").value = addr.phone;
+  document.getElementById("editAltphone").value = addr.altphone || "";
+
+  document.getElementById("editModal").style.display = "flex";
+}
+
+
+/* ============================================================
+   ADD ADDRESS
+============================================================ */
+document.getElementById("addForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  if (!validateAddressForm(e.target)) return;
+
+  const formData = Object.fromEntries(new FormData(e.target));
+
+  try {
+    const res = await fetch("/add-address", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      Swal.fire("Success", "Address added successfully", "success");
       e.target.reset();
       closeAddModal();
       loadAddresses();
     } else {
-      alert(data.message || 'Failed to add address');
+      Swal.fire("Duplicate Found", data.message, "error");
     }
-  });
-  addForm.dataset.listenerAdded = 'true';
-}
+  } catch (err) {
+    Swal.fire("Error", "Something went wrong", "error");
+  }
+});
 
-const editForm = document.getElementById('editForm');
-if (editForm && !editForm.dataset.listenerAdded) {
-  editForm.addEventListener('submit', async e => {
-    e.preventDefault();
-    if (!validateAddressForm(e.target)) return;
-    const id = document.getElementById('editId').value;
-    const formData = Object.fromEntries(new FormData(e.target));
+
+/* ============================================================
+   EDIT ADDRESS
+============================================================ */
+document.getElementById("editForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  if (!validateAddressForm(e.target)) return;
+
+  const id = document.getElementById("editId").value;
+  const formData = Object.fromEntries(new FormData(e.target));
+
+  try {
     const res = await fetch(`/edit-address/${id}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData)
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
     });
-    const result = await res.json();
-    if (result.success) {
-      alert('Address updated successfully');
+
+    const data = await res.json();
+
+    if (data.success) {
+      Swal.fire("Success", "Address updated", "success");
       closeModal();
       loadAddresses();
     } else {
-      alert(result.message || 'Failed to edit');
+      Swal.fire("Error", data.message, "error");
     }
-  });
-  editForm.dataset.listenerAdded = 'true';
-}
+  } catch (err) {
+    Swal.fire("Error", "Failed to update address", "error");
+  }
+});
 
-// ========== INITIAL LOAD ==========
-document.addEventListener('DOMContentLoaded', loadAddresses);
+
+/* ============================================================
+   INITIAL LOAD
+============================================================ */
+document.addEventListener("DOMContentLoaded", loadAddresses);
 </script>
+
 
 
 </html>

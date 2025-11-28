@@ -1,4 +1,14 @@
-<style>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <style>
 .sidebar {
     background: linear-gradient(180deg, #FFFFFF 0%, #FEFCF8 100%);
     color: #5D4037;
@@ -292,8 +302,47 @@
         border-right: none;
     }
 }
+/* Toggle button */
+.sidebar-toggle {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: #8B572A;
+    color: #fff;
+    border: none;
+    padding: 12px 15px;
+    font-size: 1.2rem;
+    border-radius: 8px;
+    z-index: 2000;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+.sidebar-toggle:hover {
+    background: #A67549;
+    transform: scale(1.05);
+}
+
+/* Collapsible sidebar */
+.sidebar {
+    transition: transform 0.3s ease-in-out;
+}
+
+.sidebar.closed {
+    transform: translateX(-100%);
+}
+
+/* When sidebar is closed, move toggle button slightly */
+.sidebar.closed ~ .sidebar-toggle {
+    left: 20px;
+}
+
 
 </style>
+<button id="sidebarToggle" class="sidebar-toggle">
+    <i class="fas fa-bars"></i>
+</button>
 
 <aside class="sidebar">
   <div class="logo">
@@ -387,3 +436,14 @@
     </div>
   </div>
 </aside>
+<script>
+    const sidebar = document.querySelector('.sidebar');
+    const toggleBtn = document.getElementById('sidebarToggle');
+
+    toggleBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('closed');
+    });
+</script>
+
+</body>
+</html>

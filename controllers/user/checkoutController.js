@@ -28,7 +28,7 @@ const getCheckoutPage = async (req, res) => {
     return res.redirect("/cart?blocked=true");
   }
 
-  // ✅ Calculate totals
+  //  Calculate totals
   let subtotal = cart.items.reduce((sum, item) => sum + item.totalprice, 0);
   const tax = subtotal * 0.05;
   const shipping = subtotal > 5000 ? 0 : 100;

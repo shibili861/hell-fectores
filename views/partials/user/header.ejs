@@ -118,19 +118,19 @@
     position: relative;
     display: inline-block;
   }
-
-  .dropdown-content {
-    display: none;
-    position: absolute;
-    top: 55px;
-    right: 0;
-    background-color: #111;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    min-width: 160px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
-    z-index: 1;
-  }
+.dropdown-content {
+  display: none;
+  position: absolute;
+  top: 100%;        /* attaches directly to bottom of button */
+  right: 0;
+  margin-top: 5px;  /* tiny space but no gap */
+  background-color: #111;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  min-width: 160px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+  z-index: 1;
+}
 
   .dropdown-content a {
     color: #fff;
@@ -153,9 +153,11 @@
     color: var(--gold);
   }
 
-  .dropdown:hover .dropdown-content {
-    display: block;
-  }
+ .dropdown:hover .dropdown-content,
+.dropdown-content:hover {
+  display: block;
+}
+
   .cart-icon {
   position: relative;
 }
@@ -224,5 +226,5 @@ nav {
   </div>
 </nav>
 
-<script src="/user/js/cart-client.js" defer></script>
+
 

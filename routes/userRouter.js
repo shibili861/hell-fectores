@@ -80,6 +80,8 @@ router.get("/productsDetailes",checkUserStatus,productController.productDetails)
 
 
 
+
+
 // Profile routes
 router.get('/userprofile',profileController.loadProfile);
 router.post('/send-otp', profileController.sendOtp);

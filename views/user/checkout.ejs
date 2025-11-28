@@ -186,9 +186,111 @@
 
  
 <script>
-/* =============================
+
+/* ============================================================
+   FORM VALIDATION (Add & Edit)
+============================================================ */
+
+function showError(field, message) {
+  if (!field) return;
+  field.classList.add("error");
+
+  let err = field.nextElementSibling;
+  if (!err || !err.classList.contains("error-message")) {
+    err = document.createElement("div");
+    err.className = "error-message";
+    field.insertAdjacentElement("afterend", err);
+  }
+  err.textContent = message;
+  err.style.display = "block";
+}
+
+function clearError(field) {
+  let err = field.nextElementSibling;
+  if (err && err.classList.contains("error-message")) {
+    err.style.display = "none";
+  }
+  field.classList.remove("error");
+}
+
+function validateSingleField(field) {
+  const value = field.value.trim();
+
+  const namePattern = /^[A-Za-z\s.'-]{2,50}$/;
+  const pincodePattern = /^\d{6}$/;
+  const phonePattern = /^[6-9]\d{9}$/;
+  const textPattern = /^[A-Za-z0-9\s.,'-]{2,100}$/;
+
+  let valid = true;
+  let message = "";
+
+  switch (field.name) {
+    case "addressType":
+      valid = value !== "";
+      message = "Please select an address type.";
+      break;
+    case "name":
+      valid = namePattern.test(value);
+      message = "Enter a valid full name.";
+      break;
+    case "city":
+      valid = textPattern.test(value);
+      message = "Enter a valid city.";
+      break;
+    case "landMark":
+      valid = value === "" || textPattern.test(value);
+      message = "Enter a valid landmark.";
+      break;
+    case "state":
+      valid = textPattern.test(value);
+      message = "Enter a valid state.";
+      break;
+    case "pincode":
+      valid = pincodePattern.test(value);
+      message = "Enter a valid 6-digit pincode.";
+      break;
+    case "phone":
+      valid = phonePattern.test(value);
+      message = "Enter a valid phone number.";
+      break;
+    case "altphone":
+      valid = value === "" || phonePattern.test(value);
+      message = "Enter a valid alternate number.";
+      break;
+  }
+
+  if (!valid) showError(field, message);
+  else clearError(field);
+
+  return valid;
+}
+
+function validateAddressForm(form) {
+  let isValid = true;
+  [...form.elements].forEach((field) => {
+    if (!field.name || ["button","submit","hidden"].includes(field.type)) return;
+    if (!validateSingleField(field)) isValid = false;
+  });
+  return isValid;
+}
+
+// Real-time validation in both modals
+function activateLiveValidation(formSelector) {
+  const form = document.querySelector(formSelector);
+  if (!form) return;
+
+  form.querySelectorAll("input, select").forEach((field) => {
+    field.addEventListener("input", () => validateSingleField(field));
+    field.addEventListener("blur", () => validateSingleField(field));
+  });
+}
+
+activateLiveValidation("#addForm");
+activateLiveValidation("#editForm");
+
+/* ============================================================
    🔔 Toast Notification System
-============================= */
+============================================================ */
 function showToast(message, type = "info") {
   let root = document.getElementById("toast-root");
   if (!root) {
@@ -217,7 +319,6 @@ function showToast(message, type = "info") {
 
   root.appendChild(toast);
   setTimeout(() => (toast.style.opacity = "1"), 100);
-
   setTimeout(() => {
     toast.style.opacity = "0";
     toast.style.transform = "translateY(10px)";
@@ -308,6 +409,13 @@ function openEditModal(id) {
 ============================= */
 document.getElementById("addForm").addEventListener("submit", async (e) => {
   e.preventDefault();
+
+  // VALIDATION BLOCK
+  if (!validateAddressForm(e.target)) {
+    showToast("⚠️ Please correct highlighted fields", "error");
+    return;
+  }
+
   const formData = Object.fromEntries(new FormData(e.target));
 
   const res = await fetch("/add-address", {
@@ -332,6 +440,13 @@ document.getElementById("addForm").addEventListener("submit", async (e) => {
 ============================= */
 document.getElementById("editForm").addEventListener("submit", async (e) => {
   e.preventDefault();
+
+  // VALIDATION BLOCK
+  if (!validateAddressForm(e.target)) {
+    showToast("⚠️ Please correct highlighted fields", "error");
+    return;
+  }
+
   const id = document.getElementById("editId").value;
   const formData = Object.fromEntries(new FormData(e.target));
 
@@ -352,8 +467,10 @@ document.getElementById("editForm").addEventListener("submit", async (e) => {
 });
 
 /* =============================
-   ❌ Delete Address (AJAX)
+   ❌
+-delete Address code stays the same
 ============================= */
+
 async function deleteAddress(id) {
   const result = await Swal.fire({
     title: "Delete Address?",
@@ -423,7 +540,6 @@ document.getElementById("placeOrderBtn").addEventListener("click", async () => {
     if (data.success) {
       showToast("Order placed successfully!", "success");
 
-      // Add a short delay for UX effect, then redirect
       setTimeout(() => {
         window.location.href = `/order-success?orderId=${data.orderId}`;
       }, 1000);
@@ -447,6 +563,7 @@ document.addEventListener("keydown", function (e) {
   }
 });
 </script>
+
 
 
 

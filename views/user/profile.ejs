@@ -62,7 +62,7 @@
                     </div>
                     <div class="stat-item">
                         <div class="stat-value">₹45K</div>
-                        <div class="stat-label">Total Spent</div>
+                        <div class="stat-label"></div>
                     </div>
                 </div>
                 
@@ -72,7 +72,7 @@
                     </button>
                 </form>
             </aside>
-
+           
             <!-- Main Content Area -->
             <main class="profile-main" id="profile">
                 
@@ -123,7 +123,7 @@
                 </section>
                 
                 <!-- Addresses Section -->
-                <section class="profile-section addresses-section">
+                <!-- <section class="profile-section addresses-section">
                     <div class="info-header">
                         <h2 class="section-title">My Addresses</h2>
                         <button class="btn-edit-profile" id="openAddressModalBtn">
@@ -131,7 +131,7 @@
                         </button>
                     </div>
                     <div id="addressesContainer"></div>
-                </section>
+                </section> -->
                 
             </main>
         </div>
@@ -170,7 +170,17 @@
 
                     <div class="modal-form-group">
                         <label class="modal-form-label" for="editEmail">Email Address</label>
-                        <input type="email" id="editEmail" name="email" class="modal-form-input" value="<%= user.email %>" placeholder="Enter email" required>
+                         <input type="email" 
+                                            id="editEmail"
+                                            name="email"
+                                            class="modal-form-input"
+                                            value="<%= user.email %>"
+                                           data-original="<%= user.email %>"
+
+                                            placeholder="Enter email"
+                                            required>
+                 
+
                         <div class="error-message"></div>
                     </div>
 
@@ -243,7 +253,7 @@
             </div>
         </form>
     </div>
-
+ 
     <!-- Address Modal -->
     <div id="addressModalBox" class="address-modal">
         <div class="address-modal-content">
@@ -311,7 +321,7 @@
                 </button>
             </form>
         </div>
-    </div>
+    </div> 
 
     <!-- Profile Image Crop Modal -->
     <div id="cropModal" class="address-modal" style="display:none;">
@@ -327,7 +337,7 @@
             
             <div style="margin-top:25px; display:flex; justify-content:center; gap:15px;">
                 <button id="cancelCrop" class="btn-cancel-password">
-                    <span>❌</span> <span>Cancel</span>
+                    <span></span> <span>Cancel</span>
                 </button>
                 <button id="saveCroppedImage" class="btn-save-address">
                     <span>💾</span> <span>Save Photo</span>
@@ -339,8 +349,23 @@
 </body>
 
                 <script>
-                    // Sidebar Navigation ===
+                    
+
+    const nameInput = document.getElementById("editName");
+    const emailInput = document.getElementById("editEmail");
+    const phoneInput = document.getElementById("editPhone");
+    const form = document.getElementById("editProfileForm");
+                    // === GLOBAL VARIABLES — KEEP ONLY THIS ===
+let updatedData = {};
+let isEmailChange = false;
+let isPasswordChange = false;
+let currentEmail = "";
+let otpType = "";
+let otpTimer;
+let timeLeft = 120;
 document.addEventListener('DOMContentLoaded', function() {
+    emailInput.dataset.original = emailInput.value.trim();
+
     // Handle sidebar navigation
     const sidebarLinks = document.querySelectorAll('.sidebar-nav a');
     
@@ -368,7 +393,71 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
 });
+
+
+
+document.addEventListener("DOMContentLoaded", function () {
+
+
+    // Show error
+    function setError(input, message) {
+        const group = input.closest(".modal-form-group");
+        const errorDiv = group.querySelector(".error-message");
+        errorDiv.textContent = message;
+        errorDiv.style.display = "block";
+        input.classList.add("input-error");
+    }
+
+    // Remove error
+    function clearError(input) {
+        const group = input.closest(".modal-form-group");
+        const errorDiv = group.querySelector(".error-message");
+        errorDiv.textContent = "";
+        errorDiv.style.display = "none";
+        input.classList.remove("input-error");
+    }
+
+    /* ============================
+       REAL-TIME VALIDATION
+       ============================ */
+
+    // Name
+    nameInput.addEventListener("input", () => {
+        const value = nameInput.value.trim();
+        const valid = /^[A-Za-z\s]{3,}$/.test(value);
+
+        valid ? clearError(nameInput)
+              : setError(nameInput, "Name must be at least 3 letters.");
+    });
+
+    // Email
+    emailInput.addEventListener("input", () => {
+        const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value.trim());
+
+        valid ? clearError(emailInput)
+              : setError(emailInput, "Invalid email format.");
+    });
+
+    // Phone
+    phoneInput.addEventListener("input", () => {
+        const value = phoneInput.value.trim();
+
+        if (value === "") return clearError(phoneInput);
+
+        const valid = /^[7-9]\d{6,14}$/.test(value);
+
+        valid ? clearError(phoneInput)
+              : setError(phoneInput, "Phone must start with 7/8/9 and be 7–15 digits.");
+    });
+
+    
+
+});
+
+
+
                  document.getElementById('addressForm').addEventListener('submit', function(e) {
   e.preventDefault();
 
@@ -484,14 +573,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             
                 
-                // Variables to track OTP state
-                let otpTimer;
-                let timeLeft = 90;
-                let isEmailChange = false;
-                let isPasswordChange = false;
-                let updatedData = {};
-                let currentEmail = '';
-                let otpType = '';
+             
                 
                 // Initialize
                 document.addEventListener('DOMContentLoaded', () => {
@@ -542,10 +624,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
                 document.head.appendChild(style);
                 
-                openModalBtn.addEventListener('click', () => {
-                    modal.classList.add('active');
-                    document.body.style.overflow = 'hidden';
-                });
+             openModalBtn.addEventListener('click', () => {
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+
+   
+});
+
                 
                 function closeModal() {
                     modal.classList.remove('active');
@@ -563,58 +648,47 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 
                 // Handle profile form submission
-                editForm.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    
-                    const formData = new FormData(editForm);
-                    updatedData = {
-                        name: formData.get('name'),
-                        email: formData.get('email'),
-                        phone: formData.get('phone')
-                    };
-                    
-                    // Basic validation
-                    if (!updatedData.name.trim()) {
-                        showMessage('Name is required', 'error');
-                        return;
-                    }
-                    
-                    if (!updatedData.email.trim()) {
-                        showMessage('Email is required', 'error');
-                        return;
-                    }
-                    
-                  // Check if email is being changed
-                const originalEmail = '<%= user.email %>';
-                if (updatedData.email !== originalEmail) {
-                    isEmailChange = true;
-                    otpType = 'email';
-                    currentEmail = updatedData.email;
-                    
-                    // Show OTP modal immediately without waiting for OTP send
-                    showOtpModal();
-                    
-                    // Send OTP in background without blocking UI
-                    sendOtp(updatedData.email, 'email').catch(error => {
-                        console.error('Failed to send OTP:', error);
-                        showMessage('Failed to send OTP. Please try again.', 'error');
-                    });
-                } else {
-                                        // No email change, update profile directly
-                        await updateProfile(updatedData);
-                    }
-                });
+
                 
-              // Handle password change button (instant modal display fix)
+         editForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const originalEmail = emailInput.dataset.original;
+    const newEmail = emailInput.value.trim();
+
+    updatedData = {
+        name: nameInput.value.trim(),
+        email: newEmail,
+        phone: phoneInput.value.trim()
+    };
+
+    // ONLY email changed
+    if (newEmail !== originalEmail) {
+
+        isEmailChange = true;
+        otpType = 'email';
+        currentEmail = newEmail;
+
+        showOtpModal();
+        sendOtp(newEmail, 'email');
+        return;  // IMPORTANT!
+    }
+
+    // No email change
+    updateProfile(updatedData);
+});
+
+
+                
+            
              changePasswordBtn.addEventListener('click', async () => {
              isPasswordChange = true;
              otpType = 'password';
             currentEmail = '<%= user.email %>';
 
-    // ✅ Show modal immediately (no delay)
           showOtpModal();
 
-    // ✅ Then send OTP in background (non-blocking)
+  
           sendOtp(currentEmail, 'password');
         });
 
@@ -728,6 +802,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         
                         setTimeout(() => {
                             if (otpType === 'email') {
+                                updatedData.email = currentEmail;  
                                 updateProfile(updatedData);
                             } else if (otpType === 'password') {
                                 showPasswordChangeForm();
@@ -746,7 +821,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // OTP timer functions
                 function startOtpTimer() {
                     clearInterval(otpTimer);
-                    timeLeft = 120;
+                    timeLeft = 80;
                     updateTimerDisplay();
                     resendOtpBtn.disabled = true;
                     resendOtpBtn.style.opacity = '0.5';
@@ -888,6 +963,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
                 
+
+
+
+                
                 async function updateProfile(data) {
                     try {
                         showMessage('Updating profile...', 'success');
@@ -964,7 +1043,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         submitBtn.innerHTML = '<span>⏳</span> Processing...';
                         submitBtn.disabled = true;
                         
-                        // Revert after form processing (you might need to adjust this based on your async operations)
+                        
                         setTimeout(() => {
                             submitBtn.textContent = originalText;
                             submitBtn.disabled = false;
@@ -1238,4 +1317,4 @@ function showTempMessage(msg, type) {
 }
             </script>
             </body>
-            </html>
+            </html> `
