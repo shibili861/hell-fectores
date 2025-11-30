@@ -8,6 +8,8 @@
     <link href="https://unpkg.com/cropperjs@1.6.1/dist/cropper.min.css" rel="stylesheet">
     <script src="https://unpkg.com/cropperjs@1.6.1/dist/cropper.min.js"></script>
 </head>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <body>
     
     <!-- Profile Header Section -->
@@ -456,7 +458,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 
-
+         
 
                  document.getElementById('addressForm').addEventListener('submit', function(e) {
   e.preventDefault();
@@ -889,17 +891,32 @@ document.addEventListener("DOMContentLoaded", function () {
                     
                     const newPassword = document.getElementById('newPassword').value;
                     const confirmPassword = document.getElementById('confirmPassword').value;
-                    
-                    if (newPassword !== confirmPassword) {
-                        alert('Passwords do not match!');
-                        return;
-                    }
-                    
-                    if (newPassword.length < 6) {
-                        alert('Password must be at least 6 characters long!');
-                        return;
-                    }
-                    
+              const Toast = Swal.mixin({
+    toast: true,
+    position: "top-right",
+    showConfirmButton: false,
+    timer: 2500
+});
+
+// Strong password rule
+const passwordPattern = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{6,}$/;
+
+if (!passwordPattern.test(newPassword)) {
+    Toast.fire({
+        icon: "error",
+        title: "Password must include UPPERCASE, lowercase and number"
+    });
+    return;
+}
+
+if (newPassword !== confirmPassword) {
+    Toast.fire({
+        icon: "error",
+        title: "Passwords do not match"
+    });
+    return;
+}
+
                     await updatePassword(newPassword);
                     closePasswordModal();
                 });
@@ -967,34 +984,73 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
                 
-                async function updateProfile(data) {
-                    try {
-                        showMessage('Updating profile...', 'success');
-                        
-                        const response = await fetch('/update-profile', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify(data)
-                        });
-                        
-                        const result = await response.json();
-                        
-                        if (result.success) {
-                            showMessage('Profile updated successfully!', 'success');
-                            // Reload page to reflect changes
-                            setTimeout(() => {
-                                location.reload();
-                            }, 2000);
-                        } else {
-                            showMessage(result.message || 'Failed to update profile', 'error');
-                        }
-                    } catch (error) {
-                        console.error('Error updating profile:', error);
-                        showMessage('Failed to update profile. Please try again.', 'error');
-                    }
+            async function updateProfile(data) {
+    try {
+        showMessage('Updating profile...', 'success');
+        
+        const response = await fetch('/update-profile', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: "top-right",
+                showConfirmButton: false,
+                timer: 2500,
+                background: "#fff",
+                color: "#000",
+                customClass: {
+                    popup: "premium-toast"
                 }
+            });
+
+            // ✅ FIXED LOGIC
+            let changes = [];
+
+            if (updatedData.name && updatedData.name !== "<%= user.name %>") {
+                changes.push("name");
+            }
+            if (updatedData.email && updatedData.email !== "<%= user.email %>") {
+                changes.push("email");
+            }
+            if (updatedData.phone && updatedData.phone !== "<%= user.phone %>") {
+                changes.push("phone");
+            }
+
+            let message = "";
+
+            if (changes.length === 1) {
+                if (changes[0] === "name") message = "Name updated successfully!";
+                if (changes[0] === "email") message = "Email updated successfully!";
+                if (changes[0] === "phone") message = "Phone updated successfully!";
+            } else {
+                message = "Profile updated successfully!";
+            }
+
+            Toast.fire({
+                icon: "success",
+                title: message
+            });
+
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
+        } else {
+            showMessage(result.message || 'Failed to update profile', 'error');
+        }
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        showMessage('Failed to update profile. Please try again.', 'error');
+    }
+}
+
                 
                 async function updatePassword(newPassword) {
                     try {
@@ -1008,9 +1064,19 @@ document.addEventListener("DOMContentLoaded", function () {
                         
                         const result = await response.json();
                         
-                        if (result.success) {
-                            showMessage('Password updated successfully!', 'success');
-                        } else {
+                       if (result.success) {
+    const Toast = Swal.mixin({
+        toast: true,
+        position: "top-right",
+        showConfirmButton: false,
+        timer: 2500
+    });
+
+    Toast.fire({
+        icon: "success",
+        title: "Password updated successfully!"
+    });
+}else {
                             alert(result.message || 'Failed to update password. Please try again.');
                             showPasswordChangeForm();
                         }

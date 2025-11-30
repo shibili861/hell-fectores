@@ -1346,6 +1346,17 @@ select.error {
     color: var(--light-brown);
     text-transform: uppercase;
 }
+.swal2-popup.swal2-toast {
+    background: #fff !important;
+    color: #000 !important;
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.15) !important;
+}
+/* Force SweetAlert Toast above all modals */
+.swal2-container {
+    z-index: 999999 !important;
+}
 
 /* Animations */
 @keyframes fadeInOverlay {

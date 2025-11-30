@@ -534,65 +534,72 @@ function updateNavbar(user) {
   }
 }
 
-async function changeQuantity(productId, delta) {
+async function changeQuantity(productId, size, delta) {
   try {
     const res = await fetch(`/api/cart/${productId}/quantity`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ quantityDelta: delta }),
+      body: JSON.stringify({ quantityDelta: delta, size }),
     });
 
     const data = await res.json();
 
-    const row = document.querySelector(`tr[data-id="${productId}"]`);
+    // FIX: match row by productId + size
+    let row = document.querySelector(`tr[data-id="${productId}"][data-size="${size}"]`);
+    if (!row) row = document.querySelector(`tr[data-id="${productId}"]`);
+
     const minusBtn = row.querySelector(".qty-minus");
     const plusBtn = row.querySelector(".qty-plus");
 
-    if (data.success) {
-      const item = data.updatedItem;
-
-      // update row
-  row.querySelector('.qty-display').textContent = item.quantity;
-  row.querySelector('td:nth-child(4)').textContent = '₹' + item.totalprice.toFixed(2);
-
-  // ★ UPDATE SUBTOTAL
-  if (data.totals) {
-    document.getElementById("subtotal").textContent = "₹" + data.totals.subtotal.toFixed(2);
-  }
-      //  BUTTONS ----
-      minusBtn.disabled = item.quantity <= 1;
-      plusBtn.disabled = item.quantity >= 3;
-
-      showToast("Quantity updated");
-
-    } else {
-     
+    // ERROR HANDLING
+    if (!data.success) {
       if (data.type === "max") {
-        plusBtn.disabled = true;   
-        minusBtn.disabled = false; 
+        showToast("Maximum quantity reached (3)", "error");
+        plusBtn.disabled = true;
+        return;
+      }
+
+      if (data.type === "stock") {
+        showToast(data.message, "error");
+        plusBtn.disabled = true;
+        return;
       }
 
       if (data.type === "min") {
-        minusBtn.disabled = true;  
-        plusBtn.disabled = false;
+        showToast("Minimum quantity is 1", "error");
+        minusBtn.disabled = true;
+        return;
       }
 
       showToast(data.message, "error");
+      return;
     }
 
-  } catch {
+    // SUCCESS
+    const item = data.updatedItem;
+    row.querySelector('.qty-display').textContent = item.quantity;
+    row.querySelector('td:nth-child(4)').textContent = '₹' + item.totalprice.toFixed(2);
+
+    if (data.totals) {
+      document.getElementById("subtotal").textContent = "₹" + data.totals.subtotal.toFixed(2);
+    }
+
+    minusBtn.disabled = item.quantity <= 1;
+    plusBtn.disabled = item.quantity >= 3;
+
+    showToast("Quantity updated");
+
+  } catch (err) {
     showToast("Error updating quantity", "error");
   }
 }
-
-
 
 async function renderCart() {
   const root = document.getElementById('cart-root');
   root.innerHTML = `<div class="loading">Loading your cart...</div>`;
 
   const data = await fetchCart();
-    updateNavbar(data.user);
+  updateNavbar(data.user);
 
   if (!data.success) {
     root.innerHTML = `<div class="empty-cart">❌ Failed to load cart</div>`;
@@ -619,8 +626,9 @@ async function renderCart() {
       const total = price * qty;
       subtotal += total;
 
+      // NOTE: data-size attribute has been added so changeQuantity can find the exact row
       return `
-        <tr data-id="${product._id}">
+        <tr data-id="${product._id}" data-size="${item.size || ''}">
           <td>
             <div class="product-info">
               <img src="${product.productImage?.[0] || '/images/no-image.jpg'}" class="product-image">
@@ -631,34 +639,37 @@ async function renderCart() {
               </div>
             </div>
           </td>
+
           <td>${currency(price)}</td>
+
           <td>
             <div class="quantity-controls">
-             <button type="button" 
-        class="qty-btn qty-minus" 
-        onclick="changeQuantity('${product._id}', -1)" 
-        ${qty <= 1 ? 'disabled' : ''}>−</button>
+<button type="button"
+    class="qty-btn qty-minus"
+    onclick="changeQuantity('${product._id}', '${item.size}', -1)"
+    ${qty <= 1 ? 'disabled' : ''}>−</button>
 
-<div class="qty-display">${qty}</div>
-                             
-<button type="button" 
-        class="qty-btn qty-plus" 
-        onclick="changeQuantity('${product._id}', 1)" 
-        ${qty >= 3 ? 'disabled' : ''}>+</button>
+  <div class="qty-display">${qty}</div>
+
+  <button type="button"
+    class="qty-btn qty-plus"
+    onclick="changeQuantity('${product._id}', '${item.size}', 1)">+</button>
+
 
             </div>
+
             ${qty >= 3 ? '<div style="color:#E74C3C;font-size:0.8rem;">Max limit reached</div>' : ''}
           </td>
+
           <td>${currency(total)}</td>
-      <td>
-  <button type="button"
-          class="remove-btn"
-          onclick="removeItem('${product._id}', '${item.size || ""}')">
-    Remove
-  </button>
-</td>
 
-
+          <td>
+            <button type="button"
+              class="remove-btn"
+              onclick="removeItem('${product._id}', '${item.size || ""}')">
+              Remove
+            </button>
+          </td>
 
         </tr>`;
     })
@@ -678,41 +689,31 @@ async function renderCart() {
       <button id="checkout-btn" class="checkout-btn">Proceed to Checkout</button>
     </div>`;
 
- 
   const checkoutBtn = document.getElementById("checkout-btn");
-checkoutBtn.addEventListener("click", async () => {
-  try {
-    const res = await fetch("/cart/validate", {
-      method: "GET",
-      credentials: "include"
-    });
-
-    const result = await res.json();
-    console.log("Validation result:", result);
-
-    if (!result.success) {
-      showToast(result.message || "Some items are unavailable", "error");
-      renderCart();  
-      return;
+  checkoutBtn.addEventListener("click", async () => {
+    try {
+      const res = await fetch("/cart/validate", {
+        method: "GET",
+        credentials: "include"
+      });
+      const result = await res.json();
+      if (!result.success) {
+        showToast(result.message || "Some items are unavailable", "error");
+        renderCart();
+        return;
+      }
+      window.location.href = "/checkout";
+    } catch (err) {
+      console.error("Validation error:", err);
+      showToast("Failed to proceed to checkout", "error");
     }
-
-    window.location.href = "/checkout";  //  redirect
-
-  } catch (err) {
-    console.error("Validation error:", err);
-    showToast("Failed to proceed to checkout", "error");
-  }
-});
-
-
-
+  });
 }
 
 document.addEventListener("DOMContentLoaded", renderCart);
 
-
- 
 </script>
+
 
 
 <%- include('../partials/user/footer') %>

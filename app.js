@@ -10,10 +10,11 @@ const adminRouter = require("./routes/adminRouter")
 const User = require("./models/userSchema"); // 
 const Cart = require('./models/cartSchema');
 db()
+const { loadUser, loadCartCount, noCache } = require("./middlewares/auth");
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }))
-
 
 
 
@@ -53,45 +54,9 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 
-app.use(async (req, res, next) => {
- if (req.isAuthenticated() && !req.session.userId) {
-  req.session.userId = req.user._id;
-}
-// Add this check for null/undefined explicitly
-if (req.session.userId && req.session.userId !== null) {
-  try {
-    const user = await User.findById(req.session.userId);
-    res.locals.user = user;
-  } catch (err) {
-    res.locals.user = null;
-  }
-} else {
-  res.locals.user = null;
-}
-  next();
-});
-            //  for cart dotin cart button
-app.use(async (req, res, next) => {
-  if (req.session.userId) {
-    const cart = await Cart.findOne({ userId: req.session.userId });
-    res.locals.cartCount = cart ? cart.items.length : 0;
-  } else {
-    res.locals.cartCount = 0;
-  }
-  next();
-});
-
-
-
-
-
-
-app.use((req, res, next) => {
-  res.set("Cache-Control", "no-cache, no-store, must-revalidate");
-  res.set("Pragma", "no-cache");
-  res.set("Expires", "0");
-  next();
-});
+app.use(loadUser);
+app.use(loadCartCount);
+app.use(noCache);
 
 
 app.set('views', path.join(__dirname, 'views'));

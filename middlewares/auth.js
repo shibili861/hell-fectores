@@ -1,4 +1,5 @@
 const User = require("../models/userSchema");
+const Cart = require("../models/cartSchema");
 const userAuth = (req, res, next) => {
   if (req.session.userId) {
     User.findById(req.session.userId)
@@ -54,8 +55,54 @@ const checkUserStatus = async (req, res, next) => {
   }
   next();
 };
+
+const loadUser = async (req, res, next) => {
+  if (req.isAuthenticated && req.isAuthenticated() && !req.session.userId) {
+    req.session.userId = req.user._id;
+  }
+
+  if (req.session.userId) {
+    try {
+      const user = await User.findById(req.session.userId);
+      res.locals.user = user;
+    } catch (err) {
+      res.locals.user = null;
+    }
+  } else {
+    res.locals.user = null;
+  }
+
+  next();
+};
+
+// 2) Load cart count
+const loadCartCount = async (req, res, next) => {
+  if (req.session.userId) {
+    const cart = await Cart.findOne({ userId: req.session.userId });
+    res.locals.cartCount = cart ? cart.items.length : 0;
+  } else {
+    res.locals.cartCount = 0;
+  }
+  next();
+};
+
+// 3) No-cache middleware
+const noCache = (req, res, next) => {
+  res.set("Cache-Control", "no-cache, no-store, must-revalidate");
+  res.set("Pragma", "no-cache");
+  res.set("Expires", "0");
+  next();
+};
+
+
+
+
+
 module.exports = {
   userAuth,
   adminAuth,
-   checkUserStatus
+   checkUserStatus,
+   loadUser,
+  loadCartCount,
+  noCache
 };
