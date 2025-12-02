@@ -141,6 +141,15 @@ router.get('/order-details/:id',orderController.getOrderDetailsPage);
 router.get('/my-orders', orderController.getMyOrdersPage);
 
 
+
+router.post("/create-razorpay-order", orderController.createRazorpayOrder);
+router.post("/verify-razorpay-payment", orderController.verifyRazorpayPayment);
+router.post("/mark-payment-failed", orderController.markPaymentFailed);
+router.get("/order-failure", orderController.orderFailurePage); // page render
+router.post("/retry-payment", orderController.retryPayment);
+   // retry endpoint
+
+
 router.post('/cancel-order', orderController.cancelOrder);
 router.post('/cancel-item', orderController.cancelItem);
 router.post('/return-item', orderController.requestReturn);

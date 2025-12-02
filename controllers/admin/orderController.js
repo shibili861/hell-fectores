@@ -92,8 +92,6 @@ const viewOrder = async (req, res) => {
     res.status(500).render("admin/error", { message: "Error loading order" });
   }
 };
-
-
 const updateOrderStatus = async (req, res) => {
   try {
     const { orderId } = req.params;
@@ -115,7 +113,7 @@ const updateOrderStatus = async (req, res) => {
     const order = await Order.findOne({ orderId });
     if (!order) return res.status(404).json({ success: false, message: "Order not found" });
 
-    // Prevent updating 
+    // Prevent modifying final statuses
     if (["Delivered", "Cancelled"].includes(order.status)) {
       return res.status(400).json({
         success: false,
@@ -125,25 +123,46 @@ const updateOrderStatus = async (req, res) => {
 
     const previousStatus = order.status;
     order.status = status;
-    order.orderedItems.forEach(item => (item.status = status));
 
-    // If switching to Cancelled → restore product stock
+    // ⭐ FIX: Update ONLY non-cancelled items
+    order.orderedItems.forEach(item => {
+      if (item.status !== "Cancelled") {
+        item.status = status;
+      }
+    });
+
+    // If switching to Cancelled → restock products
     if (status === "Cancelled" && previousStatus !== "Cancelled") {
       for (const item of order.orderedItems) {
-        await Product.updateOne(
-          { $inc: { "sizeVariants.$.quantity": item.quantity } }  
-        );
+
+        // restock only non-cancelled items
+        if (item.status !== "Cancelled") {
+
+          if (item.size && item.product?.hasVariants) {
+            await Product.updateOne(
+              { _id: item.product._id, "sizeVariants.size": item.size },
+              { $inc: { "sizeVariants.$.quantity": item.quantity } }
+            );
+          } else {
+            await Product.updateOne(
+              { _id: item.product._id },
+              { $inc: { quantity: item.quantity } }
+            );
+          }
+        }
       }
     }
 
     await order.save();
 
     res.json({ success: true, message: "Order status updated successfully" });
+
   } catch (err) {
     console.error("Error updating order status:", err);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
 const approveReturn = async (req, res) => {
   try {
     const { orderId } = req.params;

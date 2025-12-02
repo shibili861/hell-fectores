@@ -4,6 +4,7 @@ const Product = require("../../models/productSchema");
 const User = require("../../models/userSchema");
 const Address = require("../../models/addressSchema");
 const Order=require("../../models/ordersSchema")
+const razorpay = require("../../config/razorpay");
 
 const getCheckoutPage = async (req, res) => {
   const userId = req.session.userId;

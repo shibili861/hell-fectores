@@ -383,6 +383,52 @@
   z-index: 1;
   border-radius: 5px;
 }
+/* Hide elements during printing */
+.print-hide {
+    display: none !important;
+}
+
+/* Make invoice ALWAYS print on a single page */
+@media print {
+
+    /* Remove margins from browser */
+    @page {
+        size: A4;
+        margin: 0;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* Ensure invoice wraps into ONE page */
+    .invoice-container {
+        page-break-before: auto;
+        page-break-after: auto;
+        page-break-inside: avoid;
+        width: 100%;
+        max-height: 100vh;
+        overflow: hidden !important;
+    }
+
+    /* Prevent page breaks inside tables */
+    table {
+        page-break-inside: avoid;
+    }
+
+    tr, td, th {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    /* Remove any scrollbars */
+    html, body {
+        overflow: hidden !important;
+    }
+}
 
 
   </style>
@@ -804,17 +850,24 @@ document.getElementById("confirmReturnBtn").addEventListener("click", async () =
   }
 });
 
-    /* ------------------- PRINT FIX ------------------- */
-    function printInvoice() {
-        const buttons = document.querySelectorAll(".button-group, .action-btn, .btn, .modal");
-        buttons.forEach(el => el.style.display = "none");
+    /* ------------------- PRINT invoice FIX ------------------- */
+  function printInvoice() {
+    // Hide non-print elements
+    const hideElements = document.querySelectorAll(
+        ".button-group, .action-btn, .btn, .modal, .no-print"
+    );
 
-        window.print();
+    hideElements.forEach(el => el.classList.add("print-hide"));
 
-        setTimeout(() => {
-            buttons.forEach(el => el.style.display = "");
-        }, 500);
-    }
+    // Trigger print
+    window.print();
+
+    // Restore after printing
+    setTimeout(() => {
+        hideElements.forEach(el => el.classList.remove("print-hide"));
+    }, 300);
+}
+
 
 </script>
 

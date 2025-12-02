@@ -1,0 +1,77 @@
+<%- include('../partials/user/header') %>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<div class="order-failure-container" style="text-align:center;padding:48px;">
+  <img src="/images/payment-failed-illustration.svg" alt="Payment failed" style="max-width:320px;margin:0 auto 24px;">
+  <h1>Payment failed</h1>
+  <p>We couldn't process your payment for Order <strong><%= order.orderId %></strong>.</p>
+
+  <div style="margin-top:24px; display:flex; gap:12px; justify-content:center;">
+    <button id="retryPaymentBtn" class="btn">Retry Payment</button>
+    <a href="/order-details/<%= order.orderId %>" class="btn btn-secondary">View Order Details</a>
+  </div>
+</div>
+
+<script>document.getElementById("retryPaymentBtn").addEventListener("click", async () => {
+
+  const res = await fetch("/retry-payment", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ internalOrderId: "<%= order.orderId %>" })
+  });
+
+  const data = await res.json();
+  if (!data.success) {
+    alert("Retry failed, please refresh and try again.");
+    return;
+  }
+
+  const { key, razorpayOrderId, amountInPaise, internalOrderId } = data;
+
+  const options = {
+    key,
+    amount: amountInPaise,
+    currency: "INR",
+    order_id: razorpayOrderId,
+    name: "Your Store",
+    description: "Retry Payment",
+
+    handler: async function (response) {
+      response.internalOrderId = internalOrderId;
+
+      const verifyRes = await fetch("/verify-razorpay-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(response)
+      });
+
+      const verifyData = await verifyRes.json();
+
+      if (verifyData.success) {
+        window.location.href = `/order-success?orderId=${verifyData.orderId}`;
+      } else {
+        window.location.href = `/order-failure?orderId=${internalOrderId}`;
+      }
+    },
+
+    modal: {
+      ondismiss: async function () {
+        await fetch("/mark-payment-failed", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            internalOrderId,
+            reason: "User closed retry popup"
+          })
+        });
+
+        window.location.href = `/order-failure?orderId=${internalOrderId}`;
+      }
+    }
+  };
+
+  const rzpFinal = new Razorpay(options);
+  rzpFinal.open();
+});
+
+</script>

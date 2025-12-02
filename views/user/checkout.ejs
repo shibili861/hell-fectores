@@ -93,10 +93,11 @@
         <span>💵 Cash on Delivery</span>
       </label>
 
-      <label class="payment-option disabled">
-        <input type="radio" name="paymentMethod" value="Razorpay" disabled>
-        <span>💳 Razorpay (Coming Soon)</span>
-      </label>
+     <label class="payment-option">
+  <input type="radio" name="paymentMethod" value="Razorpay">
+  <span>💳 Pay Online (Razorpay)</span>
+</label>
+
 
       <label class="payment-option disabled">
         <input type="radio" name="paymentMethod" value="Wallet" disabled>
@@ -184,7 +185,7 @@
   </div>
 
 
- 
+ <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
 
 /* ============================================================
@@ -512,9 +513,82 @@ async function deleteAddress(id) {
       customClass: { popup: "premium-popup" }
     });
   }
+}async function initiateRazorpayPayment() {
+
+  const res = await fetch("/create-razorpay-order", { method: "POST" });
+  const data = await res.json();
+
+  if (!data.success) {
+    showToast("Payment initialization failed", "error");
+    return;
+  }
+
+  const { key, razorpayOrderId, amountInPaise, internalOrderId } = data;
+
+  const options = {
+    key,
+    amount: amountInPaise,
+    currency: "INR",
+    order_id: razorpayOrderId,
+    name: "Your Store Name",
+    description: "Order Payment",
+
+    handler: async function(response) {
+      response.internalOrderId = internalOrderId;
+
+      const verifyRes = await fetch("/verify-razorpay-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(response)
+      });
+
+      const verifyData = await verifyRes.json();
+
+      if (verifyData.success) {
+        window.location.href = `/order-success?orderId=${verifyData.orderId}`;
+      } else {
+        window.location.href = `/order-failure?orderId=${internalOrderId}`;
+      }
+    },
+
+    modal: {
+      ondismiss: async function() {
+        await fetch("/mark-payment-failed", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            internalOrderId,
+            reason: "User cancelled payment"
+          })
+        });
+
+        window.location.href = `/order-failure?orderId=${internalOrderId}`;
+      }
+    },
+
+    // ⭐ FIX: Include failure handler INSIDE options, not outside.
+    "payment.failed": async function(response) {
+      await fetch("/mark-payment-failed", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          internalOrderId,
+          reason: JSON.stringify(response.error)
+        })
+      });
+
+      window.location.href = `/order-failure?orderId=${internalOrderId}`;
+    }
+  };
+
+  // ⭐ FIX: use rzpFinal, not rzp (and not modifying options later)
+  const rzpFinal = new Razorpay(options);
+  rzpFinal.open();
 }
 
+
 document.getElementById("placeOrderBtn").addEventListener("click", async () => {
+
   const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked');
   if (!selectedPayment) {
     showToast("⚠️ Please select a payment method", "error");
@@ -523,34 +597,15 @@ document.getElementById("placeOrderBtn").addEventListener("click", async () => {
 
   const paymentMethod = selectedPayment.value;
 
-  if (paymentMethod !== "COD") {
-    showToast("💳 Only Cash on Delivery is available right now.", "error");
-    return;
+  if (paymentMethod === "COD") {
+    return placeCODOrder();
   }
 
-  try {
-    const res = await fetch("/place-order", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ paymentMethod }),
-    });
-
-    const data = await res.json();
-
-    if (data.success) {
-      showToast("Order placed successfully!", "success");
-
-      setTimeout(() => {
-        window.location.href = `/order-success?orderId=${data.orderId}`;
-      }, 1000);
-    } else {
-      showToast(data.message || " Order placement failed", "error");
-    }
-  } catch (err) {
-    console.error("Order placement error:", err);
-    showToast(" Something went wrong. Try again.", "error");
+  if (paymentMethod === "Razorpay") {
+    return initiateRazorpayPayment();
   }
-});
+
+});  // <-- THIS WAS MISSING
 
 /* =============================
    ⚙️ Initialize
@@ -562,6 +617,29 @@ document.addEventListener("keydown", function (e) {
     closeModal();
   }
 });
+
+async function placeCODOrder() {
+  try {
+    const res = await fetch("/place-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ paymentMethod: "COD" }),
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      showToast("Order placed successfully!", "success");
+      window.location.href = `/order-success?orderId=${data.orderId}`;
+    } else {
+      showToast(data.message || "Order failed", "error");
+    }
+  } catch (err) {
+    console.error("Order placement error:", err);
+    showToast(" Something went wrong. Try again.", "error");
+  }
+}
+
 </script>
 
 

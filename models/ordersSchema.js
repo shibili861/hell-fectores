@@ -19,36 +19,32 @@ const orderedItemSchema = new Schema({
   },
   size: { type: String, required: true },
 
-  // Track individual item-level status INCLUDING "Out for Delivery"
   status: {
-  type: String,
-  enum: [
-    'Pending',
-    'Processing',
-    'Shipped',
-    'Out for Delivery',
-    'Delivered',
-    'Cancelled',
-    'Returned',
-    'Return Rejected',   // ✅ ADD THIS
-    'requested'
-  ],
-  default: 'Pending'
-},
-
+    type: String,
+    enum: [
+      'Pending',
+      'Processing',
+      'Shipped',
+      'Out for Delivery',
+      'Delivered',
+      'Cancelled',
+      'Returned',
+      'Return Rejected',
+      'requested',
+      'Payment Failed'    
+    ],
+    default: 'Pending'
+  },
 
   cancelReason: { type: String },
   returnReason: { type: String },
 
-   returnRequested: { type: Boolean, default: false },
-
-  // NEW RETURN SYSTEM FIELDS
+  returnRequested: { type: Boolean, default: false },
   returnRequestedAt: { type: Date, default: null },
   returnApproved: { type: Boolean, default: false },
   returnRejected: { type: Boolean, default: false },
   rejectReason: { type: String, default: null },
   returnedOn: { type: Date, default: null },
-
 
 }, { timestamps: true });
 
@@ -95,26 +91,43 @@ const orderSchema = new Schema({
     default: 'COD'
   },
 
-  // ✅ Main order-level status
- status: {
+  status: {
+    type: String,
+    enum: [
+      'Pending',
+      'Processing',
+      'Shipped',
+      'Out for Delivery',
+      'Delivered',
+      'Cancelled',
+      'Returned',
+      'Return Rejected',
+      'requested',
+      'Payment Failed' 
+    ],
+    default: 'Pending'
+  },
+
+  /** ⭐ ADD THESE FIELDS ⭐ **/
+  razorpayOrderId: { type: String, default: null },
+  razorpayPaymentId: { type: String, default: null },
+
+  paymentStatus: {
   type: String,
   enum: [
-    'Pending',
-    'Processing',
-    'Shipped',
-    'Out for Delivery',
-    'Delivered',
-    'Cancelled',
-    'Returned',
-    'Return Rejected',   // <<< YOU MUST ADD HERE
-    'requested'
+    "Pending",
+    "Pending Payment",
+    "Processing",
+    "Success",
+    "Failed",
+    "Payment Failed"
   ],
-  default: 'Pending'
+  default: "Pending"
 },
 
-  rejectReason: { type: String, default: null },
-rejectedOn: { type: Date, default: null },
 
+  rejectReason: { type: String, default: null },
+  rejectedOn: { type: Date, default: null },
 
   invoiceDate: {
     type: Date,
