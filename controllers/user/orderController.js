@@ -6,17 +6,18 @@ const Address = require("../../models/addressSchema");
 const Order=require("../../models/ordersSchema");
 const PDFDocument = require("pdfkit");
 const razorpay = require("../../config/razorpay");
+const Coupon = require("../../models/couponSchema");
+const wallet=require("../../models/walletSchema");
+const { creditWallet, debitWallet } = require("../../helpers/walletHelper");
 
 const crypto = require("crypto");
-
-
-
-//  Place Order (COD)
 const placeOrder = async (req, res) => {
   try {
     const userId = req.session.userId;
     if (!userId) return res.json({ success: false, message: 'Login required' });
 
+    const { paymentMethod } = req.body;
+   
     const cart = await Cart.findOne({ userId }).populate('items.productId');
     if (!cart || cart.items.length === 0)
       return res.json({ success: false, message: 'Cart is empty' });
@@ -26,7 +27,7 @@ const placeOrder = async (req, res) => {
     if (!latestAddress)
       return res.json({ success: false, message: 'No address found' });
 
-    //  Check stock availability
+    // stock check
     for (const item of cart.items) {
       const product = item.productId;
       const variant = product.sizeVariants.find(v => v.size === item.size);
@@ -39,13 +40,35 @@ const placeOrder = async (req, res) => {
       }
     }
 
-    // Calculate totals
     let subtotal = 0;
     cart.items.forEach(item => (subtotal += item.totalprice));
 
-    const tax = subtotal * 0.05;
-    const shipping = subtotal > 5000 ? 0 : 100;
-    const finalTotal = subtotal + tax + shipping;
+    const tax = subtotal * 0.03;
+    const shipping = subtotal >= 2000 ? 0 : 49;
+    const discount = req.session.coupon ? req.session.coupon.discount : 0;
+    const finalTotal = subtotal + tax + shipping - discount;
+
+    if (paymentMethod === "Razorpay") {
+      return res.json({
+        success: false,
+        message: "Use Razorpay flow for online payment"
+      });
+    }
+
+    let paymentStatus = "Pending";
+    if (paymentMethod === "Wallet") {
+      const user = await User.findById(userId);
+      if (!user) return res.json({ success: false });
+
+      if (user.walletBalance < finalTotal) {
+        return res.json({
+          success: false,
+          message: "Insufficient wallet balance"
+        });
+      }
+
+      paymentStatus = "Paid";
+    }
 
     const order = new Order({
       userId,
@@ -57,37 +80,66 @@ const placeOrder = async (req, res) => {
       })),
       totalPrice: subtotal,
       finalAmount: finalTotal,
+      discount,
+      couponApplied: req.session.coupon ? true : false,
+      couponCode: req.session.coupon ? req.session.coupon.code : null,
+      couponDiscount: req.session.coupon ? req.session.coupon.discount : 0,
       address: latestAddress,
-      paymentMethod: 'COD',
-      status: 'Pending'
+      paymentMethod: paymentMethod || "COD",
+      status: 'Pending',
+      paymentStatus
     });
 
     await order.save();
 
-    // Reduce only size variant stock
-    for (const item of cart.items) {
-      await Product.updateOne(
-        { _id: item.productId._id, "sizeVariants.size": item.size },
-        { $inc: { "sizeVariants.$.quantity": -item.quantity } }
+    if (paymentMethod === "Wallet") {
+      await debitWallet(
+        userId,
+        finalTotal,
+        `Payment for order ${order.orderId}`,
+        order.orderId
       );
     }
 
-    
-    const productIds = [...new Set(cart.items.map(item => item.productId._id.toString()))];
-
-    //  Update total quantity after reducing variant quantity
-    for (const id of productIds) {
-      const updatedProduct = await Product.findById(id);
-      const newTotalQty = updatedProduct.sizeVariants.reduce((sum, v) => sum + v.quantity, 0);
-
-      await Product.updateOne(
-        { _id: id },
-        { $set: { quantity: newTotalQty } }
+    if (req.session.coupon) {
+      await Coupon.updateOne(
+        { code: req.session.coupon.code },
+        { $addToSet: { usedUsers: userId } }
       );
+      req.session.coupon = null;
     }
 
-    // Clear cart
-    await Cart.findOneAndUpdate({ userId }, { items: [] });
+    // 🔧 FIX: parallel stock update (NO DELAY)
+    await Promise.all(
+      cart.items.map(item =>
+        Product.updateOne(
+          { _id: item.productId._id, "sizeVariants.size": item.size },
+          { $inc: { "sizeVariants.$.quantity": -item.quantity } }
+        )
+      )
+    );
+
+    const productIds = [...new Set(cart.items.map(i => i.productId._id.toString()))];
+
+    // 🔧 FIX: parallel total quantity update
+    await Promise.all(
+      productIds.map(async id => {
+        const p = await Product.findById(id);
+        const qty = p.sizeVariants.reduce((s, v) => s + v.quantity, 0);
+        return Product.updateOne({ _id: id }, { $set: { quantity: qty } });
+      })
+    );
+
+    // 🔧 FIX: ensure cart really clears
+    const clearedCart = await Cart.findOneAndUpdate(
+      { userId },
+      { $set: { items: [] } },
+      { new: true }
+    );
+
+    if (!clearedCart) {
+      console.error("Cart clear failed for user:", userId);
+    }
 
     return res.json({ success: true, orderId: order.orderId });
 
@@ -98,11 +150,11 @@ const placeOrder = async (req, res) => {
 };
 
 
-
 // Order Success Page
 const orderSuccessPage = async (req, res) => {
   try {
-    const { orderId } = req.query;
+   const { orderId } = req.params;
+
     const order = await Order.findOne({ orderId })
       .populate('orderedItems.product')
       .lean();
@@ -158,6 +210,7 @@ const getMyOrdersPage = async (req, res) => {
 };
 
 // Cancel Entire Order
+// Cancel Entire Order
 const cancelOrder = async (req, res) => {
   try {
     const { orderId, reason } = req.body;
@@ -171,6 +224,9 @@ const cancelOrder = async (req, res) => {
     if (order.status === "Cancelled")
       return res.json({ success: false, message: "Order already cancelled" });
 
+    // ==============================
+    // 🟡 RESTORE STOCK FOR EACH ITEM
+    // ==============================
     for (const item of order.orderedItems) {
       if (item.status !== "Cancelled" && item.product) {
 
@@ -178,7 +234,7 @@ const cancelOrder = async (req, res) => {
           const variant = item.product.sizeVariants.find(v => v.size === item.size);
           if (variant) variant.quantity += item.quantity;
 
-          // ⭐ FIX: Recalculate full stock
+          // Recalculate full stock
           item.product.quantity = item.product.sizeVariants.reduce(
             (sum, v) => sum + v.quantity,
             0
@@ -198,14 +254,32 @@ const cancelOrder = async (req, res) => {
     order.status = "Cancelled";
     await order.save();
 
-    res.json({ success: true, message: "Order cancelled successfully" });
+    // ======================================
+    // 🟢 WALLET REFUND LOGIC (MAIN ADDITION)
+    // ======================================
+    const refundMethods = ["Online", "Wallet"];
+    if (refundMethods.includes(order.paymentMethod)) {
+
+      const refundAmount = order.finalAmount;
+
+      await creditWallet(
+        userId,
+        refundAmount,
+        `Refund for cancelled order ${order.orderId}`,
+        order.orderId
+      );
+    }
+
+    return res.json({ success: true, message: "Order cancelled successfully" });
 
   } catch (error) {
     console.error("Cancel Order Error:", error);
-    res.status(500).json({ success: false, message: "Server error" });
+    return res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
+
+// Cancel Specific Item
 // Cancel Specific Item
 const cancelItem = async (req, res) => {
   try {
@@ -223,38 +297,64 @@ const cancelItem = async (req, res) => {
     if (item.status === "Cancelled")
       return res.json({ success: false, message: "Item already cancelled" });
 
+    // ==============================
+    // 🟡 RESTOCK THE ITEM
+    // ==============================
     if (item.product) {
 
       if (item.size && item.product.hasVariants) {
         const variant = item.product.sizeVariants.find(v => v.size === item.size);
         if (variant) variant.quantity += item.quantity;
 
-        // ⭐ FIX: Update total quantity based on all variant quantities
+        // Update total quantity
         item.product.quantity = item.product.sizeVariants.reduce(
           (sum, v) => sum + v.quantity, 
           0
         );
 
       } else {
-        // No variant → normal quantity update
         item.product.quantity += item.quantity;
       }
 
       await item.product.save();
     }
 
+    // Mark item cancelled
     item.status = "Cancelled";
     item.cancelReason = reason || "No reason provided";
+
     await order.save();
 
-    res.json({ success: true, message: "Item cancelled successfully" });
+    // ======================================
+    // 🟢 PARTIAL WALLET REFUND LOGIC
+    // ======================================
+    const refundMethods = ["Online", "Wallet"];
+    if (refundMethods.includes(order.paymentMethod)) {
+
+      const refundAmount = item.price * item.quantity;
+
+      await creditWallet(
+        userId,
+        refundAmount,
+        `Refund for cancelled item in order ${order.orderId}`,
+        order.orderId
+      );
+    }
+
+    // If ALL items cancelled → cancel entire order
+    const allCancelled = order.orderedItems.every(i => i.status === "Cancelled");
+    if (allCancelled) {
+      order.status = "Cancelled";
+      await order.save();
+    }
+
+    return res.json({ success: true, message: "Item cancelled successfully" });
 
   } catch (error) {
     console.error("Cancel Item Error:", error);
-    res.status(500).json({ success: false, message: "Server error" });
+    return res.status(500).json({ success: false, message: "Server error" });
   }
 };
-
 
 // USER — REQUEST RETURN
 const requestReturn = async (req, res) => {
@@ -303,11 +403,10 @@ const requestReturn = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
-
-
 const createRazorpayOrder = async (req, res) => {
   try {
-    const userId = req.session.userId;
+    const userId = req.session.userId; // ✅ CORRECT
+
     if (!userId) return res.json({ success: false, message: "Login required" });
 
     const cart = await Cart.findOne({ userId }).populate("items.productId");
@@ -315,27 +414,23 @@ const createRazorpayOrder = async (req, res) => {
       return res.json({ success: false, message: "Cart empty" });
 
     const addressDoc = await Address.findOne({ userId });
-    const latestAddress = addressDoc?.address[addressDoc.address.length - 1];
+    const latestAddress = addressDoc?.address.at(-1);
     if (!latestAddress) return res.json({ success: false, message: "Address required" });
 
-    // totals (same logic)
-    let subtotal = cart.items.reduce((sum, i) => sum + i.totalprice, 0);
+    let subtotal = cart.items.reduce((s, i) => s + i.totalprice, 0);
     const tax = subtotal * 0.05;
-    const shipping = subtotal > 5000 ? 0 : 100;
-    const finalAmount = subtotal + tax + shipping;
-    const amountInPaise = Math.round(finalAmount * 100);
+    const shipping = subtotal >= 2000 ? 0 : 49;
 
-    // create razorpay order
-    const rOptions = {
-      amount: amountInPaise,
+    const discount = req.session.coupon?.discount || 0;
+    const finalAmount = subtotal + tax + shipping - discount;
+
+    const rOrder = await razorpay.orders.create({
+      amount: Math.round(finalAmount * 100),
       currency: "INR",
       receipt: "rcpt_" + Date.now(),
-    };
+    });
 
-    const rOrder = await razorpay.orders.create(rOptions);
-
-    // create a provisional internal order so we can show order details even if payment fails
-    const provisionalOrder = new Order({
+    const order = new Order({
       userId,
       orderedItems: cart.items.map(i => ({
         product: i.productId._id,
@@ -345,96 +440,119 @@ const createRazorpayOrder = async (req, res) => {
       })),
       totalPrice: subtotal,
       finalAmount,
+      discount,
+      couponApplied: discount > 0,
+      couponCode: req.session.coupon?.code || null,
       address: latestAddress,
       paymentMethod: "Online",
-      status: "Pending",                 // or 'Pending Payment'
-      paymentStatus: "Pending Payment",  // optional
+      status: "Pending",
+    paymentStatus: "Pending",
+
       razorpayOrderId: rOrder.id
     });
 
-    await provisionalOrder.save();
+    await order.save();
 
     return res.json({
       success: true,
       razorpayOrderId: rOrder.id,
-      amountInPaise,
+      amountInPaise: rOrder.amount,
       key: process.env.RAZORPAY_KEY_ID,
-      internalOrderId: provisionalOrder.orderId  // return your internal order id
+      internalOrderId: order.orderId
     });
 
   } catch (err) {
     console.error("Create Razorpay Error:", err);
-    return res.json({ success: false, message: "Payment initiation failed" });
+    res.json({ success: false });
   }
-};const verifyRazorpayPayment = async (req, res) => {
+};
+const verifyRazorpayPayment = async (req, res) => {
   try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, internalOrderId } = req.body;
+    const {
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+      internalOrderId
+    } = req.body;
 
-    // Validate required values
+    // 1️⃣ Validate params
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !internalOrderId) {
-      return res.json({ success: false, message: "Missing parameters" });
+      return res.json({ success: false });
     }
 
-    // Verify payment signature
+    // 2️⃣ Verify signature
     const expectedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-      .update(razorpay_order_id + "|" + razorpay_payment_id)
+      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
       .digest("hex");
+if (expectedSignature !== razorpay_signature) {
 
-    if (expectedSignature !== razorpay_signature) {
-      await Order.findOneAndUpdate(
-        { orderId: internalOrderId },
-        {
-          paymentStatus: "Payment Failed",
-          status: "Payment Failed",
-          "orderedItems.$[].status": "Payment Failed"
+  await Order.updateOne(
+    { orderId: internalOrderId, paymentStatus: "Pending" },
+    {
+      $set: {
+        paymentStatus: "Failed",
+        status: "Payment Failed",
+        rejectReason: "Razorpay signature mismatch"
+      },
+      $setOnInsert: {},
+    }
+  );
+
+  await Order.updateOne(
+    { orderId: internalOrderId },
+    {
+      $set: {
+        "orderedItems.$[].status": "Payment Failed"
+      }
+    }
+  );
+
+  return res.json({ success: false });
+}
+
+
+    // 3️⃣ 🔒 ATOMIC SUCCESS UPDATE
+    const result = await Order.updateOne(
+      { orderId: internalOrderId, paymentStatus: "Pending" },
+      {
+        $set: {
+          paymentStatus: "Paid",
+          status: "Processing",
+          razorpayPaymentId: razorpay_payment_id,
+          paidAt: new Date()
         }
-      );
-      return res.json({ success: false, message: "Invalid signature" });
+      }
+    );
+
+    // Already handled earlier
+    if (result.matchedCount === 0) {
+      return res.json({ success: true, orderId: internalOrderId });
     }
 
-    // Get user & order
-    const userId = req.session.userId;
+    // 4️⃣ Continue business logic ONLY ON FIRST SUCCESS
+    const order = await Order.findOne({ orderId: internalOrderId });
+    const userId = order.userId;
+
     const cart = await Cart.findOne({ userId }).populate("items.productId");
-    const internalOrder = await Order.findOne({ orderId: internalOrderId });
-
-    if (!internalOrder) return res.json({ success: false, message: "Order not found" });
-
-    // 🟢 PAYMENT SUCCESS → Update all status fields
-    internalOrder.razorpayPaymentId = razorpay_payment_id;
-    internalOrder.paymentStatus = "Success";
-    internalOrder.status = "Processing";
-
-    internalOrder.orderedItems.forEach(item => {
-      item.status = "Processing";   // Fix missing item-level update
-    });
-
-    await internalOrder.save();
-
-    // 🟢 Reduce stock after payment succeeds
-    for (const item of internalOrder.orderedItems) {
-      await Product.updateOne(
-        { _id: item.product, "sizeVariants.size": item.size },
-        { $inc: { "sizeVariants.$.quantity": -item.quantity } }
+    if (cart && cart.items.length) {
+      await Promise.all(
+        cart.items.map(item =>
+          Product.updateOne(
+            { _id: item.productId._id, "sizeVariants.size": item.size },
+            { $inc: { "sizeVariants.$.quantity": -item.quantity } }
+          )
+        )
       );
+
+      await Cart.updateOne({ userId }, { $set: { items: [] } });
     }
 
-    // Update total quantity
-    const productIds = [...new Set(internalOrder.orderedItems.map(i => i.product.toString()))];
-    for (const id of productIds) {
-      const prod = await Product.findById(id);
-      const newQty = prod.sizeVariants.reduce((s, v) => s + v.quantity, 0);
-      await Product.updateOne({ _id: id }, { $set: { quantity: newQty } });
-    }
-
-    // 🟢 Clear cart AFTER success
-    await Cart.findOneAndUpdate({ userId }, { items: [] });
-
-    return res.json({ success: true, orderId: internalOrder.orderId });
+    return res.json({ success: true, orderId: internalOrderId });
 
   } catch (err) {
-    console.error("Verify Razorpay Error:", err);
-    return res.json({ success: false, message: "Something went wrong" });
+    console.error("Verify error:", err);
+    res.json({ success: false });
   }
 };
 
@@ -442,24 +560,31 @@ const markPaymentFailed = async (req, res) => {
   try {
     const { internalOrderId, reason } = req.body;
 
-    if (!internalOrderId)
-      return res.json({ success: false, message: "Missing order id" });
+    const order = await Order.findOne({ orderId: internalOrderId });
+    if (!order) return res.json({ success: false });
 
-    await Order.findOneAndUpdate(
-      { orderId: internalOrderId },
-      {
-        paymentStatus: "Payment Failed",
-        status: "Payment Failed",
-        rejectReason: reason || "Payment failed or cancelled",
-        "orderedItems.$[].status": "Payment Failed"   // ✅ IMPORTANT FIX
-      }
-    );
+    // 🔒 ABSOLUTE RULE
+    if (order.paymentStatus === "Paid") {
+      return res.json({ success: true, ignored: true });
+    }
+
+    if (order.paymentStatus === "Pending") {
+      order.paymentStatus = "Failed";
+      order.status = "Payment Failed";
+      order.rejectReason = reason || "Payment failed";
+
+      order.orderedItems.forEach(i => {
+        i.status = "Payment Failed";
+      });
+
+      await order.save();
+    }
 
     return res.json({ success: true });
 
   } catch (err) {
-    console.error("Mark Payment Failed Error:", err);
-    return res.json({ success: false });
+    console.error(err);
+    res.json({ success: false });
   }
 };
 
@@ -467,35 +592,46 @@ const markPaymentFailed = async (req, res) => {
 const retryPayment = async (req, res) => {
   try {
     const { internalOrderId } = req.body;
-    console.log("Retry Payment Triggered For Order:", internalOrderId);
 
-    if (!internalOrderId) 
+    if (!internalOrderId) {
       return res.json({ success: false, message: "Order id required" });
+    }
 
-    console.log("Retry Payment Body:", req.body);
+    // 🔒 ATOMIC CHECK + RESET
+    const order = await Order.findOneAndUpdate(
+      {
+        orderId: internalOrderId,
+        paymentStatus: "Failed"   // ✅ only failed orders can retry
+      },
+      {
+        $set: {
+          paymentStatus: "Pending",
+          status: "Pending",
+          rejectReason: null,
+          razorpayPaymentId: null
+        }
+      },
+      { new: true }
+    );
 
-    const order = await Order.findOne({ orderId: internalOrderId });
-    if (!order) 
-      return res.json({ success: false, message: "Order not found" });
+    if (!order) {
+      return res.json({
+        success: false,
+        message: "Retry not allowed"
+      });
+    }
 
-    // Create new Razorpay order
+    // Create Razorpay order
     const amountInPaise = Math.round(order.finalAmount * 100);
 
     const rOrder = await razorpay.orders.create({
       amount: amountInPaise,
       currency: "INR",
-      receipt: "retry_rcpt_" + Date.now(),
+      receipt: "retry_rcpt_" + Date.now()
     });
 
-    console.log("Razorpay retry response:", rOrder);
-
-    // Update internal order
+    // Save Razorpay order id
     order.razorpayOrderId = rOrder.id;
-    order.paymentStatus = "Pending Payment";
-    order.status = "Pending";
-
-    console.log("Found Order:", order);
-
     await order.save();
 
     return res.json({
@@ -512,6 +648,7 @@ const retryPayment = async (req, res) => {
   }
 };
 
+
 const orderFailurePage = async (req, res) => {
   const { orderId } = req.query;
   const order = await Order.findOne({ orderId }).populate('orderedItems.product').lean();
@@ -519,6 +656,7 @@ const orderFailurePage = async (req, res) => {
 
   res.render("user/order-failure", { order });
 };
+
 
 
 module.exports={
@@ -533,6 +671,7 @@ module.exports={
   verifyRazorpayPayment,
   markPaymentFailed,
   retryPayment,
-  orderFailurePage
+  orderFailurePage,
+
 
 }

@@ -39,8 +39,9 @@ const productSchema = new Schema({
   },
   salePrice: {
     type: Number,
-    required: true, 
-    min: 0
+    required:false, 
+    min: 0,
+    default: 0
   },
   productOffer: {
     type: Number,
@@ -48,6 +49,13 @@ const productSchema = new Schema({
     min: 0,
     max: 100 
   },
+  effectiveOffer: {
+  type: Number,
+  default: 0,
+  min: 0,
+  max: 100
+},
+
   quantity: { 
     type: Number,
     required: true, 
@@ -76,5 +84,33 @@ const productSchema = new Schema({
   }
 }, { timestamps: true });
 
+
+
+// NEW OFFER LOGIC STARTS HERE
+const Category = require("./categorySchema");
+
+productSchema.methods.applyBestOffer = async function () {
+  const regular = Number(this.regularPrice) || 0;
+  const productOffer = Number(this.productOffer) || 0;
+
+  let categoryOffer = 0;
+  if (this.category) {
+    const cat = await Category.findById(this.category).select("categoryOffer");
+    if (cat) categoryOffer = Number(cat.categoryOffer) || 0;
+  }
+
+  const bestOffer = Math.max(productOffer, categoryOffer);
+  this.salePrice = Math.round(regular * (1 - bestOffer / 100));
+  this.effectiveOffer = bestOffer;
+};
+
+productSchema.pre("save", async function (next) {
+  try {
+    await this.applyBestOffer();
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 const Product = mongoose.model("Product", productSchema); 
 module.exports = Product;

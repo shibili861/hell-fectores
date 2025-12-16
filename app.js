@@ -9,6 +9,7 @@ const passport = require("./config/passport")
 const adminRouter = require("./routes/adminRouter")
 const User = require("./models/userSchema"); // 
 const Cart = require('./models/cartSchema');
+const Wishlist = require("./models/wishlistSchema");
 db()
 const { loadUser, loadCartCount, noCache } = require("./middlewares/auth");
 
@@ -57,6 +58,17 @@ app.use(passport.session());
 app.use(loadUser);
 app.use(loadCartCount);
 app.use(noCache);
+app.use(async (req, res, next) => {
+  if (req.session.userId) {
+    const wishlist = await Wishlist.findOne({ userId: req.session.userId });
+    res.locals.wishlistCount = wishlist ? wishlist.products.length : 0;
+  } else {
+    res.locals.wishlistCount = 0;
+  }
+
+  next();
+});
+
 
 
 app.set('views', path.join(__dirname, 'views'));

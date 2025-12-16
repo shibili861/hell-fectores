@@ -4,13 +4,19 @@ const userController=require("../controllers/user/userController");
 const passport = require('passport');
 const { userAuth,checkUserStatus } = require('../middlewares/auth');
 const Product = require('../models/productSchema');
+const User=require("../models/userSchema")
 const productController=require("../controllers/user/productController");
 const profileController=require("../controllers/user/profileController");
 const cartController = require("../controllers/user/cartController");
 const checkoutController=require("../controllers/user/checkoutController");
-const orderController=require("../controllers/user/orderController")
+const orderController=require("../controllers/user/orderController");
+const couponController = require("../controllers/user/couponController");
+const wishlistController=require("../controllers/user/wishlistController");
+const walletController=require("../controllers/user/walletController");
+const referralController=require("../controllers/user/referralController")
 const path = require('path');
 const multer = require('multer');
+
 
 
 router.get("/pagenotfound",userController.pagenotfound)
@@ -21,32 +27,36 @@ router.get('/',checkUserStatus,userController.loadHomePage)
 router.get("/signup",userController.loadSign)
 router.post("/signup",userController.signup)
 
+
+
+// POST /referral/skip
+router.post("/referral/skip", async (req, res) => {
+  if (!req.session.userId) return res.sendStatus(401);
+
+  await User.findByIdAndUpdate(req.session.userId, {
+    hasSeenReferralPopup: true
+  });
+
+  res.json({ success: true });
+});
+
             //   google authentication
 router.get('/auth/google',passport.authenticate('google',{scope:['profile','email']}));
 router.get('/auth/google/callback', (req, res, next) => {
   passport.authenticate('google', (err, user, info) => {
-    if (err) {
-      return next(err);
-    }
+    if (err) return next(err);
+
     if (!user) {
-      // If authentication failed (including blocked users)
-      let message = 'Authentication failed';
-      if (info && info.message === 'User is blocked by admin') {
-        message = 'User is blocked by admin';
-      }
+      const message = info?.message || "Authentication failed";
       return res.redirect('/login?message=' + encodeURIComponent(message));
     }
-    
-    // Log the user in
+
     req.logIn(user, (err) => {
-      if (err) {
-        return next(err);
-      }
+      if (err) return next(err);
       return res.redirect('/');
     });
   })(req, res, next);
 });
-
 
 
 
@@ -136,24 +146,46 @@ router.get("/checkout",checkoutController.getCheckoutPage)
                         // order Managment
           // Place order
 router.post('/place-order', orderController.placeOrder);
-router.get('/order-success', orderController.orderSuccessPage);
+router.get('/order-success/:orderId', orderController.orderSuccessPage);
+
+
 router.get('/order-details/:id',orderController.getOrderDetailsPage);
 router.get('/my-orders', orderController.getMyOrdersPage);
 
 
-
+          // rasorpay online payment
 router.post("/create-razorpay-order", orderController.createRazorpayOrder);
 router.post("/verify-razorpay-payment", orderController.verifyRazorpayPayment);
 router.post("/mark-payment-failed", orderController.markPaymentFailed);
 router.get("/order-failure", orderController.orderFailurePage); // page render
-router.post("/retry-payment", orderController.retryPayment);
-   // retry endpoint
+router.post("/retry-payment", orderController.retryPayment);  
+// router.post("/payment-callback/:orderId", orderController.paymentCallback);
+  // retry 
+ 
 
 
 router.post('/cancel-order', orderController.cancelOrder);
 router.post('/cancel-item', orderController.cancelItem);
 router.post('/return-item', orderController.requestReturn);
 
+// coupon management
+router.post("/apply-coupon", couponController.applyCoupon);
+router.post("/remove-coupon", couponController.removeCoupon);
+
+  // wishlist management
+
+router.post("/wishlist/add",wishlistController.addToWishlist);
+router.post("/wishlist/remove",wishlistController.removeFromWishlist);
+router.get("/wishlist", wishlistController.getWishlistPage);
+router.get("/wishlist/count", wishlistController.getWishlistCount);
+
+              // wallet mangemnt
+router.get("/wallet", walletController.getWalletPage);
+                 
+// referreral mangement
+
+router.post("/referral/skip", referralController.skipReferral);
+router.post("/referral/apply", referralController.applyReferralCode);
 
 
 

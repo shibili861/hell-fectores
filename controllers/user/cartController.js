@@ -1,8 +1,30 @@
 const mongoose = require("mongoose");
+const Wishlist = require("../../models/wishlistSchema");
 const Cart = require("../../models/cartSchema");
 const Product = require("../../models/productSchema");
 const Category = require("../../models/categorySchema");
 const User = require("../../models/userSchema");
+
+
+
+function calculateTotals(cart) {
+  let subtotal = 0;
+
+  cart.items.forEach(item => {
+    subtotal += item.totalprice;
+  });
+
+  // ⭐ NEW RULE: Free shipping above ₹2000
+  let shipping = subtotal >= 2000 ? 0 : 49;
+
+  const total = subtotal + shipping;
+
+  cart.subtotal = subtotal;
+  cart.shipping = shipping;
+  cart.total = total;
+
+  return { subtotal, shipping, total };
+}
 
 
 
@@ -113,13 +135,28 @@ const addToCart = async (req, res) => {
       }
     }
 
-    await cart.save();
+   // ✅ Update subtotal, shipping, total
+const totals = calculateTotals(cart);
 
-    return res.json({
-      success: true,
-      message: size ? `Added size ${size} to cart` : "Added to cart",
-      cart,
-    });
+await cart.save();
+const result = await Wishlist.updateOne(
+  { userId },
+  { $pull: { products: { productId: new mongoose.Types.ObjectId(productId) } } }
+);
+
+
+
+
+
+
+
+
+return res.json({
+  success: true,
+  message: size ? `Added size ${size} to cart` : "Added to cart",
+  cart,
+  totals
+});
 
   } catch (err) {
     console.error("Add to cart error:", err);
@@ -138,11 +175,33 @@ const getCart = async (req, res) => {
     const cart = await Cart.findOne({ userId }).populate("items.productId");
     const user = await User.findById(userId).select("name email");
 
-    res.json({
-      success: true,
-      cart: cart || { items: [] },
-      user: user || null
-    });
+    let totals = { subtotal: 0, shipping: 0, total: 0 };
+
+if (cart) {
+  cart.items.forEach(item => {
+    const product = item.productId;
+
+    // Always recompute latest price from product (after offer applied)
+    const newPrice = product.salePrice || product.regularPrice;
+
+    if (item.price !== newPrice) {
+      item.price = newPrice;
+      item.totalprice = newPrice * item.quantity;
+    }
+  });
+
+  totals = calculateTotals(cart);
+  await cart.save();
+}
+
+
+res.json({
+  success: true,
+  cart: cart || { items: [] },
+  user: user || null,
+  totals
+});
+
 
   } catch (error) {
     console.error("Get cart error:", error);
@@ -166,10 +225,16 @@ const removeFromCart = async (req, res) => {
         ? !(i.productId.equals(productId) && i.size === size)
         : !i.productId.equals(productId)
     );
+const totals = calculateTotals(cart);
+await cart.save();
 
-    await cart.save();
+res.json({
+  success: true,
+  message: "Item removed",
+  cart,
+  totals
+});
 
-    res.json({ success: true, message: "Item removed", cart });
 
   } catch (err) {
     console.error("Error removing item:", err);
@@ -252,7 +317,7 @@ const updateQuantity = async (req, res) => {
       console.log("Normal stock:", product.quantity);
 
       if (newQty > product.quantity) {
-        
+        console.log("❌ Normal stock insufficient");
         return res.json({
           success: false,
           type: "stock",
@@ -270,15 +335,15 @@ const updateQuantity = async (req, res) => {
 
     await cart.save();
 
-    const subtotal = cart.items.reduce((sum, i) => sum + i.totalprice, 0);
+   const totals = calculateTotals(cart);
+await cart.save();
 
-    console.log("✔ Quantity updated successfully");
+return res.json({
+  success: true,
+  updatedItem: item,
+  totals
+});
 
-    return res.json({
-      success: true,
-      updatedItem: item,
-      totals: { subtotal }
-    });
 
   } catch (err) {
     console.error("UPDATE QUANTITY ERROR:", err);

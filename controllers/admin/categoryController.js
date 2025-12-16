@@ -1,9 +1,22 @@
 const { ReturnDocument } = require("mongodb");
 const Category = require("../../models/categorySchema");
 
+const Product = require("../../models/productSchema");
 
 
+// Helper: Recalculate offer for all products when category offer changes
+const recalcProductsForCategory = async (categoryId) => {
+  try {
+    const products = await Product.find({ category: categoryId });
 
+    for (const product of products) {
+      await product.applyBestOffer();  // use the logic from product model
+      await product.save();
+    }
+  } catch (err) {
+    console.error("Error recalculating products for category:", err);
+  }
+};
 
 
 const Categoryinfo = async (req, res) => {
@@ -184,6 +197,58 @@ const deleteCategory = async (req, res) => {
   }
 };
 
+const setCategoryOffer = async (req, res) => {
+  try {
+    const { offer } = req.body;
+    const { id } = req.params;
+
+    const value = Number(offer);
+    if (isNaN(value) || value < 0 || value > 89) {
+      return res.json({ success: false, message: "Offer must be between 0 and 89" });
+    }
+
+    const category = await Category.findByIdAndUpdate(
+      id,
+      { categoryOffer: value },
+      { new: true }
+    );
+
+    if (!category) {
+      return res.json({ success: false, message: "Category not found" });
+    }
+
+    await recalcProductsForCategory(id);
+
+    return res.json({ success: true });
+  } catch (err) {
+    console.error("Error in setCategoryOffer:", err);
+    return res.json({ success: false, message: "Internal server error" });
+  }
+};
+
+const removeCategoryOffer = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const category = await Category.findByIdAndUpdate(
+      id,
+      { categoryOffer: 0 },
+      { new: true }
+    );
+
+    if (!category) {
+      return res.json({ success: false, message: "Category not found" });
+    }
+
+    await recalcProductsForCategory(id);
+
+    return res.json({ success: true });
+  } catch (err) {
+    console.error("Error in removeCategoryOffer:", err);
+    return res.json({ success: false, message: "Internal server error" });
+  }
+};
+
 
 
 
@@ -194,7 +259,11 @@ module.exports={
  unlistCategory,
  getEditCategory,
  editCategory,
- deleteCategory
+ deleteCategory,
+ setCategoryOffer,
+ removeCategoryOffer,
+ recalcProductsForCategory
+ 
 
 
 

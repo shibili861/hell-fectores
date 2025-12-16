@@ -55,17 +55,11 @@ const userSchema = new Schema({
     type: Date,
     default: Date.now
   },
-  referralCode: {
-    type: String,
-  },
-  redeemed: {
-    type: Boolean,
-  },
-  redeemedUsers: [{
-    type: Schema.Types.ObjectId,
-    ref: 'user',
-    required: true
-  }],
+ referralCode: { type: String },
+redeemed: { type: Boolean, default: false },
+referralPromptShown: { type: Boolean, default: false },
+redeemedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'user' }],
+
   resetPasswordToken: String,
   resetPasswordExpire: Date,
   searchHistory: [{

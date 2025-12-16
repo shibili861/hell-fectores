@@ -3,6 +3,9 @@ const Product = require('../../models/productSchema');
 const Order=require("../../models/ordersSchema");
 const User = require("../../models/userSchema");
 
+const { creditWallet, debitWallet } = require("../../helpers/walletHelper");
+const { FindCursor } = require("mongodb");
+
 //  List Orders (Admin)
 const listOrders = async (req, res) => {
   try {
@@ -92,6 +95,8 @@ const viewOrder = async (req, res) => {
     res.status(500).render("admin/error", { message: "Error loading order" });
   }
 };
+
+
 const updateOrderStatus = async (req, res) => {
   try {
     const { orderId } = req.params;
@@ -103,17 +108,52 @@ const updateOrderStatus = async (req, res) => {
       "Shipped",
       "Out for Delivery",
       "Delivered",
-      "Cancelled"
+      "Cancelled",
+      "Returned",
+      "Return Rejected",
+      "requested",
+      "Payment Failed"
     ];
 
+    // Validate status
     if (!validStatuses.includes(status)) {
       return res.status(400).json({ success: false, message: "Invalid status" });
     }
 
-    const order = await Order.findOne({ orderId });
-    if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+    // Fetch order
+    const order = await Order.findOne({ orderId }).populate("orderedItems.product");
+    if (!order)
+      return res.status(404).json({ success: false, message: "Order not found" });
 
-    // Prevent modifying final statuses
+
+    /* -----------------------------------------------------
+      BLOCK STATUS UPDATE IF PAYMENT FAILED
+    ----------------------------------------------------- */
+
+    // Block if order payment failed
+    if (["Failed", "Payment Failed"].includes(order.paymentStatus)) {
+      return res.status(400).json({
+        success: false,
+        message: "Cannot update status because payment failed"
+      });
+    }
+
+    // Block if ANY item payment failed
+    const hasFailedItem = order.orderedItems.some(
+      (item) => item.status === "Payment Failed"
+    );
+
+    if (hasFailedItem) {
+      return res.status(400).json({
+        success: false,
+        message: "Cannot update status because payment for an item failed"
+      });
+    }
+
+
+    /* -----------------------------------------------------
+     BLOCK MODIFYING FINAL STATUSES
+    ----------------------------------------------------- */
     if (["Delivered", "Cancelled"].includes(order.status)) {
       return res.status(400).json({
         success: false,
@@ -121,29 +161,35 @@ const updateOrderStatus = async (req, res) => {
       });
     }
 
+
+    /* -----------------------------------------------------
+     UPDATE ORDER + ITEMS STATUS
+    ----------------------------------------------------- */
     const previousStatus = order.status;
     order.status = status;
 
-    // ⭐ FIX: Update ONLY non-cancelled items
-    order.orderedItems.forEach(item => {
+    // Update non-cancelled items
+    order.orderedItems.forEach((item) => {
       if (item.status !== "Cancelled") {
         item.status = status;
       }
     });
 
-    // If switching to Cancelled → restock products
+
+    /* -----------------------------------------------------
+      RESTOCK IF ORDER IS CANCELLED
+    ----------------------------------------------------- */
     if (status === "Cancelled" && previousStatus !== "Cancelled") {
       for (const item of order.orderedItems) {
-
-        // restock only non-cancelled items
         if (item.status !== "Cancelled") {
-
           if (item.size && item.product?.hasVariants) {
+            // Variant restock
             await Product.updateOne(
               { _id: item.product._id, "sizeVariants.size": item.size },
               { $inc: { "sizeVariants.$.quantity": item.quantity } }
             );
           } else {
+            // Simple product restock
             await Product.updateOne(
               { _id: item.product._id },
               { $inc: { quantity: item.quantity } }
@@ -152,6 +198,7 @@ const updateOrderStatus = async (req, res) => {
         }
       }
     }
+
 
     await order.save();
 
@@ -201,19 +248,33 @@ const approveReturn = async (req, res) => {
 }
 
     // update item flags
+      
     item.returnRequested = false;
     item.returnApproved = true;
     item.returnRejected = false;
     item.returnedOn = new Date();
-   item.status = "Returned";
+    item.status = "Returned";
 
+    order.status = "Returned";
 
-order.status = "Returned";
+    // ✅ 1) calculate refund amount for THIS ITEM
+    const refundAmount = item.price * item.quantity; // basic: price * qty
 
-await order.save();
+    await order.save();
 
+    // ✅ 2) credit to user's wallet
+    await creditWallet(
+      order.userId,
+      refundAmount,
+      `Refund for returned item in order ${order.orderId}`,
+      order.orderId
+    );
 
-    return res.json({ success: true, message: "Return approved successfully" });
+    return res.json({
+      success: true,
+      message: "Return approved & amount added to wallet"
+    });
+
 
   } catch (err) {
     console.error(err);

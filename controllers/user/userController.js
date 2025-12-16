@@ -11,9 +11,20 @@ const Product = require("../../models/productSchema");
 
 
 
+
 // Generate  OTP
 function generateOtp() {
   return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+
+async function generateUniqueReferralCode(name) {
+  const base = name.toLowerCase().replace(/\s+/g, "").slice(0, 4);
+  const random = Math.floor(1000 + Math.random() * 9000);
+  const code = `${base}${random}`;
+
+  const exists = await User.findOne({ referralCode: code });
+  return exists ? generateUniqueReferralCode(name) : code;
 }
 
 // Hash password securely
@@ -78,28 +89,40 @@ const loadSign = async (req, res) => {
     res.status(500).send("Server error");
   }
 };
-
 const loadHomePage = async (req, res) => {
   try {
-    if (req.session.user) {
-      const userData = await User.findById(req.session.user).lean();
-      if (!userData) {
+    let showReferralModal = false;
+
+    if (req.session.userId) {
+      const user = await User.findById(req.session.userId);
+
+      if (!user) {
         req.session.destroy();
         return res.redirect("/login");
       }
 
-      res.locals.user = userData;
-      return res.render("user/home", { user: userData });
+      //  SHOW REFERRAL MODAL ONLY ONCE
+      if (user.redeemed === false && user.referralPromptShown === false) {
+        showReferralModal = true;
+
+        //  mark as shown immediately
+        user.referralPromptShown = true;
+        await user.save();
+      }
+
+      return res.render("user/home", {
+        user,
+        showReferralModal
+      });
     }
 
-    res.render("user/home");
+    return res.render("user/home", { showReferralModal: false });
+
   } catch (error) {
     console.error("Home page error:", error);
-    res.status(500).send("Server error");
+    return res.status(500).send("Server error");
   }
 };
-
-
 
 
 /* =====================================================
@@ -141,7 +164,7 @@ const signup = async (req, res) => {
     req.session.userOtp = otp;
     req.session.otpExpires = Date.now() + 5 * 60 * 1000; // 5 minutes
     req.session.userData = { name, phone, email, password: passwordHash };
-
+       console.log(otp,'hlo')
     console.log("OTP sent to:", email, "=>", otp);
     res.render("user/verifyotp");
   } catch (error) {
@@ -169,12 +192,20 @@ const verifyotp = async (req, res) => {
     if (otp == req.session.userOtp) {
       const userData = req.session.userData;
 
-      const newUser = new User({
-        name: userData.name,
-        email: userData.email,
-        phone: userData.phone,
-        password: userData.password,
-      });
+      
+  // Generate referral code
+  const referralCode = await generateUniqueReferralCode(userData.name);
+
+  const newUser = new User({
+    name: userData.name,
+    email: userData.email,
+    phone: userData.phone,
+    password: userData.password,
+    referralCode,
+    redeemed: false,
+    referralPromptShown: false
+  });
+
 
       await newUser.save();
       req.session.userId = newUser._id;
@@ -538,6 +569,7 @@ const filterProducts = async (req, res) => {
     "0-1000": { $gte: 0, $lte: 1000 },
     "1000-2000": { $gte: 1000, $lte: 2000 },
     "2000-3000": { $gte: 2000, $lte: 3000 },
+    '3000-4000':{$gte:3000,$lte:4000},
     "4000-50000": { $gte: 4000, $lte: 5000 },
     "50000-999999": { $gte: 5000, $lte: 99999 }
 };

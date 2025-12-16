@@ -6,7 +6,12 @@ const customerController=require("../controllers/admin/customerController");
 const Category = require('../models/categorySchema');
 const categoryController=require("../controllers/admin/categoryController")
 const productController=require("../controllers/admin/productController");
-const orderController=require("../controllers/admin/orderController")
+const orderController=require("../controllers/admin/orderController");
+const couponController=require("../controllers/admin/couponController");
+const salesReportController = require("../controllers/admin/salesReportController");
+const wallet=require("../models/walletSchema");
+
+
 const multer = require('multer');
 
 
@@ -74,5 +79,35 @@ router.post("/orders/:orderId/status", adminAuth,orderController.updateOrderStat
 router.post("/orders/:orderId/approve-return", adminAuth, orderController.approveReturn);
 router.post("/orders/:orderId/reject-return", adminAuth, orderController.rejectReturn);
 
+
+
+        //    coupon management
+router.get("/coupon", couponController.getCouponPage);
+router.post("/coupon/create", couponController.createCoupon);
+router.delete("/coupon/delete/:id", couponController.deleteCoupon);
+
+// Edit coupon
+router.get("/coupon/edit/:id", couponController.getEditCoupon);
+router.post("/coupon/edit/:id", couponController.updateCoupon);
+
+// Toggle list / unlist
+router.post("/coupon/toggle/:id", couponController.toggleCouponStatus);
+
+                            // offer mangement  in products
+ router.post("/products/offer/:id",  productController.addOffer);
+router.post("/products/remove-offer/:id", productController.removeOffer);
+
+                            // offer mangement in category
+ router.post("/category/:id/offer", categoryController.setCategoryOffer);
+router.post("/category/:id/offer/remove", categoryController.removeCategoryOffer);
+
+
+
+// SALES REPORT API 
+router.get("/sales-report/data", adminAuth, salesReportController.getReportData);
+
+// Download endpoints
+router.get("/sales-report/download/pdf", adminAuth, salesReportController.downloadPDF);
+router.get("/sales-report/download/excel", adminAuth, salesReportController.downloadExcel);
 
 module.exports=router;

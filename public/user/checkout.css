@@ -843,3 +843,155 @@ button {
 .premium-cancel-btn:hover {
   background: #d1d5db !important;
 }
+.coupon-section {
+  margin: 15px 0;
+  display: flex;
+  gap: 10px;
+}
+
+.coupon-input {
+  padding: 8px;
+  width: 65%;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.apply-coupon-btn {
+  padding: 8px 14px;
+  background: #2ecc71;
+  border: none;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.apply-coupon-btn:hover {
+  background: #27ae60;
+}
+
+.remove-coupon-btn {
+  margin-top: 10px;
+  background: #e74c3c;
+  padding: 8px 14px;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.coupon-message {
+  margin-top: 8px;
+  font-weight: bold;
+  color: green;
+}
+.available-coupons-box {
+  margin-top: 20px;
+  padding: 15px;
+  background: #faf7f3;
+  border: 1px solid #ddd0c2;
+  border-radius: 10px;
+}
+
+.coupon-card {
+  display: flex;
+  justify-content: space-between;
+  background: white;
+  border: 1px solid #e5d9c9;
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  align-items: center;
+}
+
+.apply-btn-small {
+  background: #8B7355;
+  color: white;
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: none;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.apply-btn-small:hover {
+  background: #5D4738;
+}
+
+
+
+.apply-btn-disabled {
+  background: #c8bfb3;
+  color: #ffffff;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: not-allowed;
+  border: none;
+  opacity: 0.7;
+}
+
+.coupon-dropdown-container {
+  margin-top: 15px;
+  position: relative;
+}
+
+.dropdown-toggle {
+  background: #b38b59;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
+  font-weight: 600;
+}
+
+.coupon-dropdown {
+  position: absolute;
+  top: 45px;
+  left: 0;
+  width: 260px;
+  background: #fff8ee;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  z-index: 50;
+  max-height: 240px;
+  overflow-y: auto;
+  border: 1px solid #e0d5c5;
+}
+
+.coupon-dropdown.hidden {
+  display: none;
+}
+
+.coupon-item {
+  padding: 10px;
+  border-bottom: 1px solid #f2e6d9;
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.coupon-item:last-child {
+  border-bottom: none;
+}
+
+.coupon-item.active:hover {
+  background: #f5efe7;
+}
+
+.coupon-item.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.coupon-item .reason {
+  color: #b33a3a;
+  font-size: 12px;
+}
+
+.coupon-dropdown * {
+    color: #1a1a1a !important;
+}
+

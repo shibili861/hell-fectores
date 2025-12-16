@@ -1538,3 +1538,9 @@ select.error {
         min-height: 400px;
     }
 }
+.no-coupon {
+  padding: 12px;
+  text-align: center;
+  color: #888;
+  font-size: 14px;
+}

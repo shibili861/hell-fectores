@@ -2,6 +2,27 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 const { v4: uuidv4 } = require('uuid');
 
+
+
+// ⭐ Generate formatted order ID
+function generateOrderId() {
+  const prefix = "ORD";           // Customize your prefix
+  const date = new Date();
+
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+
+  // Unique 5-digit incremental-like random number
+  const rand = Math.floor(10000 + Math.random() * 90000);
+
+  return `${prefix}-${y}${m}${d}-${rand}`;
+}
+
+
+
+
+
 // Sub-schema for individual order items
 const orderedItemSchema = new Schema({
   product: {
@@ -53,7 +74,8 @@ const orderedItemSchema = new Schema({
 const orderSchema = new Schema({
   orderId: {
     type: String,
-    default: () => uuidv4(),
+   default: () => generateOrderId(),
+
     unique: true
   },
 
@@ -85,11 +107,12 @@ const orderSchema = new Schema({
     required: true
   },
 
-  paymentMethod: {
-    type: String,
-    enum: ['COD', 'Online'],
-    default: 'COD'
-  },
+paymentMethod: {
+  type: String,
+  enum: ['COD', 'Online', 'Wallet'],
+  default: 'COD'
+},
+
 
   status: {
     type: String,
@@ -112,18 +135,13 @@ const orderSchema = new Schema({
   razorpayOrderId: { type: String, default: null },
   razorpayPaymentId: { type: String, default: null },
 
-  paymentStatus: {
+paymentStatus: {
   type: String,
-  enum: [
-    "Pending",
-    "Pending Payment",
-    "Processing",
-    "Success",
-    "Failed",
-    "Payment Failed"
-  ],
+  enum: ["Pending", "Paid", "Failed"],
   default: "Pending"
-},
+}
+,
+
 
 
   rejectReason: { type: String, default: null },
@@ -138,6 +156,15 @@ const orderSchema = new Schema({
     type: Boolean,
     default: false
   },
+  couponCode: {
+    type: String,
+    default: null
+},
+couponDiscount: {
+    type: Number,
+    default: 0
+},
+
 
   createdOn: {
     type: Date,

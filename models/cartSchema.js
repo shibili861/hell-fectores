@@ -7,6 +7,7 @@ const cartSchema = new Schema({
     ref: "User",
     required: true,
   },
+
   items: [
     {
       productId: {
@@ -31,7 +32,7 @@ const cartSchema = new Schema({
       },
       size: {
         type: String,
-         default: null, // ✅ Added this field
+        default: null,
       },
       status: {
         type: String,
@@ -43,6 +44,23 @@ const cartSchema = new Schema({
       },
     },
   ],
+
+  // ✅ NEW FIELDS FOR SHIPPING & TOTALS
+  subtotal: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  shipping: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  total: {
+    type: Number,
+    default: 0,
+    min: 0
+  }
 });
 
 const Cart = mongoose.model("Cart", cartSchema);

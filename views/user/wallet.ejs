@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Wallet</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      min-height: 100vh;
+      padding: 0;
+      color: #333;
+    }
+
+    .dashboard-container {
+      display: flex;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+      gap: 2rem;
+      min-height: 100vh;
+    }
+
+    /* Left Side - Main Content */
+    .main-content {
+      flex: 3;
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 53, 67, 0.08);
+    }
+
+    /* Right Side - Referral Section */
+    .sidebar {
+      flex: 1;
+      min-width: 300px;
+    }
+
+    /* Header */
+    .wallet-header {
+      background: linear-gradient(135deg, #003543 0%, #005566 100%);
+      padding: 2rem 2.5rem;
+      color: white;
+      position: relative;
+    }
+
+    .wallet-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #00a8c6, #4ade80);
+    }
+
+    .wallet-title {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .wallet-title h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .wallet-icon {
+      width: 50px;
+      height: 50px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      backdrop-filter: blur(10px);
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    .user-name {
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    /* Balance Section */
+    .balance-section {
+      padding: 2.5rem;
+      background: white;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .balance-box {
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      padding: 2rem;
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .balance-label {
+      font-size: 0.95rem;
+      color: #64748b;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .balance-amount {
+      font-size: 3.2rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      display: flex;
+      align-items: baseline;
+      color: #003543;
+    }
+
+    .currency-symbol {
+      font-size: 2rem;
+      margin-right: 8px;
+      color: #005566;
+    }
+
+    /* Stats Cards */
+    .stats-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      padding: 0 2.5rem;
+      margin-top: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: #64748b;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #003543;
+    }
+
+    .stat-positive {
+      color: #2E7D32;
+    }
+
+    .stat-negative {
+      color: #C62828;
+    }
+
+    /* Transaction History */
+    .transaction-section {
+      padding: 0 2.5rem 2.5rem;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #003543;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid #f1f5f9;
+    }
+
+    .transaction-count {
+      background: #e2e8f0;
+      color: #64748b;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    /* Transactions Table */
+    .transactions-table {
+      width: 100%;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #e2e8f0;
+    }
+
+    .table-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr 2fr 1fr 1.5fr;
+      background: #f8fafc;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid #e2e8f0;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+    }
+
+    .table-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 2fr 1fr 1.5fr;
+      padding: 1.25rem 1.5rem;
+      align-items: center;
+      border-bottom: 1px solid #f1f5f9;
+      transition: all 0.2s ease;
+    }
+
+    .table-row:hover {
+      background: #f8fafc;
+    }
+
+    .table-row:last-child {
+      border-bottom: none;
+    }
+
+    /* Type Styling */
+    .type-badge {
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-align: center;
+      width: fit-content;
+      min-width: 100px;
+    }
+
+    .credit {
+      background: rgba(72, 187, 120, 0.1);
+      color: #2E7D32;
+      border: 1px solid rgba(72, 187, 120, 0.2);
+    }
+
+    .debit {
+      background: rgba(239, 68, 68, 0.1);
+      color: #C62828;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .amount-cell {
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .reason-cell {
+      color: #334155;
+      font-weight: 500;
+    }
+
+    .order-cell {
+      color: #005566;
+      font-weight: 500;
+      font-family: 'Monaco', 'Courier New', monospace;
+      font-size: 0.9rem;
+    }
+
+    .date-cell {
+      color: #64748b;
+      font-size: 0.9rem;
+    }
+
+    /* No Records State */
+    .no-records {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: #94a3b8;
+      background: white;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      margin-top: 1rem;
+    }
+
+    .no-records-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    .no-records p {
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .no-records-sub {
+      color: #94a3b8;
+      font-size: 0.95rem;
+    }
+
+    /* Right Side - Referral Card */
+    .referral-card {
+      background: white;
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 10px 30px rgba(0, 53, 67, 0.08);
+      height: fit-content;
+      position: sticky;
+      top: 2rem;
+    }
+
+    .referral-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .referral-icon {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #00a8c6 0%, #4ade80 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      color: white;
+    }
+
+    .referral-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #003543;
+      margin-bottom: 0.25rem;
+    }
+
+    .referral-subtitle {
+      font-size: 0.95rem;
+      color: #64748b;
+    }
+
+    .referral-code-container {
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      padding: 1.5rem;
+      border-radius: 16px;
+      margin: 1.5rem 0;
+      text-align: center;
+      border: 2px dashed #cbd5e1;
+    }
+
+    .referral-code-label {
+      font-size: 0.9rem;
+      color: #64748b;
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+
+    .referral-code {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: 2px;
+      color: #003543;
+      font-family: 'Monaco', 'Courier New', monospace;
+      margin: 1rem 0;
+    }
+
+    .copy-btn {
+      background: linear-gradient(135deg, #003543 0%, #005566 100%);
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      width: 100%;
+      margin-top: 1rem;
+      transition: all 0.2s ease;
+      font-size: 1rem;
+    }
+
+    .copy-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 53, 67, 0.15);
+    }
+
+    .referral-reward {
+      background: rgba(72, 187, 120, 0.1);
+      padding: 1.25rem;
+      border-radius: 12px;
+      margin-top: 1.5rem;
+      text-align: center;
+      border: 1px solid rgba(72, 187, 120, 0.2);
+    }
+
+    .reward-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #2E7D32;
+      margin-bottom: 0.5rem;
+    }
+
+    .reward-desc {
+      color: #64748b;
+      font-size: 0.95rem;
+    }
+
+    /* Last Updated */
+    .last-updated {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      text-align: center;
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+      .dashboard-container {
+        padding: 1.5rem;
+      }
+      
+      .stats-cards {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 992px) {
+      .dashboard-container {
+        flex-direction: column;
+      }
+      
+      .sidebar {
+        min-width: 100%;
+      }
+      
+      .referral-card {
+        position: static;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .table-header,
+      .table-row {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+      }
+      
+      .reason-cell,
+      .order-cell {
+        grid-column: span 2;
+      }
+      
+      .stats-cards {
+        grid-template-columns: 1fr;
+      }
+      
+      .balance-amount {
+        font-size: 2.5rem;
+      }
+      
+      .wallet-header,
+      .balance-section,
+      .transaction-section {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .dashboard-container {
+        padding: 1rem;
+      }
+      
+      .wallet-header,
+      .balance-section,
+      .transaction-section,
+      .referral-card {
+        padding: 1.5rem;
+      }
+      
+      .table-header,
+      .table-row {
+        grid-template-columns: 1fr;
+      }
+      
+      .reason-cell,
+      .order-cell {
+        grid-column: span 1;
+      }
+      
+      .referral-code {
+        font-size: 1.6rem;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<div class="dashboard-container">
+  <!-- Left Side - Main Content -->
+  <div class="main-content">
+    <!-- Header -->
+   <div class="wallet-header">
+  <div class="wallet-title">
+    <div class="wallet-icon"></div>
+    <h1>My Wallet</h1>
+  </div>
+
+  <div class="user-info">
+    <div class="user-avatar">👤</div>
+    <div>
+      <div class="user-name"><%= user ? user.name : "Guest" %></div>
+      <div style="font-size: 0.9rem; opacity: 0.8;">
+        Manage your wallet and transactions
+      </div>
+    </div>
+  </div>
+</div>
+
+
+    <!-- Balance Section -->
+    <div class="balance-section">
+      <div class="balance-box">
+        <div class="balance-label">
+          <i class="fas fa-wallet"></i>
+          WALLET BALANCE
+        </div>
+        <div class="balance-amount">
+          <span class="currency-symbol">₹</span>
+          <%= wallet.balance.toLocaleString() %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-cards">
+       <div class="stat-card">
+         <div class="stat-label">
+          <i class="fas fa-arrow-up" style="color: #2E7D32;"></i>
+          TOTAL CREDITED
+        </div>
+        <div class="stat-value stat-positive">
+          + ₹<%= wallet.totalCredits ? wallet.totalCredits.toLocaleString() : '0' %>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">
+          <i class="fas fa-arrow-down" style="color: #C62828;"></i>
+          TOTAL DEBITED
+        </div>
+        <div class="stat-value stat-negative">
+          - ₹<%= wallet.totalDebits ? wallet.totalDebits.toLocaleString() : '0' %>
+        </div>
+      </div> 
+      <div class="stat-card">
+        <div class="stat-label">
+          <i class="fas fa-exchange-alt" style="color: #005566;"></i>
+          TOTAL TRANSACTIONS
+        </div>
+        <div class="stat-value">
+          <%= transactions.length.toLocaleString() %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transaction History -->
+    <div class="transaction-section">
+      <div class="section-title">
+        <i class="fas fa-history"></i>
+        Transaction History
+        <span class="transaction-count"><%= transactions.length %> transactions</span>
+      </div>
+
+      <% if (transactions.length === 0) { %>
+        <div class="no-records">
+          <div class="no-records-icon">📜</div>
+          <p>No transactions found.</p>
+          <p class="no-records-sub">Your transaction history will appear here</p>
+        </div>
+      <% } else { %>
+        <div class="transactions-table">
+          <div class="table-header">
+            <div>Type</div>
+            <div>Amount</div>
+            <div>Reason</div>
+            <div>Order ID</div>
+            <div>Date & Time</div>
+          </div>
+
+          <% transactions.forEach(t => { %>
+            <div class="table-row">
+              <div>
+                <span class="type-badge <%= t.type === 'Credit' ? 'credit' : 'debit' %>">
+                  <%= t.type %>
+                </span>
+              </div>
+              <div class="amount-cell">
+                ₹<%= t.amount.toLocaleString() %>
+              </div>
+              <div class="reason-cell">
+                <%= t.reason || '-' %>
+              </div>
+              <div class="order-cell">
+                <%= t.orderId || '-' %>
+              </div>
+              <div class="date-cell">
+                <%= new Date(t.createdAt).toLocaleString() %>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Right Side - Referral Section -->
+  <div class="sidebar">
+    <div class="referral-card">
+      <div class="referral-header">
+        <div class="referral-icon">🎁</div>
+        <div>
+          <h2 class="referral-title">Your Referral Code</h2>
+          <p class="referral-subtitle">Share your code with friends and earn rewards</p>
+        </div>
+      </div>
+
+      <div class="referral-code-container">
+        <div class="referral-code-label">YOUR UNIQUE CODE</div>
+         <span id="referralCode"><%= user.referralCode %></span>
+        <div style="font-size: 0.9rem; color: #94a3b8;">Copy and share with your friends</div>
+      </div>
+
+      <button class="copy-btn" onclick="copyReferralCode()">
+        <i class="fas fa-copy"></i>
+        COPY REFERRAL CODE
+      </button>
+
+      <div class="referral-reward">
+        <div class="reward-title">Earn ₹100 for each successful referral</div>
+        <div class="reward-desc">Get rewarded when your friends sign up using your code</div>
+      </div>
+
+      <div class="last-updated">
+        Last updated: <%= new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function copyReferralCode() {
+    const code = document.getElementById("referralCode").innerText;
+    navigator.clipboard.writeText(code).then(() => {
+      // Change button text temporarily
+      const btn = document.querySelector('.copy-btn');
+      const originalHTML = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-check"></i> COPIED!';
+      btn.style.background = 'linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%)';
+      
+      setTimeout(() => {
+        btn.innerHTML = originalHTML;
+        btn.style.background = 'linear-gradient(135deg, #003543 0%, #005566 100%)';
+      }, 2000);
+    }).catch(err => {
+      console.error('Failed to copy: ', err);
+      alert("Failed to copy referral code. Please try again.");
+    });
+  }
+</script>
+</body>
+</html>

@@ -138,7 +138,7 @@
 
         /* Product Gallery */
         .product-gallery {
-            position: sticky;
+          position: relative;
             top: 100px;
         }
 
@@ -572,6 +572,61 @@
     transform: translateY(0);
 }
 
+/* ensure gallery is positioning context */
+.product-gallery { position: relative; }
+
+/* Button above image (default state) */
+.pd-wishlist-top {
+  position: absolute;
+  top: -18px;
+  right: -18px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 40;
+  background: rgba(0,0,0,0.45);
+  color: #fff;
+  font-size: 20px;
+  line-height: 1;
+  transition: transform .18s ease, box-shadow .25s ease, border-color .25s ease;
+  /* changed border style to double and subtle gold-tinted */
+  border: 2px double rgba(196,165,123,0.18);
+  backdrop-filter: blur(6px);
+}
+
+/* hover for default */
+.pd-wishlist-top:hover {
+  transform: scale(1.06);
+  border-color: rgba(212,175,55,0.28);
+}
+
+/* ADDED state (after successful add to wishlist) */
+.pd-wishlist-top.added {
+  background: linear-gradient(135deg, rgba(212,175,55,0.95), rgba(196,165,123,0.95));
+  color: #0a0a0a;
+  border: 2px solid var(--gold);            /* solid gold border to be very clear */
+  box-shadow: 0 6px 22px rgba(212,175,55,0.38), 0 0 40px rgba(212,175,55,0.18);
+  transform: scale(1.12);
+}
+
+/* small pulse animation for added state to emphasize lighting */
+@keyframes pd-wish-pulse {
+  0%   { box-shadow: 0 6px 22px rgba(212,175,55,0.3), 0 0 0 rgba(212,175,55,0.0); }
+  50%  { box-shadow: 0 10px 34px rgba(212,175,55,0.5), 0 0 12px rgba(212,175,55,0.12); }
+  100% { box-shadow: 0 6px 22px rgba(212,175,55,0.3), 0 0 0 rgba(212,175,55,0.0); }
+}
+.pd-wishlist-top.added.pulse {
+  animation: pd-wish-pulse 900ms ease-in-out;
+}
+
+/* change inner icon scale */
+.pd-wishlist-top .heart-icon { display:inline-block; transform: translateY(0); transition: transform .18s ease; }
+.pd-wishlist-top.added .heart-icon { transform: scale(1.05); }
+
         @media (max-width: 1200px) {
             .product-wrapper {
                 grid-template-columns: 1fr;
@@ -603,6 +658,41 @@
                 display: none !important;
             }
         }
+        /* Default wishlist button */
+.pd-wishlist-top {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+/* Default heart */
+.pd-wishlist-top .heart-icon {
+  font-size: 22px;
+  color: #6b7280; /* gray */
+  transition: color 0.25s ease, transform 0.2s ease;
+}
+
+/* When added to wishlist */
+.pd-wishlist-top.added .heart-icon {
+  color: #ef4444; /* red */
+}
+
+/* Optional hover */
+.pd-wishlist-top:hover .heart-icon {
+  transform: scale(1.1);
+}
+
+/* Pulse animation */
+.pd-wishlist-top.pulse .heart-icon {
+  animation: pulse 0.4s ease;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
     </style>
 </head>
 <div id="toast" class="toast"></div>
@@ -616,6 +706,15 @@
         <div class="product-wrapper">
             <!-- Product Gallery -->
             <div class="product-gallery">
+           <button
+  id="pdWishlistBtn"
+  class="pd-wishlist-top <%= product.inWishlist ? 'added' : '' %>"
+  onclick="toggleWishlist('<%= product._id %>')"
+  aria-pressed="<%= product.inWishlist ? 'true' : 'false' %>"
+  title="Add to wishlist"
+>
+  <span class="heart-icon"><%= product.inWishlist ? '❤️' : '♡' %></span>
+</button>
                 <div class="main-image" id="mainImageContainer">
                     <% if (product.productImage && product.productImage.length > 0) { %>
                         <img src="<%= product.productImage[0] %>" alt="<%= product.productName %>" id="mainImage">
@@ -624,6 +723,7 @@
                     <% } %>
                     <div class="zoom-lens" id="zoomLens"></div>
                 </div>
+   
                 <div class="zoom-result" id="zoomResult">
                     <img id="zoomImage" src="" alt="Zoomed view">
                 </div>
@@ -675,26 +775,38 @@
                     <span class="reviews">(<%= product.reviews || '1222' %> reviews)</span>
                 </div>
 
-             <div class="price-section">
+           <div class="price-section">
     <div class="price-wrapper">
         <% if (product.salePrice && product.salePrice < product.regularPrice) { %>
+
             <span class="current-price">₹<%= product.salePrice %></span>
             <span class="original-price">₹<%= product.regularPrice %></span>
-            <% 
-            const discount = Math.round(((product.regularPrice - product.salePrice) / product.regularPrice) * 100);
-            if (discount > 0) { %>
-                <span class="discount-badge"><%= discount %>% OFF</span>
+
+            <% if (product.effectiveOffer > 0) { %>
+                <span class="discount-badge"><%= product.effectiveOffer %>% OFF</span>
+
+                <% if (product.effectiveOffer === product.productOffer) { %>
+                    <small class="offer-source" style="color:#1e88e5; margin-left:6px;">
+                        (Product Offer)
+                    </small>
+                <% } else { %>
+                    <small class="offer-source" style="color:#ff7043; margin-left:6px;">
+                        (Category Offer)
+                    </small>
+                <% } %>
             <% } %>
+
         <% } else { %>
             <span class="current-price">₹<%= product.regularPrice %></span>
         <% } %>
     </div>
-    <!-- Dynamic Stock Status - Will be updated by JavaScript -->
+
     <div class="stock-status" id="stockStatus">
         <span class="stock-dot"></span>
         <span id="stockText">Select Size</span>
     </div>
 </div>
+
 
    <!-- Size Selection - FIXED VERSION -->
 <div class="size-section">
@@ -745,12 +857,19 @@ if (product.sizeVariants && product.sizeVariants.length > 0) {
 }
 %>
 
-<button 
-    class="btn-add-cart" 
-    id="addToCartBtn"
-    disabled>
-    Select Size
-</button>
+<div class="action-buttons">
+    <button 
+        class="btn-add-cart" 
+        id="addToCartBtn"
+        disabled>
+        Select Size
+    </button>
+
+    <!-- Wishlist Button -->
+   
+
+</div>
+
 
 
 
@@ -1210,6 +1329,71 @@ document.addEventListener('DOMContentLoaded', function() {
     testCartRoutes();
     updateCartCount();
 });
+
+
+
+async function toggleWishlist(productId) {
+  const btn = document.getElementById('pdWishlistBtn');
+  if (!btn) return;
+
+  // optimistic UI: lock button to avoid multi-clicks
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('/wishlist/add', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ productId })
+    });
+
+    const data = await res.json();
+
+    // show toast using your global function
+    showToast(data.message, data.success ? 'success' : 'error');
+
+    // update navbar
+    updateWishlistNavbar();
+
+    // If backend says success, set added visual state
+   if (data.success) {
+  const icon = btn.querySelector('.heart-icon');
+
+  if (data.added) {
+    btn.classList.add('added');
+    btn.setAttribute('aria-pressed', 'true');
+    if (icon) icon.textContent = '❤️';
+  }
+
+  if (data.removed) {
+    btn.classList.remove('added');
+    btn.setAttribute('aria-pressed', 'false');
+    if (icon) icon.textContent = '♡';
+  }
+
+  btn.classList.add('pulse');
+  setTimeout(() => btn.classList.remove('pulse'), 400);
+}
+ else {
+      // If action failed and backend indicates removal or false, remove visual
+      if (data.removed || data.alreadyRemoved) {
+        btn.classList.remove('added');
+        const icon = btn.querySelector('.heart-icon');
+        if (icon) icon.textContent = '♡';
+        btn.setAttribute('aria-pressed', 'false');
+      } else {
+        // keep current state but re-enable
+      }
+    }
+
+  } catch (err) {
+    console.error('Wishlist toggle error:', err);
+    showToast('Network error. Try again.', 'error');
+  } finally {
+    // re-enable after a small delay so user sees the effect
+    setTimeout(() => btn.disabled = false, 450);
+  }
+}
+
 
     </script>
 </body>

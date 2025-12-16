@@ -358,9 +358,327 @@
 
 
             </div>
+
+            
         </div>
 
-       
+               <!-- FILTERS + DOWNLOAD -->
+        <section style="margin-bottom: 25px;">
+            <form id="salesFilterForm" style="display:flex; flex-wrap:wrap; gap:15px; align-items:flex-end;">
+                <div>
+                    <label>Report Type</label><br>
+                    <select id="reportType" name="type" style="padding:8px 10px; border-radius:6px; border:1px solid #e0d6c8;">
+                        <option value="daily">Today</option>
+                        <option value="weekly">This Week</option>
+                        <option value="monthly">This Month</option>
+                        <option value="yearly">This Year</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                </div>
 
+                <div id="singleDateWrapper">
+                    <label>Date (for daily/weekly/monthly/yearly)</label><br>
+                    <input type="date" id="singleDate" style="padding:8px 10px; border-radius:6px; border:1px solid #e0d6c8;">
+                </div>
+
+                <div id="customDateWrapper" style="display:none;">
+                    <label>Custom Date Range</label><br>
+                    <input type="date" id="startDate" style="padding:8px 10px; border-radius:6px; border:1px solid #e0d6c8;">
+                    <input type="date" id="endDate" style="padding:8px 10px; border-radius:6px; border:1px solid #e0d6c8; margin-left:5px;">
+                </div>
+
+                <button type="button" id="applyFilterBtn" class="chart-btn">Generate Report</button>
+
+                <div style="margin-left:auto; display:flex; gap:10px;">
+                    <button type="button" id="downloadPdfBtn" class="chart-btn">
+                        <i class="fas fa-file-pdf"></i> Download PDF
+                    </button>
+                    <button type="button" id="downloadExcelBtn" class="chart-btn">
+                        <i class="fas fa-file-excel"></i> Download Excel
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- SUMMARY CARDS -->
+        <section class="dashboard-grid" id="summarySection">
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3 class="card-title">Total Orders</h3>
+                    <div class="card-icon"><i class="fas fa-shopping-bag"></i></div>
+                </div>
+                <div class="card-value" id="summaryTotalOrders">0</div>
+                <div class="card-label">Orders in selected period</div>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3 class="card-title">Gross Amount</h3>
+                    <div class="card-icon"><i class="fas fa-coins"></i></div>
+                </div>
+                <div class="card-value" id="summaryGross">₹0</div>
+                <div class="card-label">Total before discounts</div>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3 class="card-title">Total Discount</h3>
+                    <div class="card-icon"><i class="fas fa-percentage"></i></div>
+                </div>
+                <div class="card-value" id="summaryDiscount">₹0</div>
+                <div class="card-label">Offers + Coupons</div>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3 class="card-title">Net Sales</h3>
+                    <div class="card-icon"><i class="fas fa-wallet"></i></div>
+                </div>
+                <div class="card-value" id="summaryNet">₹0</div>
+                <div class="card-label">Final revenue after discount</div>
+            </div>
+        </section>
+               <!-- CHARTS ROW 1 -->
+        <section class="chart-container">
+            <div class="chart-header">
+                <h2 class="chart-title">Sales Overview</h2>
+            </div>
+            <div style="display:grid; grid-template-columns: 1.2fr 1fr; gap:25px;">
+                <div>
+                    <canvas id="salesTrendChart"></canvas>
+                </div>
+                <div>
+                    <canvas id="salesDistributionChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- CHARTS ROW 2 -->
+        <section class="chart-container">
+            <div class="chart-header">
+                <h2 class="chart-title">Top Performing Items</h2>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:25px;">
+                <div>
+                    <h4 style="margin-bottom:10px;">Top Products</h4>
+                    <canvas id="topProductsChart"></canvas>
+                </div>
+                <div>
+                    <h4 style="margin-bottom:10px;">Top Categories</h4>
+                    <canvas id="topCategoriesChart"></canvas>
+                </div>
+            </div>
+        </section>
+              <!-- ORDERS TABLE -->
+        <section class="chart-container">
+            <div class="chart-header">
+                <h2 class="chart-title">Orders in Selected Period</h2>
+            </div>
+            <div style="overflow-x:auto;">
+                <table style="width:100%; border-collapse:collapse; font-size:14px;">
+                    <thead>
+                        <tr style="background:#f5ede3; text-align:left;">
+                            <th style="padding:10px;">Date</th>
+                            <th style="padding:10px;">Order ID</th>
+                            <th style="padding:10px;">Customer</th>
+                            <th style="padding:10px;">Total</th>
+                            <th style="padding:10px;">Discount</th>
+                            <th style="padding:10px;">Coupon</th>
+                            <th style="padding:10px;">Net Amount</th>
+                            <th style="padding:10px;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTableBody">
+                        <!-- filled by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // ---------- GLOBAL STATE ----------
+        let salesTrendChart = null;
+        let salesDistributionChart = null;
+        let topProductsChart = null;
+        let topCategoriesChart = null;
+
+        // ---------- HELPERS ----------
+        function formatCurrency(value) {
+            return '₹' + Number(value || 0).toFixed(2);
+        }
+
+      function getFilterParams() {
+    const type = document.getElementById("reportType").value;
+
+    const startDate = document.getElementById("startDate").value;
+    const endDate = document.getElementById("endDate").value;
+
+    const params = new URLSearchParams();
+    params.set("type", type);
+
+    if (type === "custom") {
+        if (startDate) params.set("startDate", startDate);
+        if (endDate) params.set("endDate", endDate);
+    }
+
+    return params.toString();
+}
+
+
+        // ---------- FETCH & UPDATE ----------
+        async function loadSalesReport() {
+            try {
+                const query = getFilterParams();
+                const res = await fetch('/admin/sales-report/data?' + query);
+                const data = await res.json();
+
+                if (!data.success) {
+                    console.error(data.message || 'Failed to load report');
+                    return;
+                }
+
+                const { summary, salesTrend, topProducts, topCategories, orders } = data;
+
+                // SUMMARY
+                document.getElementById('summaryTotalOrders').innerText = summary.totalOrders || 0;
+                document.getElementById('summaryGross').innerText = formatCurrency(summary.grossAmount);
+                document.getElementById('summaryDiscount').innerText = formatCurrency(summary.totalDiscount);
+                document.getElementById('summaryNet').innerText = formatCurrency(summary.netAmount);
+
+                // ORDERS TABLE
+                const tbody = document.getElementById('ordersTableBody');
+                tbody.innerHTML = '';
+                (orders || []).forEach(o => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td style="padding:8px; border-bottom:1px solid #eee;">${new Date(o.createdOn).toLocaleDateString()}</td>
+                        <td style="padding:8px; border-bottom:1px solid #eee;">${o.orderId}</td>
+                        <td style="padding:8px; border-bottom:1px solid #eee;">${o.userId ? o.userId.name : 'Guest'}</td>
+                        <td style="padding:8px; border-bottom:1px solid #eee;">${formatCurrency(o.totalPrice)}</td>
+                        <td style="padding:8px; border-bottom:1px solid #eee;">${formatCurrency(o.discount)}</td>
+                        <td style="padding:8px; border-bottom:1px solid #eee;">${o.couponCode || '-'}</td>
+                        <td style="padding:8px; border-bottom:1px solid #eee;">${formatCurrency(o.finalAmount)}</td>
+                        <td style="padding:8px; border-bottom:1px solid #eee;">${o.status}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                // CHARTS: destroy old if exist to avoid leaks
+                if (salesTrendChart) salesTrendChart.destroy();
+                if (salesDistributionChart) salesDistributionChart.destroy();
+                if (topProductsChart) topProductsChart.destroy();
+                if (topCategoriesChart) topCategoriesChart.destroy();
+
+                const trendLabels = (salesTrend || []).map(s => s._id);
+                const trendValues = (salesTrend || []).map(s => s.netSales);
+
+                const ctxTrend = document.getElementById('salesTrendChart').getContext('2d');
+                salesTrendChart = new Chart(ctxTrend, {
+                    type: 'line',
+                    data: {
+                        labels: trendLabels,
+                        datasets: [{
+                            label: 'Net Sales',
+                            data: trendValues,
+                            tension: 0.3,
+                            fill: true
+                        }]
+                    }
+                });
+
+                const gross = Number(summary.grossAmount || 0);
+                const totalDiscount = Number(summary.totalDiscount || 0);
+                const couponDiscount = Number(summary.couponDiscount || 0);
+                const otherDiscount = totalDiscount - couponDiscount;
+                const net = Number(summary.netAmount || (gross - totalDiscount));
+
+                const ctxDist = document.getElementById('salesDistributionChart').getContext('2d');
+                salesDistributionChart = new Chart(ctxDist, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Net Sales', 'Coupon Discount', 'Other Discount'],
+                        datasets: [{
+                            data: [net, couponDiscount, otherDiscount < 0 ? 0 : otherDiscount]
+                        }]
+                    }
+                });
+
+                const prodLabels = (topProducts || []).map(p => p.name);
+                const prodValues = (topProducts || []).map(p => p.revenue);
+
+                const ctxProd = document.getElementById('topProductsChart').getContext('2d');
+                topProductsChart = new Chart(ctxProd, {
+                    type: 'bar',
+                    data: {
+                        labels: prodLabels,
+                        datasets: [{
+                            label: 'Revenue',
+                            data: prodValues
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'x'
+                    }
+                });
+
+                const catLabels = (topCategories || []).map(c => c.name);
+                const catValues = (topCategories || []).map(c => c.revenue);
+
+                const ctxCat = document.getElementById('topCategoriesChart').getContext('2d');
+                topCategoriesChart = new Chart(ctxCat, {
+                    type: 'bar',
+                    data: {
+                        labels: catLabels,
+                        datasets: [{
+                            label: 'Revenue',
+                            data: catValues
+                        }]
+                    }
+                });
+
+            } catch (err) {
+                console.error('Error loading sales report:', err);
+            }
+        }
+
+        // ---------- EVENT LISTENERS ----------
+        document.addEventListener('DOMContentLoaded', () => {
+            const reportTypeSelect = document.getElementById('reportType');
+            const customWrapper = document.getElementById('customDateWrapper');
+            const singleWrapper = document.getElementById('singleDateWrapper');
+
+            reportTypeSelect.addEventListener('change', () => {
+                if (reportTypeSelect.value === 'custom') {
+                    customWrapper.style.display = 'block';
+                    singleWrapper.style.display = 'none';
+                } else {
+                    customWrapper.style.display = 'none';
+                    singleWrapper.style.display = 'block';
+                }
+            });
+
+            document.getElementById('applyFilterBtn').addEventListener('click', () => {
+                loadSalesReport();
+            });
+
+           document.getElementById("downloadPdfBtn").addEventListener("click", () => {
+    const query = getFilterParams();
+    window.location.href = `/admin/sales-report/download/pdf?${query}`;
+});
+
+document.getElementById("downloadExcelBtn").addEventListener("click", () => {
+    const query = getFilterParams();
+    window.location.href = `/admin/sales-report/download/excel?${query}`;
+});
+
+
+            // initial load
+            loadSalesReport();
+        });
+    </script>
 </body>
 </html>
+
+

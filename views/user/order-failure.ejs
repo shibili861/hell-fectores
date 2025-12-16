@@ -1,77 +1,240 @@
-<%- include('../partials/user/header') %>
+<style>
+.order-failure-container {
+    max-width: 600px;
+    margin: 80px auto;
+    padding: 50px 40px;
+    background: linear-gradient(145deg, #ffffff, #f8f9fa);
+    border-radius: 24px;
+    box-shadow: 
+        0 20px 60px rgba(220, 53, 69, 0.08),
+        0 5px 15px rgba(0, 0, 0, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(220, 53, 69, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Keep shimmer effect */
+.order-failure-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, #dc3545, #ff6b6b, #dc3545);
+    background-size: 200% 100%;
+    animation: shimmer 3s infinite linear;
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+/* Bigger Image */
+.order-failure-container img {
+    width: 230px;
+    height: 230px;
+    margin-bottom: 40px;
+    filter: drop-shadow(0 10px 20px rgba(220, 53, 69, 0.15));
+    animation: gentleBounce 2s ease-in-out infinite;
+}
+
+/* Bigger Heading */
+.order-failure-container h1 {
+    color: #dc3545;
+    font-size: 3rem;   /* Increased */
+    font-weight: 800;
+    margin-bottom: 25px;
+    background: linear-gradient(135deg, #dc3545, #ff6b6b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 2px 10px rgba(220, 53, 69, 0.1);
+    letter-spacing: -0.5px;
+}
+
+/* Bigger Paragraph */
+.order-failure-container p {
+    color: #6c757d;
+    font-size: 1.3rem;   /* Increased */
+    line-height: 1.8;
+    margin-bottom: 40px;
+    padding: 0 20px;
+}
+
+/* Bigger Strong Text */
+.order-failure-container strong {
+    color: #495057;
+    font-weight: 700;
+    background: linear-gradient(120deg, rgba(220, 53, 69, 0.1) 0%, rgba(220, 53, 69, 0.05) 100%);
+    padding: 4px 12px;
+    border-radius: 6px;
+    border-left: 4px solid #dc3545;
+    font-size: 1.2rem; /* Increased */
+}
+
+.actions-container {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 40px;
+}
+
+/* Bigger Buttons */
+.btn {
+    padding: 18px 40px;
+    font-size: 1.1rem;   /* Increased */
+    font-weight: 700;
+    border-radius: 14px;
+    letter-spacing: 0.7px;
+}
+
+#retryPaymentBtn {
+    background: linear-gradient(135deg, #dc3545, #ff6b6b);
+    color: white;
+    box-shadow: 
+        0 8px 25px rgba(220, 53, 69, 0.3),
+        0 4px 10px rgba(220, 53, 69, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #6c757d, #868e96);
+    color: white;
+}
+
+/* Responsive Tweaks */
+@media (max-width: 768px) {
+    .order-failure-container h1 {
+        font-size: 2.4rem;
+    }
+    .order-failure-container p {
+        font-size: 1.15rem;
+    }
+    .btn {
+        width: 100%;
+        padding: 16px 30px;
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .order-failure-container h1 {
+        font-size: 2rem;
+    }
+    .order-failure-container p {
+        font-size: 1.1rem;
+    }
+}
+</style>
+
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
-<div class="order-failure-container" style="text-align:center;padding:48px;">
-  <img src="/images/payment-failed-illustration.svg" alt="Payment failed" style="max-width:320px;margin:0 auto 24px;">
-  <h1>Payment failed</h1>
-  <p>We couldn't process your payment for Order <strong><%= order.orderId %></strong>.</p>
+<div class="order-failure-container">
+  
 
-  <div style="margin-top:24px; display:flex; gap:12px; justify-content:center;">
+  <h1>Payment Failed</h1>
+  <p>We couldn't process your payment for Order <strong><%= order.orderId %></strong>.</p>
+  <p style="font-size: 0.95rem; color: #868e96; margin-top: -20px;">Please try again or contact support if the issue persists.</p>
+
+  <div class="actions-container">
     <button id="retryPaymentBtn" class="btn">Retry Payment</button>
     <a href="/order-details/<%= order.orderId %>" class="btn btn-secondary">View Order Details</a>
   </div>
 </div>
 
-<script>document.getElementById("retryPaymentBtn").addEventListener("click", async () => {
 
-  const res = await fetch("/retry-payment", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ internalOrderId: "<%= order.orderId %>" })
-  });
+    <script>
+async function retryPayment(orderId) {
 
-  const data = await res.json();
-  if (!data.success) {
-    alert("Retry failed, please refresh and try again.");
-    return;
-  }
+    console.log("🔥 RETRY PAYMENT STARTED for:", orderId);
 
-  const { key, razorpayOrderId, amountInPaise, internalOrderId } = data;
-
-  const options = {
-    key,
-    amount: amountInPaise,
-    currency: "INR",
-    order_id: razorpayOrderId,
-    name: "Your Store",
-    description: "Retry Payment",
-
-    handler: async function (response) {
-      response.internalOrderId = internalOrderId;
-
-      const verifyRes = await fetch("/verify-razorpay-payment", {
+    const res = await fetch("/retry-payment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(response)
-      });
+        body: JSON.stringify({ internalOrderId: orderId })
+    });
 
-      const verifyData = await verifyRes.json();
+    const data = await res.json();
+    console.log("📌 retry-payment RESPONSE:", data);
 
-      if (verifyData.success) {
-        window.location.href = `/order-success?orderId=${verifyData.orderId}`;
-      } else {
-        window.location.href = `/order-failure?orderId=${internalOrderId}`;
-      }
-    },
+    if (!data.success) {
+        alert("Retry failed. Try again.");
+        return;
+    }
 
-    modal: {
-      ondismiss: async function () {
+    const options = {
+        key: data.key,
+        amount: data.amountInPaise,
+        currency: "INR",
+        order_id: data.razorpayOrderId,
+        name: "ÉLÉGANCE",
+        description: "Retry Payment",
+
+        // 🔥 SUCCESS PAYMENT
+        handler: async function (response) {
+            console.log("🟢 PAYMENT SUCCESS:", response);
+
+            response.internalOrderId = data.internalOrderId;
+
+            const verifyRes = await fetch("/verify-razorpay-payment", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(response)
+            });
+
+            const verifyData = await verifyRes.json();
+            console.log("🟢 VERIFY RESPONSE:", verifyData);
+
+            if (verifyData.success) {
+                window.location.href = `/order-success/${verifyData.orderId}`;
+            } else {
+                window.location.href = `/order-failure?orderId=${data.internalOrderId}`;
+            }
+        },
+
+        // 🔥 USER CLOSED PAYMENT POPUP
+        modal: {
+            ondismiss: async function () {
+                console.log("⚠️ USER CLOSED POPUP");
+
+                await fetch("/mark-payment-failed", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        internalOrderId: data.internalOrderId,
+                        reason: "User closed Razorpay popup"
+                    })
+                });
+
+                window.location.href = `/order-failure?orderId=${data.internalOrderId}`;
+            }
+        }
+    };
+
+    const rzp = new Razorpay(options);
+
+    // 🔥 INSTANT PAYMENT FAILURE EVENT
+    rzp.on("payment.failed", async function (response) {
+        console.log("❌ PAYMENT FAILED:", response);
+
         await fetch("/mark-payment-failed", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            internalOrderId,
-            reason: "User closed retry popup"
-          })
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                internalOrderId: data.internalOrderId,
+                reason: response.error.description || "Payment Failed"
+            })
         });
 
-        window.location.href = `/order-failure?orderId=${internalOrderId}`;
-      }
-    }
-  };
+        rzp.close(); // 🚀 CLOSE POPUP INSTANTLY
 
-  const rzpFinal = new Razorpay(options);
-  rzpFinal.open();
-});
+        window.location.href = `/order-failure?orderId=${data.internalOrderId}`;
+    });
 
+    console.log("🚀 OPENING PAYMENT POPUP…");
+    rzp.open();
+}
 </script>
+

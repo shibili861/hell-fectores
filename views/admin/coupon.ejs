@@ -1,0 +1,1004 @@
+<%- include('../partials/admin/sidebar') %>
+<style>
+/* =========================================================
+   MAIN LAYOUT (Sidebar + Content)
+========================================================= */
+.main-content {
+  margin-left: 300px;
+  padding: 32px;
+  transition: .3s ease;
+}
+
+@media (max-width: 992px) {
+  .main-content {
+    margin-left: 0;
+    padding: 20px;
+  }
+}
+
+/* =========================================================
+   TOP CONTROLS (Search + Add Coupon Button)
+========================================================= */
+.top-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.search-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.search-input {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #E8E3DB;
+  width: 360px;
+  font-size: 14px;
+  background: #fff;
+  color: #5D4738;
+  transition: .25s ease;
+}
+
+.search-input:focus {
+  border-color: #8B7355;
+  box-shadow: 0 6px 20px rgba(139,115,85,0.1);
+  outline: none;
+}
+
+.btn {
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-search {
+  background: #8B7355;
+  color: white;
+}
+
+.btn-search:hover {
+  background: #5D4738;
+}
+
+.btn-clear {
+  background: #E8E3DB;
+  color: #5D4738;
+}
+
+/* Add Coupon Button */
+.add-coupon-btn {
+  background: #8B7355;
+  color: #fff;
+  padding: 12px 22px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  box-shadow: 0 6px 16px rgba(139,115,85,0.25);
+  transition: .25s;
+}
+
+.add-coupon-btn:hover {
+  background: #5D4738;
+  transform: translateY(-2px);
+}
+
+.add-coupon-btn:active {
+  transform: scale(0.97);
+}
+
+/* =========================================================
+   TABLE CONTAINER
+========================================================= */
+.coupon-table-container {
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px solid #EEE3D5;
+  box-shadow: 0 6px 20px rgba(139,115,85,0.08);
+  margin-top: 20px;
+}
+
+.coupon-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* =========================================================
+   TABLE HEADER
+========================================================= */
+.coupon-table thead th {
+  background: #F4EFE7;
+  padding: 14px 12px;
+  border-bottom: 2px solid #D7C9B7;
+  font-size: 12px;
+  font-weight: 700;
+  color: #5D4738;
+  letter-spacing: .4px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   TABLE BODY ROWS
+========================================================= */
+.table-body-row td {
+  padding: 14px 12px;
+  border-bottom: 1px solid #EADFD2;
+  font-size: 14px;
+  color: #4A3D31;
+}
+
+.table-body-row:hover {
+  background: #F7F3EE;
+  transition: .25s ease;
+}
+
+/* =========================================================
+   BADGE STYLES (Code, Status, Visibility)
+========================================================= */
+.code-pill {
+  background: #E4F8F1;
+  color: #2D7D68;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.visibility-pill {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.visibility-public {
+  background: #DFF0FF;
+  color: #1867A8;
+}
+
+.visibility-private {
+  background: #FFE8E8;
+  color: #C44242;
+}
+
+.status-pill {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-active {
+  background: #E1F9EA;
+  color: #257D49;
+}
+
+.status-expired {
+  background: #ECEEF5;
+  color: #404E73;
+}
+
+/* =========================================================
+   ACTION ICONS
+========================================================= */
+.action-icons button,
+.action-icons a {
+  font-size: 18px;
+  cursor: pointer;
+  transition: .25s ease;
+}
+
+.icon-edit {
+  color: #1E6FD9;
+}
+
+.icon-edit:hover {
+  transform: scale(1.15);
+}
+
+.icon-toggle {
+  color: #DB8B1D;
+}
+
+.icon-toggle:hover {
+  transform: scale(1.15);
+}
+
+.icon-delete {
+  color: #C0392B;
+}
+
+.icon-delete:hover {
+  transform: scale(1.15);
+}
+
+/* =========================================================
+   MODALS (Add & Edit Coupon)
+========================================================= */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 5000;
+}
+
+.modal-box {
+  width: 430px;
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  animation: modalPop .25s ease;
+}
+
+@keyframes modalPop {
+  from { transform: scale(0.88); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.modal-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: #5D4738;
+}
+
+.modal-box input,
+.modal-box select {
+  width: 100%;
+  padding: 10px;
+  border: 1.5px solid #D7C9B7;
+  margin-top: 5px;
+  border-radius: 10px;
+}
+
+.modal-box input:focus,
+.modal-box select:focus {
+  border-color: #8B7355;
+  outline: none;
+}
+
+/* Modal buttons */
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+  gap: 12px;
+}
+
+.cancel-btn {
+  padding: 10px 16px;
+  background: #E0E0E0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.submit-btn {
+  padding: 10px 16px;
+  background: #4A9188;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.hidden {
+  display: none;
+}
+
+/* SweetAlert fix */
+.swal2-container {
+  z-index: 99999 !important;
+}
+
+/* =========================================================
+   ACTION BUTTONS (Edit / Toggle / Delete)
+========================================================= */
+
+.action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Base style for all action buttons */
+.action-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  cursor: pointer;
+  transition: .25s ease;
+  border: none;
+  color: white;
+}
+
+/* EDIT Button (Blue) */
+.action-edit {
+  background: #2F80ED;
+}
+.action-edit:hover {
+  background: #1C63C7;
+  transform: scale(1.1);
+}
+
+/* TOGGLE Button (Orange) */
+.action-toggle {
+  background: #F2994A;
+}
+.action-toggle:hover {
+  background: #D67F32;
+  transform: scale(1.1);
+}
+
+/* DELETE Button (Red) */
+.action-delete {
+  background: #EB5757;
+}
+.action-delete:hover {
+  background: #C0392B;
+  transform: scale(1.1);
+}
+
+
+.add-coupon-btn {
+  background: linear-gradient(135deg, #8B7355, #6E5742);
+  color: #ffffff;
+  padding: 12px 26px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  transition: all 0.25s ease;
+  box-shadow: 0 6px 16px rgba(139, 115, 85, 0.3);
+}
+
+/* Hover */
+.add-coupon-btn:hover {
+  background: linear-gradient(135deg, #5D4738, #4A3A2C);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(93, 71, 56, 0.35);
+}
+
+/* Click */
+.add-coupon-btn:active {
+  transform: scale(0.97);
+  background: #3C2E24;
+}
+
+/* Focus outline */
+.add-coupon-btn:focus {
+  outline: 2px solid #D7C9B7;
+  outline-offset: 3px;
+}
+.pagination {
+  display: flex;
+  gap: 8px;
+  margin-top: 20px;
+  justify-content: center;
+}
+
+.page-btn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: #F1ECE3;
+  color: #5D4738;
+  border: 1px solid #D7C9B7;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all .25s ease;
+  text-decoration: none;
+}
+
+.page-btn:hover {
+  background: #E0D7CC;
+  transform: translateY(-2px);
+}
+
+.page-btn.active {
+  background: #8B7355;
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 12px rgba(139,115,85,0.25);
+}
+
+.page-btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
+</style>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<div class="main-content">
+  <!-- Top Controls -->
+  <div class="top-controls">
+
+    <!-- left: search + buttons -->
+    <div class="search-group">
+      <input class="search-input" type="text" placeholder="Search coupons..." id="couponSearch" />
+
+      <button class="btn btn-search" id="searchBtn">SEARCH</button>
+      <button class="btn btn-clear" id="clearBtn">CLEAR</button>
+    </div>
+
+    <!-- right: add coupon -->
+<button type="button" onclick="openModal()" class="add-coupon-btn">
+    + ADD NEW COUPON
+</button>
+
+
+  </div>
+
+  <!-- Coupon Table Container -->
+<div class="coupon-table-container bg-white rounded-xl shadow p-6 mt-6 w-full box-border">
+
+    <div class="table-wrapper w-full overflow-x-auto">
+        <table class="coupon-table w-full border-collapse text-left">
+           <thead>
+    <tr class="table-header-row">
+        <th>NAME</th>
+        <th>CODE</th>
+        <th>TYPE</th>
+        <th>VALUE</th>
+        <th>MAX DISCOUNT</th>
+        <th>MIN PURCHASE</th>
+        <th>MAX USAGE</th>
+        <th>USED COUNT</th>
+        <th>VISIBILITY</th>
+        <th>CREATED</th>
+        <th>EXPIRES</th>
+        <th>ACTIONS</th>
+    </tr>
+</thead>
+
+<tbody>
+    <% coupons.forEach(coupon => { %>
+    <tr class="table-body-row">
+
+        <td><%= coupon.name %></td>
+
+
+        <td>
+            <span class="bg-green-100 px-3 py-1 rounded-md text-xs">
+                <%= coupon.code %>
+            </span>
+        </td>
+
+        <td><%= coupon.discountType %></td>
+
+        <td><%= coupon.discountValue %></td>
+
+        <td><%= coupon.discountType === "percentage" ? coupon.maxDiscount : "-" %></td>
+
+        <td><%= coupon.minPurchase %></td>
+
+        <td><%= coupon.maxUsage %></td>
+
+        <td><%= coupon.usedCount %></td>
+
+        <td>
+            <span class="bg-blue-100 px-3 py-1 rounded-md text-xs">
+                <%= coupon.visibility %>
+            </span>
+        </td>
+
+        <td><%= coupon.createdAt ? coupon.createdAt.toDateString() : "" %></td>
+
+        <td class="<%= new Date(coupon.expiry) < new Date() ? 'text-red-600 font-semibold' : '' %>">
+            <%= coupon.expiry ? new Date(coupon.expiry).toDateString() : "" %>
+        </td>
+
+      <td>
+  <div class="action-buttons">
+
+    <!-- Edit -->
+    <button class="action-btn action-edit"
+            onclick="openEditModal('<%= coupon._id %>')">
+      edit
+    </button>
+
+    <!-- Toggle -->
+    <button class="action-btn action-toggle"
+            onclick="toggleStatus('<%= coupon._id %>')">
+      <%= coupon.isActive ? "👁️" : "🚫" %>
+    </button>
+
+    <!-- Delete -->
+    <button class="action-btn action-delete"
+            onclick="deleteCoupon('<%= coupon._id %>')">
+      🗑️
+    </button>
+
+  </div>
+</td>
+
+    </tr>
+    <% }) %>
+</tbody>
+
+        </table>
+    </div>
+
+</div>
+
+<div class="pagination">
+
+    <% if (currentPage > 1) { %>
+        <a href="/admin/coupon?page=<%= currentPage - 1 %>&search=<%= search %>" class="page-btn">Prev</a>
+    <% } else { %>
+        <button class="page-btn disabled">Prev</button>
+    <% } %>
+
+    <% for (let i = 1; i <= totalPages; i++) { %>
+        <a href="/admin/coupon?page=<%= i %>&search=<%= search %>"
+           class="page-btn <%= i === currentPage ? 'active' : '' %>">
+            <%= i %>
+        </a>
+    <% } %>
+
+    <% if (currentPage < totalPages) { %>
+        <a href="/admin/coupon?page=<%= currentPage + 1 %>&search=<%= search %>" class="page-btn">Next</a>
+    <% } else { %>
+        <button class="page-btn disabled">Next</button>
+    <% } %>
+
+</div>
+
+</div>
+
+
+<!-- Add Coupon Modal -->
+<div id="addCouponModal" class="modal-overlay hidden">
+  <div class="modal-box">
+
+    <h2 class="modal-title">Create New Coupon</h2>
+
+    <form id="couponForm">
+
+      <!-- Coupon Name -->
+      <label>Coupon Name *</label>
+      <input type="text" name="name" placeholder="Festival Offer" required>
+
+      <!-- Coupon Code -->
+      <label>Coupon Code *</label>
+      <input type="text" name="code" placeholder="SAVE20" required>
+
+      <!-- Discount Type -->
+      <label>Discount Type *</label>
+      <select name="discountType" id="discountType" required>
+        <option value="">Select</option>
+        <option value="percentage">Percentage (%)</option>
+        <option value="flat">Flat Amount</option>
+      </select>
+
+      <!-- Discount Value -->
+      <label>Discount Value *</label>
+      <input type="number" name="discountValue" min="1" placeholder="Amount / %" required>
+
+      <!-- Max Discount -->
+      <div id="maxDiscountField" style="display:none;">
+        <label>Max Discount (only for % type) *</label>
+        <input type="number" name="maxDiscount" min="0" placeholder="Maximum discount allowed">
+      </div>
+
+      <!-- Minimum Purchase Amount -->
+      <label>Minimum Purchase Amount *</label>
+      <input type="number" name="minPurchase" min="0" placeholder="0 or above" required>
+
+      <!-- Max Usage -->
+      <label>Max Usage (Total allowed uses) *</label>
+      <input type="number" name="maxUsage" min="1" placeholder="5, 10, 100" required>
+
+      <!-- Visibility -->
+      <label>Coupon Visibility *</label>
+      <select name="visibility" required>
+        <option value="">Select</option>
+        <option value="public">Public</option>
+        <option value="private">Private</option>
+      </select>
+
+      <!-- Expiry Date -->
+      <label>Expiry Date *</label>
+      <input type="date" name="expiry" required>
+
+      <p id="errorBox" class="error-text"></p>
+
+      <!-- Buttons -->
+      <div class="modal-actions">
+        <button type="button" class="cancel-btn" id="closeModalBtn">Cancel</button>
+        <button type="submit" class="submit-btn">Create</button>
+      </div>
+
+    </form>
+
+  </div>
+</div>
+
+<div id="editCouponModal" class="modal-overlay hidden">
+  <div class="modal-box">
+
+    <h2 class="modal-title">Edit Coupon</h2>
+
+    <form id="editCouponForm">
+
+      <input type="hidden" name="id" id="edit-id">
+
+      <label>Coupon Name *</label>
+      <input type="text" name="name" id="edit-name" required>
+
+      <label>Coupon Code *</label>
+      <input type="text" name="code" id="edit-code" required>
+
+      <label>Discount Type *</label>
+      <select name="discountType" id="edit-discountType" required>
+        <option value="percentage">Percentage</option>
+        <option value="flat">Flat</option>
+      </select>
+
+      <label>Discount Value *</label>
+      <input type="number" name="discountValue" id="edit-discountValue" required>
+
+      <label>Max Discount</label>
+      <input type="number" name="maxDiscount" id="edit-maxDiscount">
+
+      <label>Minimum Purchase *</label>
+      <input type="number" name="minPurchase" id="edit-minPurchase">
+
+      <label>Max Usage *</label>
+      <input type="number" name="maxUsage" id="edit-maxUsage">
+
+      <label>Visibility *</label>
+      <select name="visibility" id="edit-visibility">
+        <option value="public">Public</option>
+        <option value="private">Private</option>
+      </select>
+
+      <label>Expiry Date *</label>
+      <input type="date" name="expiry" id="edit-expiry">
+
+      <div class="modal-actions">
+        <button type="button" class="cancel-btn" onclick="closeEditModal()">Cancel</button>
+        <button type="submit" class="submit-btn">Update</button>
+      </div>
+
+    </form>
+
+  </div>
+</div>
+
+<script>
+  // small helpers (optional) — don't change layout if you don't want JS.
+  document.getElementById('clearBtn').addEventListener('click', function(){
+    document.getElementById('couponSearch').value = '';
+  });
+  // searchBtn can be wired to form or AJAX later
+
+const modal = document.getElementById("addCouponModal");
+const closeModalBtn = document.getElementById("closeModalBtn");
+
+function openModal() {
+  modal.classList.remove("hidden");
+}
+
+function closeModal() {
+  modal.classList.add("hidden");
+}
+
+closeModalBtn.addEventListener("click", closeModal);
+
+modal.addEventListener("click", (e) => {
+  if (e.target === modal) closeModal();
+});
+
+const discountTypeSelect = document.getElementById("discountType");
+const maxDiscountField = document.getElementById("maxDiscountField");
+
+discountTypeSelect.addEventListener("change", () => {
+  maxDiscountField.style.display =
+    discountTypeSelect.value === "percentage" ? "block" : "none";
+});
+
+document.getElementById("couponForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const data = Object.fromEntries(new FormData(e.target));
+
+  // ---- VALIDATION RULES ----
+
+  if (!data.name.trim()) 
+    return Swal.fire("Validation Error", "Coupon name is required", "error");
+
+  if (!data.code.trim()) 
+    return Swal.fire("Validation Error", "Coupon code is required", "error");
+
+  if (!/^[A-Z0-9]{3,15}$/.test(data.code.trim().toUpperCase()))
+    return Swal.fire("Invalid Code", "Code must be 3–15 characters & contain only A–Z or numbers.", "error");
+
+  if (!data.discountType) 
+    return Swal.fire("Validation Error", "Please select discount type", "error");
+
+  if (!data.discountValue || data.discountValue <= 0)
+    return Swal.fire("Validation Error", "Discount value must be greater than 0", "error");
+
+  if (data.discountType === "percentage" && (!data.maxDiscount || data.maxDiscount <= 0))
+    return Swal.fire("Validation Error", "Max discount is required for percentage type", "error");
+
+  if (!data.minPurchase || data.minPurchase < 0)
+    return Swal.fire("Validation Error", "Minimum purchase must be 0 or above", "error");
+
+  if (!data.maxUsage || data.maxUsage <= 0)
+    return Swal.fire("Validation Error", "Max usage must be greater than 0", "error");
+
+  if (!data.visibility)
+    return Swal.fire("Validation Error", "Please select coupon visibility", "error");
+
+  if (!data.expiry)
+    return Swal.fire("Validation Error", "Expiry date is required", "error");
+
+  const expiryDate = new Date(data.expiry);
+  if (expiryDate <= new Date())
+    return Swal.fire("Invalid Date", "Expiry date must be a future date.", "error");
+
+  // ---- SUBMIT ----
+  const response = await fetch("/admin/coupon/create", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  });
+
+  const result = await response.json();
+
+  if (!result.success)
+    return Swal.fire("Error", result.message, "error");
+
+  Swal.fire("Success", "Coupon created successfully!", "success")
+    .then(() => {
+      closeModal();
+      location.reload();
+    });
+});
+
+
+
+
+async function deleteCoupon(id) {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "This action cannot be undone.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#999",
+        confirmButtonText: "Delete"
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+
+            const response = await fetch(`/admin/coupon/delete/${id}`, {
+                method: "DELETE"
+            });
+
+            const resultData = await response.json();
+
+            if (!resultData.success) {
+                return Swal.fire("Error", resultData.message, "error");
+            }
+
+            Swal.fire("Deleted!", "Coupon has been deleted.", "success")
+                .then(() => location.reload());
+        }
+    });
+}
+
+
+async function openEditModal(id) {
+  try {
+    const res = await fetch(`/admin/coupon/edit/${id}`);
+    const data = await res.json();
+
+    if (!data.success) {
+      return Swal.fire("Error", "Failed to load coupon data", "error");
+    }
+
+    const c = data.coupon;
+
+    // Fill modal inputs with API data
+    document.getElementById("edit-id").value = c._id;
+    document.getElementById("edit-name").value = c.name;
+    document.getElementById("edit-code").value = c.code;
+    document.getElementById("edit-discountType").value = c.discountType;
+    document.getElementById("edit-discountValue").value = c.discountValue;
+    document.getElementById("edit-maxDiscount").value = c.maxDiscount;
+    document.getElementById("edit-minPurchase").value = c.minPurchase;
+    document.getElementById("edit-maxUsage").value = c.maxUsage;
+    document.getElementById("edit-visibility").value = c.visibility;
+
+    // Format date for input[type="date"]
+    document.getElementById("edit-expiry").value = c.expiry.substring(0, 10);
+
+    // Show edit modal
+    document.getElementById("editCouponModal").classList.remove("hidden");
+
+  } catch (err) {
+    console.error(err);
+    Swal.fire("Error", "Could not load coupon", "error");
+  }
+}
+
+/* =========================================================
+          EDIT COUPON FORM — FULL VALIDATION
+========================================================= */
+
+document.getElementById("editCouponForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const fd = new FormData(e.target);
+    const data = Object.fromEntries(fd);
+
+    // -------------------- VALIDATIONS --------------------
+
+    if (!data.name.trim())
+        return Swal.fire("Validation Error", "Coupon name is required", "error");
+
+    if (!data.code.trim())
+        return Swal.fire("Validation Error", "Coupon code is required", "error");
+
+    // CODE FORMAT CHECK
+    if (!/^[A-Z0-9]{3,15}$/.test(data.code.toUpperCase()))
+        return Swal.fire("Invalid Code", "Code must be 3–15 characters (A–Z, 0–9 only).", "error");
+
+    if (!data.discountType)
+        return Swal.fire("Validation Error", "Select discount type", "error");
+
+    if (!data.discountValue || data.discountValue <= 0)
+        return Swal.fire("Validation Error", "Discount value must be greater than 0", "error");
+
+    if (data.discountType === "percentage") {
+        if (!data.maxDiscount || data.maxDiscount <= 0)
+            return Swal.fire("Validation Error", "Max discount is required for percentage type", "error");
+    }
+
+    if (!data.minPurchase || data.minPurchase < 0)
+        return Swal.fire("Validation Error", "Minimum purchase must be 0 or above", "error");
+
+    if (!data.maxUsage || data.maxUsage <= 0)
+        return Swal.fire("Validation Error", "Max usage must be greater than 0", "error");
+
+    if (!data.visibility)
+        return Swal.fire("Validation Error", "Please select coupon visibility", "error");
+
+    if (!data.expiry)
+        return Swal.fire("Validation Error", "Expiry date is required", "error");
+
+    // DATE VALIDATION
+    const exp = new Date(data.expiry);
+    if (exp <= new Date())
+        return Swal.fire("Invalid Date", "Expiry date must be in the future.", "error");
+
+    // -------------------- SUBMIT UPDATE --------------------
+
+    const res = await fetch(`/admin/coupon/edit/${data.id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    });
+
+    const result = await res.json();
+
+    if (!result.success) {
+        return Swal.fire("Error", result.message, "error");
+    }
+
+    Swal.fire({
+        icon: "success",
+        title: "Coupon Updated",
+        text: "Changes saved successfully!",
+        confirmButtonColor: "#4A9188"
+    }).then(() => {
+        closeEditModal();
+        location.reload();
+    });
+});
+
+
+
+async function toggleStatus(id) {
+  const confirm = await Swal.fire({
+    title: "Change Visibility?",
+    text: "Do you want to list/unlist this coupon?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#8B7355",
+    cancelButtonColor: "#999"
+  });
+
+  if (!confirm.isConfirmed) return;
+
+  const res = await fetch(`/admin/coupon/toggle/${id}`, {
+    method: "POST"
+  });
+
+  const result = await res.json();
+
+  Swal.fire("Updated", result.message, "success").then(() => location.reload());
+}
+
+
+
+/* ------------------------------
+      EDIT MODAL FUNCTIONS
+------------------------------ */
+
+const editModal = document.getElementById("editCouponModal");
+
+function closeEditModal() {
+    editModal.classList.add("hidden");
+}
+
+// Close when clicking cancel button
+document.querySelector("#editCouponModal .cancel-btn")
+        .addEventListener("click", closeEditModal);
+
+// Close when clicking outside the modal box
+editModal.addEventListener("click", (e) => {
+    if (e.target === editModal) {
+        closeEditModal();
+    }
+});
+
+
+// SEARCH BUTTON
+document.getElementById("searchBtn").addEventListener("click", () => {
+  const value = document.getElementById("couponSearch").value.trim();
+  window.location.href = `/admin/coupon?search=${value}&page=1`;
+});
+
+// CLEAR BUTTON
+document.getElementById("clearBtn").addEventListener("click", () => {
+  document.getElementById("couponSearch").value = "";
+  window.location.href = "/admin/coupon";
+});
+
+
+
+</script>
+
+
+
+
+</body>
+</html>

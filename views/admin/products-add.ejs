@@ -737,14 +737,7 @@
                             <div id="regularPrice-error" class="error-message"></div>
                         </div>
 
-                        <div class="form-group">
-                            <label class="form-label">Sale Price</label>
-                            <div class="price-input-container">
-                                <span class="price-prefix">$</span>
-                                <input type="number" class="form-input price-input" name="salePrice" placeholder="0.00" step="0.01">
-                            </div>
-                            <div id="salePrice-error" class="error-message"></div>
-                        </div>
+                       
 
                         <div class="form-group">
                             <label class="form-label">Stock Quantity</label>
@@ -920,97 +913,103 @@
 
         
 // Update form submission to include variants data
-// Form submission handler - SINGLE VERSION
-productForm.addEventListener('submit', async function(e) {
+productForm.addEventListener('submit', async function handleAddProductSubmit(e) {
     e.preventDefault();
 
-    // Debug what's being sent
     console.log('=== FORM DATA DEBUG ===');
-    console.log('Enable Variants:', document.getElementById('enableVariants').checked);
-    
-    const sizeSelects = document.querySelectorAll('.size-select');
-    const quantityInputs = document.querySelectorAll('.size-quantity');
-    
-    console.log('Number of size inputs:', sizeSelects.length);
-    
-    sizeSelects.forEach((select, index) => {
-        console.log('Size:', select.value, 'Quantity:', quantityInputs[index].value);
-    });
-    console.log('=== END DEBUG ===');
+
+    const enableVariants = document.getElementById('enableVariants')?.checked || false;
+    console.log('Enable Variants:', enableVariants);
 
     if (!validateForm()) return;
 
     const formData = new FormData();
 
-    // Add all text fields
+    /* ---------------- BASIC FIELDS ---------------- */
     formData.append('productName', productForm.productName.value);
     formData.append('category', productForm.category.value);
     formData.append('regularPrice', productForm.regularPrice.value);
-    formData.append('salePrice', productForm.salePrice.value);
     formData.append('stockQty', productForm.stockQty.value);
     formData.append('description', productForm.description.value);
-    formData.append('shortDescription', productForm.shortDescription.value);
+    formData.append('shortDescription', productForm.shortDescription.value || '');
 
-    // SIMPLE FIX: Add size variants data
-    const enableVariants = document.getElementById('enableVariants').checked;
     formData.append('enableVariants', enableVariants);
 
+    /* ---------------- SIZE VARIANTS (SAFE) ---------------- */
     if (enableVariants) {
         const sizeSelects = document.querySelectorAll('.size-select');
         const quantityInputs = document.querySelectorAll('.size-quantity');
-        
+
+        console.log('Number of size inputs:', sizeSelects.length);
+
         sizeSelects.forEach((select, index) => {
-            if (select.value && quantityInputs[index].value) {
-                formData.append('sizes', select.value);
-                formData.append('quantities', quantityInputs[index].value);
+            const qtyInput = quantityInputs[index];
+
+            // 🔒 SAFETY CHECK (THIS FIXES YOUR ERROR)
+            if (!select || !qtyInput) return;
+
+            const size = select.value;
+            const quantity = qtyInput.value;
+
+            if (size && quantity !== '') {
+                console.log('Size:', size, 'Quantity:', quantity);
+                formData.append('sizes[]', size);
+                formData.append('quantities[]', quantity);
             }
         });
     }
 
-    // Process images (your existing image code)
+    console.log('=== END DEBUG ===');
+
+    /* ---------------- IMAGES ---------------- */
     for (let i = 0; i < uploadedImages.length; i++) {
         const imgData = uploadedImages[i];
         let imageDataUrl;
-        
+
         if (imgData.cropped) {
             imageDataUrl = imgData.cropped;
         } else {
             const canvas = await createCanvasFromImage(imgData.original);
             imageDataUrl = canvas.toDataURL('image/jpeg', 0.9);
         }
-        
+
         const blob = base64ToBlob(imageDataUrl);
         formData.append('images', blob, `product-image-${i}.jpg`);
     }
 
-    // Submit form
+    /* ---------------- SUBMIT ---------------- */
     try {
         const submitBtn = productForm.querySelector('button[type="submit"]');
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding Product...';
         submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding Product...';
 
         const response = await fetch('/admin/add-product', {
             method: 'POST',
             body: formData
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
-            showSuccessPopup('Product Added Successfully!', 'Your product has been added to the catalog.', data.redirectUrl);
+            showSuccessPopup(
+                'Product Added Successfully!',
+                'Your product has been added to the catalog.',
+                data.redirectUrl
+            );
         } else {
-            showErrorPopup('Error!', data.message || 'Failed to add product. Please try again.');
+            showErrorPopup('Error!', data.message || 'Failed to add product.');
         }
-    } catch (error) {
-        console.error('Error:', error);
-        showErrorPopup('Connection Error', 'Unable to connect to server. Please check your connection and try again.');
-    } finally {
-        const submitBtn = productForm.querySelector('button[type="submit"]');
-        submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Add Product';
-        submitBtn.disabled = false;
+
+    } catch (err) {
+        console.error(err);
+        showErrorPopup(
+            'Connection Error',
+            'Unable to connect to server. Please try again.'
+        );
     }
 });
+
+
 // Beautiful Success Popup Function (SweetAlert2 Style)
 function showSuccessPopup(title, message, redirectUrl = '/admin/products') {
     // Create popup overlay
@@ -1427,7 +1426,7 @@ function showErrorPopup(title, message) {
     `;
     messageElement.textContent = message;
 
-    // OK Button
+    // OK Button 
     const okButton = document.createElement('button');
     okButton.style.cssText = `
         background: linear-gradient(135deg, var(--error), #e57373);
@@ -1474,6 +1473,7 @@ function showErrorPopup(title, message) {
     
     // Add to document
     document.body.appendChild(popupOverlay);
+
 
     // Close on overlay click
     popupOverlay.addEventListener('click', function(e) {
@@ -1722,62 +1722,74 @@ function showErrorPopup(title, message) {
         }
 
         // Form validation
-        function validateForm() {
-            clearErrorMessages();
-            let isValid = true;
-            
-            const name = document.getElementsByName('productName')[0].value.trim();
-            const description = document.getElementsByName('description')[0].value.trim();
-            const price = document.getElementsByName('regularPrice')[0].value;
-            const salePrice = document.getElementsByName('salePrice')[0].value;
-            const stockQty = document.getElementsByName('stockQty')[0].value;
-            
-            if (name === "") {
-                displayErrorMessage('productName-error', 'Please enter a product name.');
-                isValid = false;
-            } else if (name.length < 3) {
-                displayErrorMessage('productName-error', 'Product name must be at least 3 characters.');
-                isValid = false;
-            }
-            
-            if (description === "") {
-                displayErrorMessage('description-error', 'Please enter a product description.');
-                isValid = false;
-            } else if (description.length < 10) {
-                displayErrorMessage('description-error', 'Description must be at least 10 characters.');
-                isValid = false;
-            }
-            
-            const priceNum = parseFloat(price);
-            if (isNaN(priceNum) || priceNum <= 0) {
-                displayErrorMessage('regularPrice-error', 'Please enter a valid price greater than 0.');
-                isValid = false;
-            }
-            
-            if (salePrice.trim() !== "") {
-                const salePriceNum = parseFloat(salePrice);
-                if (isNaN(salePriceNum) || salePriceNum < 0) {
-                    displayErrorMessage('salePrice-error', 'Please enter a valid sale price.');
-                    isValid = false;
-                } else if (priceNum <= salePriceNum) {
-                    displayErrorMessage('regularPrice-error', 'Regular price must be greater than sale price.');
-                    isValid = false;
-                }
-            }
-            
-            const stockNum = parseInt(stockQty);
-            if (isNaN(stockNum) || stockNum < 0) {
-                displayErrorMessage('stockQty-error', 'Please enter a valid stock quantity.');
-                isValid = false;
-            }
-            
-            if (uploadedImages.length === 0) {
-                displayErrorMessage('images-error', 'Please select at least one image.');
-                isValid = false;
-            }
-            
-            return isValid;
+   function validateForm() {
+    clearErrorMessages();
+    let isValid = true;
+
+    const nameInput = document.querySelector('[name="productName"]');
+    const descInput = document.querySelector('[name="description"]');
+    const priceInput = document.querySelector('[name="regularPrice"]');
+    const salePriceInput = document.querySelector('[name="salePrice"]');
+    const stockQtyInput = document.querySelector('[name="stockQty"]');
+
+    if (!nameInput || !descInput || !priceInput || !stockQtyInput) {
+        console.error("Critical form fields missing");
+        return false;
+    }
+
+    const name = nameInput.value.trim();
+    const description = descInput.value.trim();
+    const price = priceInput.value;
+    const salePrice = salePriceInput ? salePriceInput.value.trim() : '';
+    const stockQty = stockQtyInput.value;
+
+    if (name === "") {
+        displayErrorMessage('productName-error', 'Please enter a product name.');
+        isValid = false;
+    } else if (name.length < 3) {
+        displayErrorMessage('productName-error', 'Product name must be at least 3 characters.');
+        isValid = false;
+    }
+
+    if (description === "") {
+        displayErrorMessage('description-error', 'Please enter a product description.');
+        isValid = false;
+    } else if (description.length < 10) {
+        displayErrorMessage('description-error', 'Description must be at least 10 characters.');
+        isValid = false;
+    }
+
+    const priceNum = parseFloat(price);
+    if (isNaN(priceNum) || priceNum <= 0) {
+        displayErrorMessage('regularPrice-error', 'Please enter a valid price greater than 0.');
+        isValid = false;
+    }
+
+    if (salePrice !== "") {
+        const salePriceNum = parseFloat(salePrice);
+        if (isNaN(salePriceNum) || salePriceNum < 0) {
+            displayErrorMessage('salePrice-error', 'Please enter a valid sale price.');
+            isValid = false;
+        } else if (salePriceNum >= priceNum) {
+            displayErrorMessage('regularPrice-error', 'Regular price must be greater than sale price.');
+            isValid = false;
         }
+    }
+
+    const stockNum = parseInt(stockQty);
+    if (isNaN(stockNum) || stockNum < 0) {
+        displayErrorMessage('stockQty-error', 'Please enter a valid stock quantity.');
+        isValid = false;
+    }
+
+    if (uploadedImages.length === 0) {
+        displayErrorMessage('images-error', 'Please select at least one image.');
+        isValid = false;
+    }
+
+    return isValid;
+}
+
 
         // Display error message
         function displayErrorMessage(elementId, message) {
@@ -1940,25 +1952,6 @@ function updateStockQuantity() {
     document.getElementsByName('stockQty')[0].value = totalQuantity;
 }
 
-// Update form submission to handle variants
-const originalFormSubmit = productForm.onsubmit;
-productForm.onsubmit = function(e) {
-    if (enableVariantsCheckbox.checked) {
-        const sizeSelects = document.querySelectorAll('.size-select');
-        const quantityInputs = document.querySelectorAll('.size-quantity');
-
-        // Validate variants
-        for (let i = 0; i < sizeSelects.length; i++) {
-            if (!sizeSelects[i].value || !quantityInputs[i].value) {
-                e.preventDefault();
-                alert('Please fill all fields for size variants.');
-                return false;
-            }
-        }
-    }
-    
-    return originalFormSubmit ? originalFormSubmit.call(this, e) : true;
-};
     </script>
 </body>
 </html>

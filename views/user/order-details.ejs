@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <title>Order Details - ÉLÉGANCE</title>
-  <link rel="stylesheet" href="/user/order-details.css">
+
   <style>
     body {
       margin: 0;
@@ -441,7 +441,7 @@
     <p class="order-id">Order ID: <strong><%= order.orderId %></strong></p>
     <p class="order-date">Placed On: <%= new Date(order.createdOn).toLocaleDateString() %></p>
   <div style="text-align:right; margin-bottom:20px;">
-  <button onclick="printInvoice()" 
+  <button onclick="34567" 
           class="btn btn-secondary" 
           style="font-size:14px; padding:8px 16px;">
     🧾 Print / Save as PDF
@@ -647,12 +647,25 @@
       <p>Status: <strong><%= order.status %></strong></p>
     </section>
 
+
     <!-- Buttons -->
     <div class="button-group">
       <% if (order.status === "Pending" || order.status === "Processing") { %>
         <button class="action-btn" onclick="openCancelModal('<%= order.orderId %>')">Cancel Entire Order</button>
       <% } %>
       <a href="/collections" class="btn btn-secondary">← Continue Shopping</a>
+      <% if (order.paymentStatus === "Payment Failed" || order.status === "Payment Failed") { %>
+  <% if (order.paymentStatus === "Payment Failed" || order.status === "Payment Failed") { %>
+    <button class="action-btn" 
+            id="retryPaymentButton"
+            onclick="retryPayment('<%= order.orderId %>')"
+            style="background:#ff4444; margin-right:10px;">
+        Retry Payment
+    </button>
+<% } %>
+
+<% } %>
+
     </div>
   </div>
 
@@ -715,6 +728,8 @@
 </div>
 
 </div>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
  <script>
     let currentOrderId = null;
     let currentItemId = null;
@@ -803,34 +818,44 @@ document.getElementById("returnReasonSelect").addEventListener("change", () => {
   }
 });
 
+
 function openReturnModal(orderId, itemId) {
   currentOrderId = orderId;
   currentItemId = itemId;
 
   const modal = document.getElementById("returnModal");
   modal.style.display = "flex";
-  setTimeout(() => modal.classList.add("show"), 30);
+
+  modal.offsetHeight; // force reflow for animation
+
+  setTimeout(() => {
+    modal.classList.add("show");
+  }, 30);
 }
 
 function closeReturnModal() {
   const modal = document.getElementById("returnModal");
   modal.classList.remove("show");
-  setTimeout(() => modal.style.display = "none", 200);
 
-  document.getElementById("returnReasonSelect").value = "";
-  document.getElementById("returnReasonText").value = "";
-  document.getElementById("returnReasonText").style.display = "none";
+  setTimeout(() => {
+    modal.style.display = "none";
+  }, 200);
 }
 
 document.getElementById("confirmReturnBtn").addEventListener("click", async () => {
-  const selectReason = document.getElementById("returnReasonSelect").value;
-  const otherReason = document.getElementById("returnReasonText").value.trim();
+  
+  let reason = document.getElementById("returnReasonSelect").value;
+  let otherReason = document.getElementById("returnReasonText").value.trim();
 
-  let finalReason = (selectReason === "Other") ? otherReason : selectReason;
-
-  if (!finalReason) {
-    return showToast("Please select or enter a valid reason.");
+  if (!reason) {
+    return showToast("Please select a return reason.");
   }
+
+  if (reason === "Other" && !otherReason) {
+    return showToast("Please specify the reason.");
+  }
+
+  const finalReason = (reason === "Other") ? otherReason : reason;
 
   const res = await fetch("/return-item", {
     method: "POST",
@@ -850,22 +875,82 @@ document.getElementById("confirmReturnBtn").addEventListener("click", async () =
   }
 });
 
-    /* ------------------- PRINT invoice FIX ------------------- */
-  function printInvoice() {
-    // Hide non-print elements
-    const hideElements = document.querySelectorAll(
-        ".button-group, .action-btn, .btn, .modal, .no-print"
-    );
 
-    hideElements.forEach(el => el.classList.add("print-hide"));
+async function retryPayment(orderId) {
+  console.log("🔥 RETRY PAYMENT STARTED for:", orderId);
 
-    // Trigger print
-    window.print();
+  const res = await fetch("/retry-payment", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ internalOrderId: orderId })
+  });
 
-    // Restore after printing
-    setTimeout(() => {
-        hideElements.forEach(el => el.classList.remove("print-hide"));
-    }, 300);
+  const data = await res.json();
+  console.log("📌 retry-payment RESPONSE:", data);
+
+  if (!data.success) {
+    alert("Retry failed. Try again.");
+    return;
+  }
+
+  const options = {
+    key: data.key,
+    amount: data.amountInPaise,
+    currency: "INR",
+    order_id: data.razorpayOrderId,
+    name: "ÉLÉGANCE",
+    description: "Retry Payment",
+
+    //  SUCCESS
+    handler: async function (response) {
+      try {
+        const verifyRes = await fetch("/verify-razorpay-payment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...response,
+            internalOrderId: data.internalOrderId
+          })
+        });
+
+        const verifyData = await verifyRes.json();
+
+        if (verifyData.success) {
+          window.location.href = `/order-success/${verifyData.orderId}`;
+        } else {
+          window.location.href = `/order-failure?orderId=${data.internalOrderId}`;
+        }
+      } catch (err) {
+        window.location.href = `/order-failure?orderId=${data.internalOrderId}`;
+      }
+    },
+
+    //  NO FAILURE LOGIC HERE
+    modal: {
+      ondismiss: function () {
+        console.log("Modal dismissed");
+      }
+    }
+  };
+
+  const rzp = new Razorpay(options);
+
+  //  REAL FAILURE EVENT
+  rzp.on("payment.failed", async function (response) {
+    await fetch("/mark-payment-failed", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        internalOrderId: data.internalOrderId,
+        reason: response.error.description || "Payment Failed"
+      })
+    });
+
+    window.location.href = `/order-failure?orderId=${data.internalOrderId}`;
+  });
+
+  console.log("OPENING PAYMENT POPUP…");
+  rzp.open();
 }
 
 

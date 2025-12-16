@@ -18,9 +18,7 @@ const productDetails = async (req, res) => {
         const productId = req.query.id;
         const product = await Product.findById(productId).populate("category");
         const findCategory = product.category;
-        console.log('userdata',userData)
-         console.log('productdata',product)
-         console.log( product.quantity)
+      
         res.render("user/productsDetailpage", {
             user: userData,
             product: product,

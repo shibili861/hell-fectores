@@ -9,7 +9,8 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
   <style>
     :root {
       --primary: #3A2618;
@@ -671,15 +672,31 @@
                     <td class="text-center"><%= index+1 %></td>
                     <td><b><%= category.name %></b></td>
                     <td><%= category.description %></td>
-                    <td>--</td>
-                    <td>
-                      <button class="btn-action btn-info">
-                        <i class="fas fa-tag"></i> Add Offer
-                      </button>
-                      <button class="btn-action btn-info">
-                        <i class="fas fa-times"></i> Remove
-                      </button>
-                    </td>
+                                    <td>
+                    <%= category.categoryOffer %>%
+                  </td>
+
+                              <td>
+            <% if (category.categoryOffer > 0) { %>
+              <!-- Edit / Remove offer -->
+              <button class="btn-action btn-info btn-edit-cat-offer"
+                      data-id="<%= category._id %>"
+                      data-offer="<%= category.categoryOffer %>">
+                <i class="fas fa-tag"></i> Edit Offer
+              </button>
+              <button class="btn-action btn-danger btn-remove-cat-offer"
+                      data-id="<%= category._id %>">
+                <i class="fas fa-times"></i> Remove
+              </button>
+            <% } else { %>
+              <!-- Add offer -->
+              <button class="btn-action btn-info btn-add-cat-offer"
+                      data-id="<%= category._id %>">
+                <i class="fas fa-tag"></i> Add Offer
+              </button>
+            <% } %>
+          </td>
+
                     <td>
                       <span class="badge <%= category.isListed ? 'alert-success' : 'alert-danger' %>">
                         <i class="fas <%= category.isListed ? 'fa-eye' : 'fa-eye-slash' %>"></i>
@@ -738,6 +755,37 @@
         </li>
       </ul>
     </div>
+<div id="catOfferModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <h4 id="catOfferModalTitle">Set Category Offer</h4>
+    <input type="number" id="catOfferInput" min="0" max="100"
+           class="form-control" placeholder="Offer % (0-100)" />
+
+    <input type="hidden" id="catOfferCategoryId">
+
+    <div style="margin-top:15px; display:flex; gap:10px; justify-content:center;">
+      <button id="saveCatOfferBtn" class="btn btn-primary">Save</button>
+      <button id="cancelCatOfferBtn" class="btn btn-secondary">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .modal {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+  }
+  .modal-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    width: 340px;
+  }
+</style>
 
   </section>
 
@@ -1112,6 +1160,106 @@ $(document).ready(function() {
     });
   });
 });
+
+  // open modal for Add / Edit
+  function openCatOfferModal(id, currentOffer) {
+    document.getElementById("catOfferCategoryId").value = id;
+    document.getElementById("catOfferInput").value = currentOffer || "";
+    document.getElementById("catOfferModalTitle").innerText =
+      currentOffer ? "Edit Category Offer" : "Add Category Offer";
+    document.getElementById("catOfferModal").style.display = "flex";
+  }
+
+  function closeCatOfferModal() {
+    document.getElementById("catOfferModal").style.display = "none";
+  }
+
+  document.getElementById("cancelCatOfferBtn").addEventListener("click", closeCatOfferModal);
+
+  // Add offer buttons
+  document.querySelectorAll(".btn-add-cat-offer").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const id = btn.dataset.id;
+      openCatOfferModal(id, null);
+    });
+  });
+
+  // Edit offer buttons
+  document.querySelectorAll(".btn-edit-cat-offer").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const id = btn.dataset.id;
+      const offer = btn.dataset.offer;
+      openCatOfferModal(id, offer);
+    });
+  });
+
+  // Save offer (AJAX)
+  document.getElementById("saveCatOfferBtn").addEventListener("click", async () => {
+    const id = document.getElementById("catOfferCategoryId").value;
+    const offer = document.getElementById("catOfferInput").value;
+
+    if (offer === "" || offer < 0 || offer > 100) {
+      return Swal.fire("Invalid", "Offer must be between 0 and 100", "warning");
+    }
+
+    const res = await fetch(`/admin/category/${id}/offer`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ offer })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      closeCatOfferModal();
+      Swal.fire({
+        icon: "success",
+        title: "Offer Saved",
+        text: "Category offer has been updated.",
+        timer: 1500,
+        showConfirmButton: false
+      }).then(() => location.reload());
+    } else {
+      Swal.fire("Error", data.message || "Something went wrong", "error");
+    }
+  });
+
+  // Remove offer with confirmation
+  document.querySelectorAll(".btn-remove-cat-offer").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const id = btn.dataset.id;
+
+      Swal.fire({
+        title: "Remove category offer?",
+        text: "This will remove discount from all products in this category (unless they have their own higher product offer).",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, remove it"
+      }).then(async (result) => {
+        if (!result.isConfirmed) return;
+
+        const res = await fetch(`/admin/category/${id}/offer/remove`, {
+          method: "POST"
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          Swal.fire({
+            icon: "success",
+            title: "Offer Removed",
+            timer: 1500,
+            showConfirmButton: false
+          }).then(() => location.reload());
+        } else {
+          Swal.fire("Error", data.message || "Something went wrong", "error");
+        }
+      });
+    });
+  });
+
   </script>
 </body>
 </html>

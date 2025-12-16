@@ -667,6 +667,41 @@
         .swal2-hide-animation {
             animation: swal2-hide 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
         }
+        .offer-badge {
+  display: inline-block;
+  background: #e53935;
+  color: #fff;
+  padding: 3px 8px;
+  font-size: 12px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+.offer-badge {
+  background: #43a047;
+  padding: 4px 8px;
+  color: white;
+  font-weight: 600;
+  border-radius: 8px;
+  font-size: 12px;
+}
+.modal {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  width: 350px;
+  text-align: center;
+}
 
         @keyframes swal2-show {
             0% {
@@ -807,17 +842,20 @@
 
                 <div class="table-responsive">
                     <table class="products-table">
-                        <thead class="table-header">
-                            <tr>
-                                <th>Product</th>
-                                <th>Category</th>
-                                <th>Price</th>
-                                <th>Quantity</th>
-                                <th>Stock Status</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
+                                    <thead class="table-header">
+                    <tr>
+                        <th>Product</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Offer</th> 
+                         <th>Offer Actions</th>
+                        <th>Quantity</th>
+                        <th>Stock Status</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
                         <tbody class="table-body">
                             <% if (data && data.length > 0) { %>
                                 <% data.forEach((product, index) => { %>
@@ -860,6 +898,45 @@
                                                 <% } %>
                                             </div>
                                         </td>
+
+                                      <td>
+    <% if (product.effectiveOffer && product.effectiveOffer > 0) { %>
+
+        <!-- Show final applied offer -->
+        <span class="offer-badge"><%= product.effectiveOffer %>% OFF</span>
+
+        <!-- Show whether offer came from product or category -->
+        <% if (product.effectiveOffer === product.productOffer) { %>
+            <small class="text-primary">(Product Offer)</small>
+        <% } else { %>
+            <small class="text-warning">(Category Offer)</small>
+        <% } %>
+
+    <% } else { %>
+        <span style="opacity: 0.6;">No Offer</span>
+    <% } %>
+</td>
+
+
+                                                            <td>
+                            <% if (product.productOffer > 0) { %>
+                                <!-- Remove Offer -->
+                                <button class="btn btn-delete-offer" 
+                                        data-id="<%= product._id %>" 
+                                        style="background:#e57373;color:white;padding:6px 10px;border-radius:5px;">
+                                    <i class="fas fa-times"></i> Remove
+                                </button>
+                            <% } else { %>
+                                <!-- Add Offer -->
+                                <button class="btn btn-add-offer" 
+                                        data-id="<%= product._id %>" 
+                                        style="background:#64b5f6;color:white;padding:6px 10px;border-radius:5px;">
+                                    <i class="fas fa-percent"></i> Add
+                                </button>
+                            <% } %>
+                        </td>
+
+
                                         <td>
                                             <strong style="font-size: 16px; color: var(--dark-brown);"><%= product.quantity %></strong>
                                         </td>
@@ -968,6 +1045,18 @@
             </div>
         </div>
     </div>
+<div id="offerModal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <h3>Add Offer</h3>
+        <input type="number" id="offerValue" min="0" max="100" class="form-control" placeholder="Enter offer %">
+        <input type="hidden" id="offerProductId">
+
+        <div style="margin-top:15px; display:flex; gap:10px;">
+            <button id="saveOfferBtn" class="btn btn-save">Save</button>
+            <button id="closeOfferModal" class="btn btn-cancel">Cancel</button>
+        </div>
+    </div>
+</div>
 
     <script>
         // Enhanced hover effects and smooth transitions
@@ -1366,6 +1455,98 @@
                 }
             });
         });
+
+
+
+
+         // OPEN ADD OFFER MODAL
+    document.querySelectorAll(".btn-add-offer").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const id = btn.getAttribute("data-id");
+            document.getElementById("offerProductId").value = id;
+            document.getElementById("offerModal").style.display = "flex";
+        });
+    });
+
+    // CLOSE MODAL
+    document.getElementById("closeOfferModal").addEventListener("click", () => {
+        document.getElementById("offerModal").style.display = "none";
+    });
+
+   document.getElementById("saveOfferBtn").addEventListener("click", async () => {
+    const offer = document.getElementById("offerValue").value;
+    const productId = document.getElementById("offerProductId").value;
+
+    const response = await fetch(`/admin/products/offer/${productId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ offer })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+        Swal.fire({
+            icon: "success",
+            title: "Offer Added!",
+            text: "The product offer has been successfully updated.",
+            timer: 1500,
+            showConfirmButton: false
+        }).then(() => {
+            location.reload();
+        });
+    } else {
+        Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: data.message || "Something went wrong"
+        });
+    }
+});
+
+   document.querySelectorAll(".btn-delete-offer").forEach(btn => {
+    btn.addEventListener("click", async () => {
+        const id = btn.getAttribute("data-id");
+
+        Swal.fire({
+            title: "Remove Offer?",
+            text: "This will remove the discount from this product.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, remove it"
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+
+                const response = await fetch(`/admin/products/remove-offer/${id}`, {
+                    method: "POST"
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    Swal.fire({
+                        icon: "success",
+                        title: "Offer Removed",
+                        text: "The offer has been successfully deleted.",
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error",
+                        text: data.message || "Something went wrong"
+                    });
+                }
+            }
+        });
+    });
+});
+
     </script>
 </body>
 </html>

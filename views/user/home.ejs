@@ -41,28 +41,31 @@
             cursor: none;
         }
 
-        .cursor {
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--gold);
-            border-radius: 50%;
-            position: fixed;
-            pointer-events: none;
-            z-index: 9999;
-            transition: all 0.1s ease;
-            mix-blend-mode: difference;
-        }
+       .cursor {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--gold);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    transition: all 0.1s ease;
+    mix-blend-mode: difference;
+}
 
-        .cursor-follower {
-            width: 40px;
-            height: 40px;
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            border-radius: 50%;
-            position: fixed;
-            pointer-events: none;
-            z-index: 9998;
-            transition: all 0.3s ease;
-        }
+.cursor-follower {
+    width: 40px;
+    height: 40px;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9998;
+    transition: all 0.3s ease;
+}
+.cursor, .cursor-follower {
+    pointer-events: none !important;
+}
 
         /* Hero Section */
         .hero {
@@ -708,6 +711,128 @@
             width: 30px;
             border-radius: 5px;
         }
+    /* ========== REFERRAL MODAL (Luxury Theme) ========== */
+
+.ref-modal-overlay { 
+  position: fixed; 
+  inset: 0; 
+  background: rgba(0,0,0,0.7);
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  z-index: 999999 !important; /* Always on top */
+  backdrop-filter: blur(6px);
+  animation: fadeIn 0.4s ease-out;
+}
+
+.ref-modal {
+  background: #ffffff;
+  padding: 28px;
+  border-radius: 18px;
+  width: 90%;
+  max-width: 380px;
+  text-align: center;
+  box-shadow: 0 8px 40px rgba(212,175,55,0.25);
+  border: 1px solid rgba(212,175,55,0.35);
+  animation: scaleIn 0.35s ease-out;
+}
+
+.ref-modal h2 {
+  font-size: 1.6rem;
+  color: #111;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.ref-modal p {
+  color: #555;
+  font-size: 0.95rem;
+  margin-bottom: 20px;
+}
+
+#referralInput {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-size: 1rem;
+  margin-bottom: 20px;
+  outline: none;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+#skipReferral {
+  flex: 1;
+  padding: 12px;
+  background: #f5f5f5;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+#skipReferral:hover {
+  background: #e6e6e6;
+}
+
+#applyReferral {
+  flex: 1;
+  padding: 12px;
+  background: linear-gradient(135deg, #d4af37, #f4e4c1);
+  border: none;
+  color: #000;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+
+#applyReferral:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(212,175,55,0.4);
+}
+
+/* Disable your custom cursor inside modal */
+.ref-modal-overlay * {
+  cursor: default !important;
+}
+.toast {
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  background: #ffffff;
+  padding: 16px 22px;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+  border: 1px solid rgba(212,175,55,0.4);
+  box-shadow: 0 5px 25px rgba(212,175,55,0.35);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(20px);
+  transition: all 0.4s ease;
+  z-index: 99999999 !important;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+/* Animations */
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+@keyframes scaleIn { 
+  from { transform: scale(0.8); opacity: 0; } 
+  to { transform: scale(1); opacity: 1; } 
+}
 
         @keyframes fadeInUp {
             to {
@@ -761,7 +886,7 @@
             </div>
         </div>
         <div class="scroll-indicator">
-            <span></span>
+            <sp an></span>
             <p>SCROLL</p>
         </div>
     </section>
@@ -993,25 +1118,71 @@
             </div>
         </div>
     </section>
+    <% if (showReferralModal) { %>
+<div id="referralModal" class="ref-modal-overlay">
+  <div class="ref-modal">
+    <h2>Enter Referral Code</h2>
+    <p>Get ₹100 instantly in your wallet!</p>
+
+    <input id="referralInput" placeholder="Enter referral code">
+
+    <div class="modal-buttons">
+      <button id="skipReferral">Skip</button>
+      <button id="applyReferral">Apply</button>
+    </div>
+  </div>
+</div>
+<% } %>
 
     <!-- Include Footer -->
     <div id="footer-container"></div>
 
     <script>
-        // Load navbar and footer
-        fetch('navbar.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('navbar-container').innerHTML = data;
-                // Initialize navbar functionality after loading
-                initNavbar();
-            });
+    function showToast(msg) {
+  const toast = document.getElementById("toast");
+  toast.innerText = msg;
+  toast.classList.add("show");
 
-        fetch('footer.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('footer-container').innerHTML = data;
-            });
+  setTimeout(() => { 
+    toast.classList.remove("show"); 
+  }, 2500);
+}
+document.addEventListener("DOMContentLoaded", () => {
+  const skipBtn = document.getElementById("skipReferral");
+  const applyBtn = document.getElementById("applyReferral");
+
+  if (skipBtn) {
+    skipBtn.onclick = async () => {
+      await fetch("/referral/skip", { method: "POST" });
+      document.getElementById("referralModal").style.display = "none";
+      showToast("Referral skipped");
+    };
+  }
+
+  if (applyBtn) {
+    applyBtn.onclick = async () => {
+      const codeEl = document.getElementById("referralInput");
+      const code = codeEl?.value.trim();
+
+      if (!code) return showToast("Enter a referral code");
+
+      const res = await fetch("/referral/apply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code })
+      });
+
+      const data = await res.json();
+
+      showToast(data.message);
+
+      if (data.success) {
+        setTimeout(() => location.reload(), 800);
+      }
+    };
+  }
+});
+
 
         function initNavbar() {
     
@@ -1072,7 +1243,8 @@
             observer.observe(el);
         });
     </script>
-    
+    <div id="toast" class="toast"></div>
+
 </body>
 
 </html>

@@ -78,33 +78,115 @@
 
   <h2 class="section-heading">💳 Order Summary</h2>
   <div class="order-summary">
-    <p>Subtotal: <span>₹<%= subtotal.toLocaleString() %></span></p>
-    <p>Tax (5%): <span>₹<%= tax.toLocaleString() %></span></p>
-    <p>Shipping: <span>₹<%= shipping.toLocaleString() %></span></p>
-    <p><strong>Total: <span>₹<%= finalTotal.toLocaleString() %></span></strong></p>
+  <p>Subtotal: <span>₹<%= subtotal.toLocaleString() %></span></p>
+  <p>Tax (5%): <span>₹<%= tax.toLocaleString() %></span></p>
+  <p>Shipping: <span>₹<%= shipping.toLocaleString() %></span></p>
+
+  <% if (appliedCoupon) { %>
+    <p style="color: green;">
+      Coupon (<%= appliedCoupon.code %>): 
+      <span>- ₹<%= appliedCoupon.discount %></span>
+    </p>
+  <% } %>
+
+  <p><strong>Total: <span>₹<%= finalTotal.toLocaleString() %></span></strong></p>
+</div>
+
+  <div class="coupon-section">
+  <div class="coupon-row">
+    <input type="text" id="couponInput" placeholder="Enter coupon code" class="coupon-input">
+
+    <button onclick="applyCoupon()" class="apply-coupon-btn">Apply</button>
+
+    <button id="removeCouponBtn" onclick="removeCoupon()" class="remove-coupon-btn">
+      Remove
+    </button>
   </div>
 
-  <!-- 🏦 PAYMENT OPTIONS -->
-  <div class="payment-section">
-    <h3>Select Payment Method</h3>
-    <div class="payment-options">
-      <label class="payment-option">
-        <input type="radio" name="paymentMethod" value="COD" checked>
-        <span>💵 Cash on Delivery</span>
-      </label>
+    
+ <div class="coupon-dropdown-container">
+  <button class="dropdown-toggle" onclick="toggleCouponDropdown()">▼ Select Coupon</button>
 
-     <label class="payment-option">
-  <input type="radio" name="paymentMethod" value="Razorpay">
-  <span>💳 Pay Online (Razorpay)</span>
-</label>
+ <div id="couponDropdown" class="coupon-dropdown hidden">
+<% 
+const validCoupons = coupons.filter(c => {
+  const now = new Date();
+  const expiry = new Date(c.expiry);
 
+  const isExpired = expiry < now;
+  const notMinAmount = subtotal < c.minPurchase;
+  const alreadyUsed = c.usedUsers.includes(String(user._id));
+  const inactive = !c.isActive;
 
-      <label class="payment-option disabled">
-        <input type="radio" name="paymentMethod" value="Wallet" disabled>
-        <span>👛 Wallet (Coming Soon)</span>
-      </label>
-    </div>
+  return !(isExpired || notMinAmount || alreadyUsed || inactive);
+});
+%>
+
+<% if (validCoupons.length === 0) { %>
+  <div class="no-coupon">No valid coupons available</div>
+<% } %>
+
+<% validCoupons.forEach(c => { %>
+  <div class="coupon-item active"
+       onclick="applySelectedCoupon('<%= c.code %>')">
+      <span><%= c.code %> — <%= c.name %></span>
+      <span class="apply-btn">Apply</span>
   </div>
+<% }) %>
+
+  </div>
+</div>
+
+  </div>
+
+  
+
+
+  <p id="couponMessage" class="coupon-message"></p>
+
+  
+<!-- 🏦 PAYMENT OPTIONS -->
+<% const canUseWallet = wallet && wallet.balance >= finalTotal; %>
+
+<div class="payment-section">
+  <h3>Select Payment Method</h3>
+
+  <!-- Show wallet balance -->
+  <p>Wallet Balance: ₹<%= wallet.balance.toLocaleString() %></p>
+
+  <div class="payment-options">
+
+    <label class="payment-option">
+      <input type="radio" name="paymentMethod" value="COD" checked>
+      <span>💵 Cash on Delivery</span>
+    </label>
+
+    <label class="payment-option">
+      <input type="radio" name="paymentMethod" value="Razorpay">
+      <span>💳 Pay Online (Razorpay)</span>
+    </label>
+
+    <label class="payment-option <%= !canUseWallet ? 'disabled' : '' %>">
+      <input
+        type="radio"
+        name="paymentMethod"
+        value="Wallet"
+        <%= !canUseWallet ? 'disabled' : '' %>
+      >
+      <span>
+        👛 Wallet 
+        (Balance: ₹<%= wallet.balance.toLocaleString() %>)
+      </span>
+
+      <% if (!canUseWallet) { %>
+        <small>Not enough balance</small>
+      <% } %>
+    </label>
+
+  </div>
+</div>
+
+
 
   <!--  PLACE ORDER BUTTON -->
   <div class="final-checkout-actions">
@@ -513,99 +595,117 @@ async function deleteAddress(id) {
       customClass: { popup: "premium-popup" }
     });
   }
-}async function initiateRazorpayPayment() {
+}
+async function initiateRazorpayPayment() {
+  const btn = document.getElementById("placeOrderBtn");
+  btn.disabled = true;
 
-  const res = await fetch("/create-razorpay-order", { method: "POST" });
-  const data = await res.json();
+  try {
+    const res = await fetch("/create-razorpay-order", { method: "POST" });
+    const data = await res.json();
 
-  if (!data.success) {
-    showToast("Payment initialization failed", "error");
-    return;
-  }
+    if (!data.success) {
+      showToast("Payment initialization failed", "error");
+      btn.disabled = false;
+      return;
+    }
 
-  const { key, razorpayOrderId, amountInPaise, internalOrderId } = data;
+    const { key, razorpayOrderId, amountInPaise, internalOrderId } = data;
 
-  const options = {
-    key,
-    amount: amountInPaise,
-    currency: "INR",
-    order_id: razorpayOrderId,
-    name: "Your Store Name",
-    description: "Order Payment",
+    const options = {
+      key,
+      amount: amountInPaise,
+      currency: "INR",
+      order_id: razorpayOrderId,
+      name: "Your Store Name",
+      description: "Order Payment",
 
-    handler: async function(response) {
-      response.internalOrderId = internalOrderId;
+      // ✅ SUCCESS CALLBACK
+      handler: async function (response) {
+        try {
+          const verifyRes = await fetch("/verify-razorpay-payment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ...response,
+              internalOrderId
+            })
+          });
 
-      const verifyRes = await fetch("/verify-razorpay-payment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(response)
-      });
+          const verifyData = await verifyRes.json();
 
-      const verifyData = await verifyRes.json();
+          if (verifyData.success) {
+            window.location.href = `/order-success/${verifyData.orderId}`;
+          } else {
+            window.location.href = `/order-failure?orderId=${internalOrderId}`;
+          }
+        } catch (err) {
+          window.location.href = `/order-failure?orderId=${internalOrderId}`;
+        }
+      },
 
-      if (verifyData.success) {
-        window.location.href = `/order-success?orderId=${verifyData.orderId}`;
-      } else {
-        window.location.href = `/order-failure?orderId=${internalOrderId}`;
+      // ❌ NO FAILURE LOGIC HERE
+      modal: {
+        ondismiss: function () {
+          console.log("Razorpay modal closed");
+        }
       }
-    },
+    };
 
-    modal: {
-      ondismiss: async function() {
-        await fetch("/mark-payment-failed", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            internalOrderId,
-            reason: "User cancelled payment"
-          })
-        });
+    const rzpFinal = new Razorpay(options);
 
-        window.location.href = `/order-failure?orderId=${internalOrderId}`;
-      }
-    },
-
-    // ⭐ FIX: Include failure handler INSIDE options, not outside.
-    "payment.failed": async function(response) {
+    // ✅ REAL FAILURE EVENT
+    rzpFinal.on("payment.failed", async function (response) {
       await fetch("/mark-payment-failed", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           internalOrderId,
-          reason: JSON.stringify(response.error)
+          reason: response.error.description || "Payment Failed"
         })
       });
 
       window.location.href = `/order-failure?orderId=${internalOrderId}`;
-    }
-  };
+    });
 
-  // ⭐ FIX: use rzpFinal, not rzp (and not modifying options later)
-  const rzpFinal = new Razorpay(options);
-  rzpFinal.open();
+    rzpFinal.open();
+
+  } catch (err) {
+    console.error("Razorpay init error:", err);
+    showToast("Something went wrong", "error");
+    btn.disabled = false;
+  }
 }
 
 
+let razorpayInProgress = false;
+
 document.getElementById("placeOrderBtn").addEventListener("click", async () => {
+  if (razorpayInProgress) return;
 
   const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked');
   if (!selectedPayment) {
-    showToast("⚠️ Please select a payment method", "error");
+    showToast("Please select a payment method", "error");
     return;
   }
 
-  const paymentMethod = selectedPayment.value;
+  razorpayInProgress = true;
 
-  if (paymentMethod === "COD") {
+  if (selectedPayment.value === "COD") {
+    razorpayInProgress = false;
     return placeCODOrder();
   }
 
-  if (paymentMethod === "Razorpay") {
-    return initiateRazorpayPayment();
+  if (selectedPayment.value === "Wallet") {
+    razorpayInProgress = false;
+    return placeWalletOrder();
   }
 
-});  // <-- THIS WAS MISSING
+  if (selectedPayment.value === "Razorpay") {
+    return initiateRazorpayPayment();
+  }
+});
+
 
 /* =============================
    ⚙️ Initialize
@@ -617,7 +717,6 @@ document.addEventListener("keydown", function (e) {
     closeModal();
   }
 });
-
 async function placeCODOrder() {
   try {
     const res = await fetch("/place-order", {
@@ -630,17 +729,107 @@ async function placeCODOrder() {
 
     if (data.success) {
       showToast("Order placed successfully!", "success");
-      window.location.href = `/order-success?orderId=${data.orderId}`;
+      window.location.href = `/order-success/${data.orderId}`;
     } else {
       showToast(data.message || "Order failed", "error");
+      document.getElementById("placeOrderBtn").disabled = false;
     }
   } catch (err) {
     console.error("Order placement error:", err);
-    showToast(" Something went wrong. Try again.", "error");
+    showToast("Something went wrong. Try again.", "error");
+    document.getElementById("placeOrderBtn").disabled = false;
   }
 }
 
+
+function toggleCouponDropdown() {
+  document.getElementById("couponDropdown").classList.toggle("hidden");
+}
+
+
+async function applyCoupon() {
+  const code = document.getElementById("couponInput").value.trim().toUpperCase();
+  if (!code) return showToast("Enter a coupon code", "error");
+
+  console.log("Sending coupon:", code);
+
+  const res = await fetch("/apply-coupon", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ code }),
+  });
+
+  const data = await res.json();
+
+  if (data.success) {
+    document.getElementById("couponMessage").innerHTML = "Discount: ₹" + data.discount;
+    document.getElementById("removeCouponBtn").style.display = "block";
+
+    setTimeout(() => location.reload(), 150);
+  } else {
+    showToast(data.message, "error"); // ✅ No alert — toast only
+  }
+}
+async function removeCoupon() {
+  const res = await fetch("/remove-coupon", { method: "POST" });
+  const data = await res.json();
+
+  if (data.success) {
+    document.getElementById("couponInput").value = "";
+    location.reload();
+  }
+}
+
+
+
+window.applySelectedCoupon = function (code) {
+    document.getElementById("couponInput").value = code.trim().toUpperCase();
+
+    // Close dropdown after selecting
+    document.getElementById("couponDropdown").classList.add("hidden");
+};
+// Close dropdown when clicking outside
+document.addEventListener("click", function (e) {
+    const dropdown = document.getElementById("couponDropdown");
+    const toggleBtn = document.querySelector(".dropdown-toggle");
+
+    // If dropdown is open AND click is outside → close
+    if (!dropdown.classList.contains("hidden")) {
+        if (!dropdown.contains(e.target) && e.target !== toggleBtn) {
+            dropdown.classList.add("hidden");
+        }
+    }
+});
+
+
+async function placeWalletOrder() {
+  try {
+    const res = await fetch("/place-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ paymentMethod: "Wallet" })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      showToast("Wallet payment successful!", "success");
+      window.location.href = `/order-success/${data.orderId}`;
+    } else {
+      showToast(data.message || "Wallet payment failed", "error");
+    }
+
+  } catch (err) {
+    console.error("Wallet order error:", err);
+    showToast("Something went wrong. Try again.", "error");
+  }
+}
+
+
 </script>
+
+
+
 
 
 

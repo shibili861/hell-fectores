@@ -31,6 +31,23 @@
       line-height: 1.7;
     }
 
+
+.admin-toast {
+    padding: 12px 18px;
+    margin-top: 10px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    background: #2ecc71;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    transition: 0.4s ease;
+}
+.admin-toast.error {
+    background: #e74c3c;
+}
+
+
     .container {
       margin-left: 280px;
       padding: 3rem 4rem;
@@ -298,6 +315,7 @@
   </style>
 </head>
 <body>
+<div id="toast-root" style="position: fixed; top: 20px; right: 20px; z-index: 99999;"></div>
 
 <%- include('../partials/admin/sidebar') %>
 
@@ -367,16 +385,17 @@
                 <div style="margin-top:0.8rem;padding:0.8rem;background:#fff8e1;border-radius:10px;font-size:0.9rem;">
                   <strong>Return Reason:</strong> <%= item.returnReason %>
                 </div>
-                <div class="return-actions">
-                  <form action="/admin/orders/<%= order.orderId %>/approve-return" method="POST" style="display:inline;">
-                    <input type="hidden" name="itemId" value="<%= item._id %>">
-                    <button class="btn-sm btn-success">Approve Return</button>
-                  </form>
-                  <form action="/admin/orders/<%= order.orderId %>/reject-return" method="POST" style="display:inline;">
-                    <input type="hidden" name="itemId" value="<%= item._id %>">
-                    <button class="btn-sm btn-danger">Reject</button>
-                  </form>
-                </div>
+                    <button class="btn-sm btn-success"
+                  onclick="approveReturn('<%= order.orderId %>', '<%= item._id %>')">
+              Approve Return
+          </button>
+
+          <button class="btn-sm btn-danger"
+                  onclick="rejectReturn('<%= order.orderId %>', '<%= item._id %>')">
+              Reject
+          </button>
+
+
               <% } %>
             </td>
           </tr>
@@ -399,6 +418,59 @@
 
   <a href="/admin/orders" class="btn-back">Back to Orders</a>
 </div>
+<script>
+function showToast(message, type = "success") {
+    const toast = document.createElement("div");
+    toast.className = `admin-toast ${type}`;
+    toast.innerText = message;
+
+    document.getElementById("toast-root").appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.opacity = "0";
+        toast.style.transform = "translateX(20px)";
+    }, 2000);
+
+    setTimeout(() => toast.remove(), 2600);
+}
+
+function approveReturn(orderId, itemId) {
+    fetch(`/admin/orders/${orderId}/approve-return`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ itemId })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            showToast(data.message, "success");
+            setTimeout(() => location.reload(), 1200);
+        } else {
+            showToast(data.message, "error");
+        }
+    })
+    .catch(() => showToast("Something went wrong", "error"));
+}
+
+function rejectReturn(orderId, itemId) {
+    fetch(`/admin/orders/${orderId}/reject-return`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ itemId })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            showToast(data.message, "success");
+            setTimeout(() => location.reload(), 1200);
+        } else {
+            showToast(data.message, "error");
+        }
+    })
+    .catch(() => showToast("Something went wrong", "error"));
+}
+</script>
+
 
 </body>
 </html>
