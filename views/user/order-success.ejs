@@ -243,14 +243,22 @@
     </ul>
 
     <div class="price-breakdown">
-      <p>Subtotal: ₹<%= order.totalPrice.toLocaleString() %></p>
-      <p>Tax (5%): ₹<%= (order.totalPrice * 0.05).toLocaleString() %></p>
-      <p>Shipping: <%= order.totalPrice > 5000 ? 'FREE' : '₹100' %></p>
-      
-      <div class="total-line">
-        <h3>Total: ₹<%= order.finalAmount.toLocaleString() %></h3>
-      </div>
-    </div>
+  <p>Subtotal: ₹<%= order.totalPrice.toLocaleString() %></p>
+
+  <p>
+    Shipping:
+    <%= order.shippingCharge === 0
+      ? 'FREE'
+      : `₹${order.shippingCharge.toLocaleString()}` %>
+  </p>
+
+  <p>Tax: Included</p>
+
+  <div class="total-line">
+    <h3>Total: ₹<%= order.finalAmount.toLocaleString() %></h3>
+  </div>
+</div>
+
   </div>
 
   <div class="order-success-actions">

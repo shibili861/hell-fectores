@@ -10,6 +10,7 @@ const Coupon = require("../../models/couponSchema");
 const wallet=require("../../models/walletSchema");
 const { creditWallet, debitWallet } = require("../../helpers/walletHelper");
 
+
 const crypto = require("crypto");
 const placeOrder = async (req, res) => {
   try {
@@ -44,9 +45,10 @@ const placeOrder = async (req, res) => {
     cart.items.forEach(item => (subtotal += item.totalprice));
 
     const tax = subtotal * 0.03;
-    const shipping = subtotal >= 2000 ? 0 : 49;
+    const shippingCharge = subtotal >= 2000 ? 0 : 49;
     const discount = req.session.coupon ? req.session.coupon.discount : 0;
-    const finalTotal = subtotal + tax + shipping - discount;
+   const finalTotal = subtotal + tax + shippingCharge - discount;
+
 
     if (paymentMethod === "Razorpay") {
       return res.json({
@@ -79,6 +81,7 @@ const placeOrder = async (req, res) => {
         price: i.totalprice / i.quantity
       })),
       totalPrice: subtotal,
+      shippingCharge, 
       finalAmount: finalTotal,
       discount,
       couponApplied: req.session.coupon ? true : false,
@@ -148,8 +151,7 @@ const placeOrder = async (req, res) => {
     res.json({ success: false, message: 'Order failed, try again' });
   }
 };
-
-
+      
 // Order Success Page
 const orderSuccessPage = async (req, res) => {
   try {
@@ -672,6 +674,7 @@ module.exports={
   markPaymentFailed,
   retryPayment,
   orderFailurePage,
+
 
 
 }

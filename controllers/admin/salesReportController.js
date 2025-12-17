@@ -122,7 +122,7 @@ function getDateRange(type, startDate, endDate) {
       { $sort: { _id: 1 } }
     ]);
 
-    
+
     // ----- TOP PRODUCTS (BAR) -----
     const topProducts = await Order.aggregate([
       { $match: match },
@@ -224,7 +224,7 @@ function getDateRange(type, startDate, endDate) {
 
 // =======================================
 // 2) DOWNLOAD PDF
-// =======================================
+
 
 const downloadPDF = async (req, res) => {
   try {
@@ -263,6 +263,7 @@ const downloadPDF = async (req, res) => {
       netAmount: 0
     };
 
+    /* ================= PDF INIT ================= */
     const doc = new PDFDocument({ margin: 40, size: "A4" });
 
     res.setHeader("Content-Type", "application/pdf");
@@ -274,73 +275,120 @@ const downloadPDF = async (req, res) => {
     doc.pipe(res);
 
     /* ================= HEADER ================= */
-    doc.fontSize(20).text("Sales Report", { align: "center" });
-    doc.moveDown(0.5);
+    doc.rect(0, 0, doc.page.width, 90).fill("#003543");
 
-    doc.fontSize(10).text(
-      `Period: ${type.toUpperCase()} | ${start.toDateString()} - ${end.toDateString()}`,
-      { align: "center" }
-    );
+    doc.fillColor("white").fontSize(22).text("LUXSHORE", 40, 28);
+    doc.fontSize(11).text("Sales Report", 40, 58);
 
-    doc.moveDown(1.5);
+    doc.moveDown(4);
+    doc.fillColor("#000");
 
-    /* ================= SUMMARY ================= */
-    doc.fontSize(14).text("Summary", { underline: true });
-    doc.moveDown(0.5);
-
-    doc.fontSize(11);
-    doc.text(`Total Orders     : ${summary.totalOrders}`);
-    doc.text(`Gross Amount     : ₹${summary.grossAmount.toFixed(2)}`);
-    doc.text(`Total Discount   : ₹${summary.totalDiscount.toFixed(2)}`);
-    doc.text(`Coupon Discount  : ₹${summary.couponDiscount.toFixed(2)}`);
-    doc.text(`Net Amount       : ₹${summary.netAmount.toFixed(2)}`);
+    doc
+      .fontSize(10)
+      .fillColor("#64748b")
+      .text(
+        `Period: ${type.toUpperCase()} | ${start.toDateString()} - ${end.toDateString()}`,
+        { align: "right" }
+      );
 
     doc.moveDown(1.5);
+    doc.fillColor("#000");
 
-    /* ================= TABLE ================= */
-    const tableTop = doc.y;
-    const pageWidth = doc.page.width - 80;
+    /* ================= SUMMARY CARD ================= */
+    const cardY = doc.y;
 
-    const col = {
-      order: 40,
-      user: 120,
-      amount: 260,
-      status: 330,
-      date: 430
+    doc.roundedRect(40, cardY, doc.page.width - 80, 110, 12).fill("#f8fafc");
+
+    doc.fillColor("#003543").fontSize(14).text("Summary", 55, cardY + 15);
+
+    doc.fontSize(11).fillColor("#000");
+    doc.text(`Total Orders     : ${summary.totalOrders}`, 55, cardY + 45);
+    doc.text(`Gross Amount     : ₹${summary.grossAmount.toFixed(2)}`, 55, cardY + 65);
+
+    doc.text(`Total Discount   : ₹${summary.totalDiscount.toFixed(2)}`, 300, cardY + 45);
+    doc.text(`Net Amount       : ₹${summary.netAmount.toFixed(2)}`, 300, cardY + 65);
+
+    doc.y = cardY + 140;
+
+    /* ================= TABLE CONFIG ================= */
+    const tableLeft = 40;
+    const rowHeight = 26;
+
+    const columns = {
+      order: { x: tableLeft, width: 110 },
+      customer: { x: tableLeft + 110, width: 160 },
+      amount: { x: tableLeft + 270, width: 80 },
+      status: { x: tableLeft + 350, width: 90 },
+      date: { x: tableLeft + 440, width: 110 }
     };
 
+    /* ================= TABLE HEADER ================= */
     const drawTableHeader = () => {
-      doc.fontSize(11).font("Helvetica-Bold");
-      doc.text("Order ID", col.order, doc.y);
-      doc.text("Customer", col.user, doc.y);
-      doc.text("Amount", col.amount, doc.y);
-      doc.text("Status", col.status, doc.y);
-      doc.text("Date", col.date, doc.y);
-      doc.moveDown(0.4);
-      doc.moveTo(40, doc.y).lineTo(40 + pageWidth, doc.y).stroke();
-      doc.moveDown(0.3);
-      doc.font("Helvetica");
+      const y = doc.y;
+
+      doc.rect(tableLeft, y, doc.page.width - 80, rowHeight).fill("#f1f5f9");
+
+      doc.fillColor("#64748b").fontSize(10).font("Helvetica-Bold");
+      doc.text("ORDER ID", columns.order.x + 5, y + 8, { width: columns.order.width });
+      doc.text("CUSTOMER", columns.customer.x + 5, y + 8, { width: columns.customer.width });
+      doc.text("AMOUNT", columns.amount.x + 5, y + 8, { width: columns.amount.width });
+      doc.text("STATUS", columns.status.x + 5, y + 8, { width: columns.status.width });
+      doc.text("DATE", columns.date.x + 5, y + 8, { width: columns.date.width });
+
+      doc.moveDown();
+      doc.font("Helvetica").fillColor("#000");
     };
 
     drawTableHeader();
 
-    orders.forEach((o) => {
-      if (doc.y > doc.page.height - 60) {
+    /* ================= TABLE ROWS ================= */
+    orders.forEach((o, i) => {
+      if (doc.y > doc.page.height - 80) {
         doc.addPage();
         drawTableHeader();
       }
 
-      doc.fontSize(10);
-      doc.text(`#${o.orderId}`, col.order, doc.y);
-      doc.text(o.userId ? o.userId.name : "Guest", col.user, doc.y, {
-        width: 120
-      });
-      doc.text(`₹${o.finalAmount.toFixed(2)}`, col.amount, doc.y);
-      doc.text(o.status, col.status, doc.y);
-      doc.text(o.createdOn.toDateString(), col.date, doc.y);
+      const y = doc.y;
 
-      doc.moveDown(0.5);
+      if (i % 2 === 0) {
+        doc.rect(tableLeft, y, doc.page.width - 80, rowHeight).fill("#f8fafc");
+      }
+
+      doc.fontSize(10).fillColor("#000");
+
+      doc.text(o.orderId, columns.order.x + 5, y + 8, {
+        width: columns.order.width,
+        lineBreak: false
+      });
+
+      doc.text(o.userId?.name || "Guest", columns.customer.x + 5, y + 8, {
+        width: columns.customer.width,
+        lineBreak: false
+      });
+
+      doc.text(`₹${o.finalAmount.toFixed(2)}`, columns.amount.x + 5, y + 8, {
+        width: columns.amount.width,
+        align: "right",
+        lineBreak: false
+      });
+
+      doc.text(o.status, columns.status.x + 5, y + 8, {
+        width: columns.status.width,
+        lineBreak: false
+      });
+
+      doc.text(o.createdOn.toDateString(), columns.date.x + 5, y + 8, {
+        width: columns.date.width,
+        lineBreak: false
+      });
+
+      doc.y = y + rowHeight;
     });
+
+    /* ================= FOOTER ================= */
+    doc.moveDown(2);
+    doc.fontSize(9).fillColor("#94a3b8")
+      .text(`Generated on ${new Date().toLocaleString()}`, { align: "center" });
 
     doc.end();
   } catch (err) {
@@ -348,6 +396,8 @@ const downloadPDF = async (req, res) => {
     res.status(500).send("Error generating PDF");
   }
 };
+
+
 
 // =======================================
 // 3) DOWNLOAD EXCEL
@@ -456,6 +506,7 @@ module.exports={
      getReportData,
      downloadPDF,
      downloadExcel ,
+     generateChartImage
      
 
 }

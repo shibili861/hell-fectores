@@ -4,7 +4,8 @@ const userController=require("../controllers/user/userController");
 const passport = require('passport');
 const { userAuth,checkUserStatus } = require('../middlewares/auth');
 const Product = require('../models/productSchema');
-const User=require("../models/userSchema")
+const User=require("../models/userSchema");
+const Order=require("../models/ordersSchema")
 const productController=require("../controllers/user/productController");
 const profileController=require("../controllers/user/profileController");
 const cartController = require("../controllers/user/cartController");
@@ -16,6 +17,7 @@ const walletController=require("../controllers/user/walletController");
 const referralController=require("../controllers/user/referralController")
 const path = require('path');
 const multer = require('multer');
+
 
 
 
@@ -149,7 +151,25 @@ router.post('/place-order', orderController.placeOrder);
 router.get('/order-success/:orderId', orderController.orderSuccessPage);
 
 
+
+
+
 router.get('/order-details/:id',orderController.getOrderDetailsPage);
+router.get('/orders/invoice/:id', async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id)
+      .populate('orderedItems.product');
+
+    if (!order) return res.status(404).send("Order not found");
+
+    res.render('user/invoice', { order });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+});
+
+
 router.get('/my-orders', orderController.getMyOrdersPage);
 
 
@@ -159,8 +179,7 @@ router.post("/verify-razorpay-payment", orderController.verifyRazorpayPayment);
 router.post("/mark-payment-failed", orderController.markPaymentFailed);
 router.get("/order-failure", orderController.orderFailurePage); // page render
 router.post("/retry-payment", orderController.retryPayment);  
-// router.post("/payment-callback/:orderId", orderController.paymentCallback);
-  // retry 
+ 
  
 
 

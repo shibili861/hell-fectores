@@ -139,16 +139,20 @@
   <p style="font-size: 0.95rem; color: #868e96; margin-top: -20px;">Please try again or contact support if the issue persists.</p>
 
   <div class="actions-container">
-    <button id="retryPaymentBtn" class="btn">Retry Payment</button>
+    <button class="btn" onclick="retryPayment('<%= order.orderId %>')">
+  Retry Payment
+</button>
+
     <a href="/order-details/<%= order.orderId %>" class="btn btn-secondary">View Order Details</a>
   </div>
 </div>
 
 
     <script>
+        
 async function retryPayment(orderId) {
 
-    console.log("🔥 RETRY PAYMENT STARTED for:", orderId);
+    console.log("RETRY PAYMENT STARTED for:", orderId);
 
     const res = await fetch("/retry-payment", {
         method: "POST",
@@ -174,7 +178,7 @@ async function retryPayment(orderId) {
 
         // 🔥 SUCCESS PAYMENT
         handler: async function (response) {
-            console.log("🟢 PAYMENT SUCCESS:", response);
+            console.log("PAYMENT SUCCESS:", response);
 
             response.internalOrderId = data.internalOrderId;
 
@@ -185,7 +189,7 @@ async function retryPayment(orderId) {
             });
 
             const verifyData = await verifyRes.json();
-            console.log("🟢 VERIFY RESPONSE:", verifyData);
+            console.log(" VERIFY RESPONSE:", verifyData);
 
             if (verifyData.success) {
                 window.location.href = `/order-success/${verifyData.orderId}`;
@@ -194,10 +198,10 @@ async function retryPayment(orderId) {
             }
         },
 
-        // 🔥 USER CLOSED PAYMENT POPUP
+        //  USER CLOSED PAYMENT POPUP
         modal: {
             ondismiss: async function () {
-                console.log("⚠️ USER CLOSED POPUP");
+                console.log(" USER CLOSED POPUP");
 
                 await fetch("/mark-payment-failed", {
                     method: "POST",
@@ -215,9 +219,9 @@ async function retryPayment(orderId) {
 
     const rzp = new Razorpay(options);
 
-    // 🔥 INSTANT PAYMENT FAILURE EVENT
+    //  INSTANT PAYMENT FAILURE EVENT
     rzp.on("payment.failed", async function (response) {
-        console.log("❌ PAYMENT FAILED:", response);
+        console.log("PAYMENT FAILED:", response);
 
         await fetch("/mark-payment-failed", {
             method: "POST",
@@ -228,7 +232,7 @@ async function retryPayment(orderId) {
             })
         });
 
-        rzp.close(); // 🚀 CLOSE POPUP INSTANTLY
+        rzp.close(); //  CLOSE POPUP INSTANTLY
 
         window.location.href = `/order-failure?orderId=${data.internalOrderId}`;
     });

@@ -432,6 +432,8 @@
 
 
   </style>
+ 
+
 </head>
 <div id="toast" class="toast"></div>
 <div class="order-details-container">
@@ -440,13 +442,13 @@
     <h1 class="page-title">🧾 Order Details</h1>
     <p class="order-id">Order ID: <strong><%= order.orderId %></strong></p>
     <p class="order-date">Placed On: <%= new Date(order.createdOn).toLocaleDateString() %></p>
-  <div style="text-align:right; margin-bottom:20px;">
-  <button onclick="34567" 
-          class="btn btn-secondary" 
-          style="font-size:14px; padding:8px 16px;">
-    🧾 Print / Save as PDF
-  </button>
-</div>
+<button
+  onclick="window.open('/orders/invoice/<%= order._id %>', '_blank')"
+  class="btn btn-secondary">
+  🧾 Print / Save as PDF
+</button>
+
+
 
 
 
@@ -952,7 +954,10 @@ async function retryPayment(orderId) {
   console.log("OPENING PAYMENT POPUP…");
   rzp.open();
 }
-
+function getOrderId() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("orderId");
+}
 
 </script>
 
