@@ -1,156 +1,182 @@
-<!-- Footer -->
-<footer>
-    <div class="footer-main">
-        <div class="footer-brand">
-            <h3>ÉLÉGANCE</h3>
-            <p>Premium linen and cotton clothing crafted for the modern gentleman. Quality, elegance, and timeless style in every piece.</p>
-            <div class="social-links">
-                <a href="#">📘</a>
-                <a href="#">📷</a>
-                <a href="#">🐦</a>
-                <a href="#">📌</a>
-            </div>
-        </div>
-        <div class="footer-section">
-            <h4>SHOP</h4>
-            <ul>
-                <li><a href="#">New Arrivals</a></li>
-                <li><a href="#">Linen Shirts</a></li>
-                <li><a href="#">Linen Pants</a></li>
-                <li><a href="#">Cotton Shirts</a></li>
-                <li><a href="#">Cotton Pants</a></li>
-                <li><a href="#">Sale</a></li>
-            </ul>
-        </div>
-        <div class="footer-section">
-            <h4>SUPPORT</h4>
-            <ul>
-                <li><a href="#">Contact Us</a></li>
-                <li><a href="#">Shipping & Returns</a></li>
-                <li><a href="#">Size Guide</a></li>
-                <li><a href="#">Care Instructions</a></li>
-                <li><a href="#">FAQs</a></li>
-            </ul>
-        </div>
-        <div class="footer-section">
-            <h4>COMPANY</h4>
-            <ul>
-                <li><a href="#">About Us</a></li>
-                <li><a href="#">Our Story</a></li>
-                <li><a href="#">Sustainability</a></li>
-                <li><a href="#">Careers</a></li>
-                <li><a href="#">Press</a></li>
-            </ul>
-        </div>
-        <div class="footer-section">
-            <h4>NEWSLETTER</h4>
-            <p style="font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 20px; font-weight: 300;">Subscribe for exclusive offers and updates</p>
-            <input type="email" placeholder="Your email" style="width: 100%; padding: 12px; background: var(--dark); border: 1px solid rgba(255,255,255,0.2); color: #fff; margin-bottom: 15px; font-size: 13px;">
-            <button class="cta-secondary" style="width: 100%; padding: 12px;">Subscribe</button>
-        </div>
-    </div>
-    <div class="footer-bottom">
-        <p>© 2024 ÉLÉGANCE. ALL RIGHTS RESERVED. | PRIVACY POLICY | TERMS & CONDITIONS</p>
-    </div>
-</footer>
-
 <style>
-    /* Footer Styles */
-    footer {
-        padding: 100px 80px 40px;
-        background: var(--dark-gray);
-        border-top: 1px solid rgba(212, 175, 55, 0.2);
-    }
 
-    .footer-main {
-        max-width: 1600px;
-        margin: 0 auto;
-        display: grid;
-        grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
-        gap: 60px;
-        margin-bottom: 80px;
-    }
 
-    .footer-brand h3 {
-        font-family: 'Cormorant Garamond', serif;
-        font-size: 32px;
-        letter-spacing: 5px;
-        margin-bottom: 25px;
-        background: linear-gradient(135deg, var(--gold), var(--light-gold));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
 
-    .footer-brand p {
-        font-size: 14px;
-        line-height: 1.8;
-        color: rgba(255, 255, 255, 0.6);
-        margin-bottom: 30px;
-    }
+/* ================= PREMIUM FOOTER (COMPACT) ================= */
 
-    .social-links {
-        display: flex;
-        gap: 20px;
-    }
+footer {
+  background: linear-gradient(
+    180deg,
+    var(--soft-white) 0%,
+    var(--off-white) 100%
+  );
+  border-top: 1px solid var(--border-soft);
+  padding: 80px 70px 40px;
+}
 
-    .social-links a {
-        width: 40px;
-        height: 40px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #fff;
-        text-decoration: none;
-        transition: all 0.3s ease;
-    }
+/* Footer layout */
+.footer-main {
+  max-width: 1500px;
+  margin: 0 auto 60px;
+  display: grid;
+  grid-template-columns: 2.5fr 1fr 1fr 1fr;
+  gap: 60px;
+}
 
-    .social-links a:hover {
-        border-color: var(--gold);
-        color: var(--gold);
-        transform: translateY(-5px);
-    }
+/* Brand block */
+.footer-brand h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 30px;
+  font-weight: 500;
+  letter-spacing: 5px;
+  margin-bottom: 20px;
+  color: var(--text-dark);
+}
 
-    .footer-section h4 {
-        font-size: 14px;
-        letter-spacing: 3px;
-        margin-bottom: 25px;
-        color: var(--gold);
-        font-weight: 400;
-    }
+.footer-brand p {
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--text-muted);
+  max-width: 420px;
+}
 
-    .footer-section ul {
-        list-style: none;
-    }
+/* Footer sections */
+.footer-section h4 {
+  font-size: 12px;
+  letter-spacing: 3px;
+  margin-bottom: 20px;
+  color: var(--primary);
+  font-weight: 700;
+  text-transform: uppercase;
+}
 
-    .footer-section li {
-        margin-bottom: 15px;
-    }
+.footer-section ul {
+  list-style: none;
+}
 
-    .footer-section a {
-        font-size: 13px;
-        color: rgba(255, 255, 255, 0.6);
-        text-decoration: none;
-        transition: all 0.3s ease;
-        font-weight: 300;
-    }
+.footer-section li {
+  margin-bottom: 14px;
+}
 
-    .footer-section a:hover {
-        color: #fff;
-        padding-left: 10px;
-    }
+.footer-section a {
+  font-size: 13px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-weight: 500;
+  position: relative;
+  padding-bottom: 3px;
+  transition: color 0.3s ease;
+}
 
-    .footer-bottom {
-        padding-top: 40px;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        text-align: center;
-        color: rgba(255, 255, 255, 0.4);
-        font-size: 12px;
-        letter-spacing: 2px;
-    }
+/* Elegant underline reveal */
+.footer-section a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(135deg, #003543, #005566);
+  transition: width 0.3s ease;
+}
 
-    @media (max-width: 768px) {
-        .footer-main { grid-template-columns: 1fr; }
-    }
+.footer-section a:hover {
+  color: var(--text-dark);
+}
+
+.footer-section a:hover::after {
+  width: 100%;
+}
+
+/* Footer bottom */
+.footer-bottom {
+  border-top: 1px solid var(--border-soft);
+  padding-top: 28px;
+  text-align: center;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 1024px) {
+  .footer-main {
+    grid-template-columns: 1fr 1fr;
+    gap: 50px;
+  }
+}
+
+@media (max-width: 768px) {
+  footer {
+    padding: 60px 28px 36px;
+  }
+
+  .footer-main {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .footer-brand h3 {
+    font-size: 26px;
+  }
+
+  .footer-brand p {
+    font-size: 13px;
+  }
+}
+
 </style>
+<footer>
+
+  <!-- Main footer links -->
+  <div class="footer-main">
+
+    <div class="footer-brand">
+      <h3>YOUR BRAND</h3>
+      <p>
+        Designed with intention and refined detail.  
+        A premium experience created for timeless elegance and modern living.
+      </p>
+    </div>
+
+    <div class="footer-section">
+      <h4>Explore</h4>
+      <ul>
+        <li><a href="#">Collections</a></li>
+        <li><a href="#">New Arrivals</a></li>
+        <li><a href="#">Best Sellers</a></li>
+        <li><a href="#">Limited Editions</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-section">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#">About Us</a></li>
+        <li><a href="#">Our Story</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Press</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-section">
+      <h4>Support</h4>
+      <ul>
+        <li><a href="#">Contact</a></li>
+        <li><a href="#">Shipping</a></li>
+        <li><a href="#">Returns</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+      </ul>
+    </div>
+
+  </div>
+
+ 
+
+  <!-- Bottom -->
+  <div class="footer-bottom">
+    © 2025 YOUR BRAND — All Rights Reserved
+  </div>
+
+</footer>

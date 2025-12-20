@@ -84,7 +84,7 @@ const applyCoupon = async (req, res) => {
 
 
     // ---------------------------------------------------------
-    //    🔥 DECREMENT COUPON STOCK & UPDATE USAGE
+    //     DECREMENT COUPON STOCK & UPDATE USAGE
     // ---------------------------------------------------------
 
     coupon.usedCount += 1;             // Increase usage count

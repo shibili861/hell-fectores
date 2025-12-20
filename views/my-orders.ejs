@@ -1,408 +1,461 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
+   <%- include('partials/user/header') %>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Orders - ÉLÉGANCE</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Montserrat:wght@200;300;400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=Montserrat:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+/* =================== MINIMAL PREMIUM DESIGN =================== */
 
-    :root {
-      --gold: #d4af37;
-      --light-gold: #f4e4c1;
-      --brown: #8B7355;
-      --light-brown: #C4A57B;
-      --cream: #F5E6D3;
-      --white: #ffffff;
-      --dark: #0a0a0a;
-      --dark-gray: #1a1a1a;
-      --medium-gray: #2a2a2a;
-    }
+:root {
+  --primary: #003543;
+  --primary-light: #005566;
+  --accent: #d4af37;
+  --light: #f8fafc;
+  --dark: #1a1a1a;
+  --gray: #64748b;
+  --light-gray: #e2e8f0;
+  --border-color: rgba(0, 53, 67, 0.1);
+  --shadow-sm: 0 2px 8px rgba(0, 53, 67, 0.05);
+  --shadow: 0 4px 20px rgba(0, 53, 67, 0.08);
+  --shadow-hover: 0 8px 30px rgba(0, 53, 67, 0.12);
+  --transition: all 0.3s ease;
+  --border-radius: 8px;
+  --border-radius-lg: 16px;
+}
 
-    body {
-      font-family: 'Montserrat', sans-serif;
-      background: var(--dark);
-      color: #fff;
-      padding: 80px 50px;
-      min-height: 100vh;
-      cursor: none;
-      position: relative;
-      overflow-x: hidden;
-    }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-    /* Custom Cursor */
-    .cursor {
-      width: 20px;
-      height: 20px;
-      border: 2px solid var(--gold);
-      border-radius: 50%;
-      position: fixed;
-      pointer-events: none;
-      z-index: 9999;
-      transition: all 0.1s ease;
-      mix-blend-mode: difference;
-    }
-
-    .cursor-follower {
-      width: 40px;
-      height: 40px;
-      border: 1px solid rgba(212, 175, 55, 0.3);
-      border-radius: 50%;
-      position: fixed;
-      pointer-events: none;
-      z-index: 9998;
-      transition: all 0.3s ease;
-    }
-
-    /* Background Effects */
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
+  nav {
       left: 0;
-      width: 100%;
-      height: 100%;
-      background: 
-        radial-gradient(circle at 20% 30%, rgba(212, 175, 55, 0.12) 0%, transparent 50%),
-        radial-gradient(circle at 80% 70%, rgba(139, 115, 85, 0.08) 0%, transparent 50%),
-        linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 50%, #1a1a1a 100%);
-      z-index: -2;
-      pointer-events: none;
-    }
+  }
+body {
+  font-family: 'Montserrat', sans-serif;
+  background: #f8fafc;
+  color: var(--dark);
+  line-height: 1.5;
+  min-height: 100vh;
+  padding: 20px;
+}
 
-    /* Floating Shapes */
-    body::after {
-      content: '';
-      position: fixed;
-      width: 250px;
-      height: 250px;
-      border: 1px solid rgba(212, 175, 55, 0.08);
-      border-radius: 50%;
-      top: 10%;
-      left: 5%;
-      z-index: -1;
-      animation: float 20s infinite ease-in-out;
-      pointer-events: none;
-    }
+/* =================== CONTAINER - FIXED ALIGNMENT =================== */
+.orders-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 40px;
+  background: white;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow);
+  animation: fadeIn 0.5s ease-out;
+  position: relative;
+}
 
-    @keyframes float {
-      0%, 100% { transform: translateY(0) rotate(0deg); }
-      50% { transform: translateY(-30px) rotate(10deg); }
-    }
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-    .orders-container {
-      max-width: 1400px;
-      margin: auto;
-      background: rgba(26, 26, 26, 0.6);
-      border: 1px solid rgba(196, 165, 123, 0.2);
-      border-radius: 12px;
-      padding: 60px 80px;
-      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(10px);
-      opacity: 0;
-      animation: fadeInUp 1s ease 0.3s forwards;
-    }
+/* =================== PAGE TITLE =================== */
+.page-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 36px;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 40px;
+  text-align: center;
+  position: relative;
+  padding-bottom: 15px;
+}
 
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(40px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
+.page-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 2px;
+  background: var(--accent);
+}
 
-    .page-title {
-      text-align: center;
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 72px;
-      font-weight: 300;
-      letter-spacing: 8px;
-      margin-bottom: 20px;
-      background: linear-gradient(135deg, #fff 0%, var(--light-gold) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      position: relative;
-    }
+/* =================== ORDERS TABLE - PROPER ALIGNMENT =================== */
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 30px 0;
+  font-size: 14px;
+  table-layout: fixed; /* Ensures consistent column widths */
+}
 
-    .page-title::before {
-      content: 'YOUR ORDERS';
-      position: absolute;
-      top: -30px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 11px;
-      letter-spacing: 4px;
-      color: var(--gold);
-      font-family: 'Montserrat', sans-serif;
-      font-weight: 300;
-    }
+/* Fixed column widths to prevent misalignment */
+.orders-table th:nth-child(1),
+.orders-table td:nth-child(1) { width: 15%; } /* Order ID */
+.orders-table th:nth-child(2),
+.orders-table td:nth-child(2) { width: 20%; } /* Date */
+.orders-table th:nth-child(3),
+.orders-table td:nth-child(3) { width: 20%; } /* Status */
+.orders-table th:nth-child(4),
+.orders-table td:nth-child(4) { width: 20%; } /* Total */
+.orders-table th:nth-child(5),
+.orders-table td:nth-child(5) { width: 25%; } /* Action */
 
-    .page-title::after {
-      content: '';
-      display: block;
-      width: 80px;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent);
-      margin: 30px auto 50px;
-    }
+.orders-table thead {
+  border-bottom: 2px solid var(--border-color);
+}
 
-    .orders-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 40px;
-    }
+.orders-table th {
+  padding: 20px 15px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--primary);
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  background: var(--light);
+  border-bottom: 2px solid var(--border-color);
+}
 
-    .orders-table thead {
-      background: linear-gradient(135deg, rgba(139, 115, 85, 0.3), rgba(212, 175, 55, 0.2));
-      border-bottom: 2px solid rgba(212, 175, 55, 0.3);
-    }
+.orders-table tbody tr {
+  border-bottom: 1px solid var(--border-color);
+  transition: var(--transition);
+}
 
-    .orders-table th {
-      text-align: left;
-      padding: 25px 30px;
-      font-size: 11px;
-      letter-spacing: 3px;
-      color: var(--gold);
-      font-weight: 600;
-      text-transform: uppercase;
-    }
+.orders-table tbody tr:last-child {
+  border-bottom: none;
+}
 
-    .orders-table td {
-      text-align: left;
-      padding: 30px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.85);
-      letter-spacing: 0.5px;
-      transition: all 0.3s ease;
-    }
+.orders-table tbody tr:hover {
+  background: rgba(0, 53, 67, 0.02);
+}
 
-    .orders-table tbody tr {
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      border-left: 3px solid transparent;
-    }
+.orders-table td {
+  padding: 20px 15px;
+  color: var(--dark);
+  vertical-align: middle;
+}
 
-    .orders-table tbody tr:hover {
-      background: rgba(212, 175, 55, 0.05);
-      transform: translateX(10px);
-      border-left-color: var(--gold);
-    }
+/* Fix text alignment for better visual balance */
+.orders-table td:nth-child(1) { /* Order ID */
+  font-weight: 600;
+  color: var(--primary);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px;
+}
 
-    .status {
-      display: inline-block;
-      padding: 8px 20px;
-      border-radius: 20px;
-      font-weight: 600;
-      font-size: 10px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      border: 1px solid;
-      transition: all 0.3s ease;
-    }
+.orders-table td:nth-child(2) { /* Date */
+  color: var(--gray);
+  font-size: 13px;
+}
 
-    .status.pending { 
-      background: rgba(255, 193, 7, 0.15);
-      color: #ffc107;
-      border-color: rgba(255, 193, 7, 0.3);
-    }
+.orders-table td:nth-child(4) { /* Total */
+  font-weight: 600;
+  color: var(--primary);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px;
+}
 
-    .status.processing { 
-      background: rgba(33, 150, 243, 0.15);
-      color: #2196f3;
-      border-color: rgba(33, 150, 243, 0.3);
-    }
+.orders-table td:nth-child(5) { /* Action */
+  text-align: center;
+}
 
-    .status.shipped { 
-      background: rgba(156, 39, 176, 0.15);
-      color: #9c27b0;
-      border-color: rgba(156, 39, 176, 0.3);
-    }
+/* =================== STATUS BADGES - MINIMAL PREMIUM =================== */
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border: 1px solid;
+  transition: var(--transition);
+}
 
-    .status.delivered { 
-      background: rgba(76, 175, 80, 0.15);
-      color: #4caf50;
-      border-color: rgba(76, 175, 80, 0.3);
-    }
+.status.pending {
+  background: rgba(255, 193, 7, 0.1);
+  color: #d97706;
+  border-color: rgba(255, 193, 7, 0.3);
+}
 
-    .status.cancelled { 
-      background: rgba(244, 67, 54, 0.15);
-      color: #f44336;
-      border-color: rgba(244, 67, 54, 0.3);
-    }
+.status.processing {
+  background: rgba(59, 130, 246, 0.1);
+  color: #1d4ed8;
+  border-color: rgba(59, 130, 246, 0.3);
+}
 
-    .btn-view {
-      text-decoration: none;
-      color: #fff;
-      background: transparent;
-      padding: 12px 28px;
-      border: 1px solid rgba(212, 175, 55, 0.4);
-      border-radius: 6px;
-      font-weight: 500;
-      letter-spacing: 2px;
-      font-size: 10px;
-      text-transform: uppercase;
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      display: inline-block;
-      position: relative;
-      overflow: hidden;
-    }
+.status.shipped {
+  background: rgba(139, 92, 246, 0.1);
+  color: #7c3aed;
+  border-color: rgba(139, 92, 246, 0.3);
+}
 
-    .btn-view::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, var(--gold), var(--light-gold));
-      transition: left 0.4s ease;
-      z-index: -1;
-    }
+.status.delivered {
+  background: rgba(34, 197, 94, 0.1);
+  color: #15803d;
+  border-color: rgba(34, 197, 94, 0.3);
+}
 
-    .btn-view:hover::before {
-      left: 0;
-    }
+.status.cancelled {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  border-color: rgba(239, 68, 68, 0.3);
+}
 
-    .btn-view:hover {
-      color: var(--dark);
-      border-color: var(--gold);
-      transform: translateY(-3px);
-      box-shadow: 0 10px 30px rgba(212, 175, 55, 0.4);
-    }
+.status:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
 
-    .btn-view::after {
-      content: ' →';
-      transition: transform 0.3s ease;
-      display: inline-block;
-    }
+/* =================== VIEW BUTTON - MINIMAL ELEGANT =================== */
+.btn-view {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  background: white;
+  border: 1px solid var(--primary);
+  color: var(--primary);
+  text-decoration: none;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: var(--transition);
+}
 
-    .btn-view:hover::after {
-      transform: translateX(5px);
-    }
+.btn-view:hover {
+  background: var(--primary);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
 
-    .empty-message {
-      text-align: center;
-      margin: 80px 0;
-      color: rgba(255, 255, 255, 0.5);
-      font-size: 18px;
-      letter-spacing: 2px;
-      font-weight: 300;
-      position: relative;
-    }
+.btn-view i {
+  font-size: 12px;
+  transition: transform 0.3s ease;
+}
 
-    .empty-message::before {
-      content: '📦';
-      display: block;
-      font-size: 80px;
-      margin-bottom: 30px;
-      opacity: 0.3;
-    }
+.btn-view:hover i {
+  transform: translateX(4px);
+}
 
-    .empty-message::after {
-      content: 'Begin your journey with our exquisite collections';
-      display: block;
-      font-size: 14px;
-      margin-top: 20px;
-      color: rgba(255, 255, 255, 0.4);
-      font-style: italic;
-    }
+/* =================== EMPTY STATE =================== */
+.empty-message {
+  text-align: center;
+  font-size: 16px;
+  color: var(--gray);
+  margin: 50px 0 30px;
+  font-weight: 400;
+}
 
-    .btn-shop {
-      display: block;
-      width: fit-content;
-      margin: 40px auto 0;
-      text-decoration: none;
-      padding: 20px 60px;
-      color: var(--dark);
-      background: linear-gradient(135deg, var(--gold), var(--light-gold));
-      border-radius: 6px;
-      font-weight: 600;
-      font-size: 12px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      transition: all 0.5s ease;
-      position: relative;
-      overflow: hidden;
-    }
+.btn-shop {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 30px;
+  background: var(--primary);
+  color: white;
+  text-decoration: none;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  transition: var(--transition);
+  margin: 0 auto;
+  border: 1px solid var(--primary);
+}
 
-    .btn-shop::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 0;
-      height: 0;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.3);
-      transform: translate(-50%, -50%);
-      transition: width 0.6s, height 0.6s;
-    }
+.btn-shop:hover {
+  background: white;
+  color: var(--primary);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow);
+}
 
-    .btn-shop:hover::before {
-      width: 300px;
-      height: 300px;
-    }
+/* =================== RESPONSIVE DESIGN =================== */
+@media (max-width: 1200px) {
+  .orders-container {
+    padding: 30px;
+    margin: 30px auto;
+  }
+  
+  .page-title {
+    font-size: 32px;
+  }
+}
 
-    .btn-shop:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 15px 40px rgba(212, 175, 55, 0.5);
-    }
+@media (max-width: 992px) {
+  .orders-table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .orders-table thead {
+    display: none;
+  }
+  
+  .orders-table tbody tr {
+    display: block;
+    margin-bottom: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    background: white;
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .orders-table td {
+    display: block;
+    text-align: right;
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--border-color);
+    position: relative;
+  }
+  
+  .orders-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-weight: 600;
+    color: var(--primary);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  .orders-table td:last-child {
+    border-bottom: none;
+    text-align: center;
+    padding-top: 15px;
+  }
+  
+  /* Remove fixed widths for mobile */
+  .orders-table th,
+  .orders-table td {
+    width: auto !important;
+  }
+  
+  .orders-table td:nth-child(5) {
+    text-align: center;
+  }
+}
 
-    /* Responsive */
-    @media (max-width: 1200px) {
-      body {
-        padding: 60px 40px;
-      }
-      .page-title {
-        font-size: 56px;
-      }
-      .orders-container {
-        padding: 50px 60px;
-      }
-    }
+@media (max-width: 768px) {
+  body {
+    padding: 15px;
+  }
+  
+  .orders-container {
+    padding: 25px 20px;
+    margin: 20px auto;
+  }
+  
+  .page-title {
+    font-size: 28px;
+    margin-bottom: 30px;
+  }
+  
+  .btn-view, .btn-shop {
+    padding: 10px 18px;
+    font-size: 11px;
+  }
+  
+  .status {
+    padding: 6px 12px;
+    font-size: 10px;
+  }
+  
+  .empty-message {
+    font-size: 15px;
+    margin: 40px 0 25px;
+  }
+}
 
-    @media (max-width: 768px) {
-      body {
-        padding: 40px 20px;
-        cursor: auto;
-      }
-      .cursor,
-      .cursor-follower {
-        display: none;
-      }
-      .page-title {
-        font-size: 40px;
-        letter-spacing: 4px;
-      }
-      .orders-container {
-        padding: 40px 30px;
-        overflow-x: auto;
-      }
-      .orders-table {
-        min-width: 800px;
-      }
-      .orders-table th,
-      .orders-table td {
-        padding: 20px 15px;
-      }
-    }
+@media (max-width: 480px) {
+  .page-title {
+    font-size: 24px;
+  }
+  
+  .orders-table tbody tr {
+    padding: 15px;
+  }
+  
+  .btn-shop {
+    padding: 12px 24px;
+    font-size: 12px;
+  }
+}
+
+/* =================== SCROLLBAR STYLING =================== */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-light);
+}
+
+/* =================== FOCUS STATES =================== */
+.btn-view:focus,
+.btn-shop:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* =================== LOADING STATE =================== */
+.orders-table.loading tbody tr {
+  animation: shimmer 1.5s infinite linear;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
   </style>
 </head>
 <body>
-  <!-- Custom Cursor -->
-  <div class="cursor"></div>
-  <div class="cursor-follower"></div>
-
   <div class="orders-container">
-    <h1 class="page-title">📦 My Orders</h1>
+    <h1 class="page-title">My Orders</h1>
 
     <% if (orders && orders.length > 0) { %>
       <table class="orders-table">
@@ -418,50 +471,95 @@
         <tbody>
           <% orders.forEach(order => { %>
             <tr>
-              <td><%= order.orderId %></td>
-              <td><%= new Date(order.createdOn).toLocaleDateString() %></td>
-              <td><span class="status <%= order.status.toLowerCase() %>"><%= order.status %></span></td>
-              <td>₹<%= order.finalAmount.toLocaleString() %></td>
-              <td>
-                <a href="/order-details/<%= order.orderId %>" class="btn-view">View Details</a>
+              <td data-label="Order ID"><%= order.orderId %></td>
+              <td data-label="Date"><%= new Date(order.createdOn).toLocaleDateString('en-US', { 
+                weekday: 'short', 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+              }) %></td>
+              <td data-label="Status">
+                <span class="status <%= order.status.toLowerCase() %>">
+                  <% if (order.status.toLowerCase() === 'pending') { %>
+                    <i class="fas fa-clock"></i>
+                  <% } else if (order.status.toLowerCase() === 'processing') { %>
+                    <i class="fas fa-cog fa-spin"></i>
+                  <% } else if (order.status.toLowerCase() === 'shipped') { %>
+                    <i class="fas fa-shipping-fast"></i>
+                  <% } else if (order.status.toLowerCase() === 'delivered') { %>
+                    <i class="fas fa-check-circle"></i>
+                  <% } else if (order.status.toLowerCase() === 'cancelled') { %>
+                    <i class="fas fa-times-circle"></i>
+                  <% } %>
+                  <%= order.status %>
+                </span>
+              </td>
+              <td data-label="Total">₹<%= order.finalAmount.toLocaleString() %></td>
+              <td data-label="Action">
+                <a href="/order-details/<%= order.orderId %>" class="btn-view">
+                  <span>View Details <i class="fas fa-arrow-right"></i></span>
+                </a>
               </td>
             </tr>
           <% }) %>
         </tbody>
       </table>
     <% } else { %>
-      <p class="empty-message">You have no orders yet.</p>
-      <a href="/collections" class="btn-shop">🛍️ Start Shopping</a>
+      <p class="empty-message">Your order history is empty<br>Begin your luxury shopping experience</p>
+      <a href="/collections" class="btn-shop">
+        <i class="fas fa-gem"></i>
+        <span>Start Shopping</span>
+      </a>
     <% } %>
   </div>
 
   <script>
-    // Custom Cursor
-    const cursor = document.querySelector('.cursor');
-    const cursorFollower = document.querySelector('.cursor-follower');
-
-    document.addEventListener('mousemove', (e) => {
-      cursor.style.left = e.clientX + 'px';
-      cursor.style.top = e.clientY + 'px';
+    document.addEventListener('DOMContentLoaded', function() {
+      // Add subtle hover effects
+      const tableRows = document.querySelectorAll('.orders-table tbody tr');
+      const statusBadges = document.querySelectorAll('.status');
       
-      setTimeout(() => {
-        cursorFollower.style.left = e.clientX + 'px';
-        cursorFollower.style.top = e.clientY + 'px';
-      }, 100);
-    });
-
-    // Hover effect on interactive elements
-    const interactiveElements = document.querySelectorAll('a, .orders-table tbody tr');
-    
-    interactiveElements.forEach(el => {
-      el.addEventListener('mouseenter', () => {
-        cursor.style.transform = 'scale(1.5)';
-        cursorFollower.style.transform = 'scale(1.5)';
+      // Table row hover
+      tableRows.forEach(row => {
+        row.addEventListener('mouseenter', function() {
+          this.style.transform = 'translateY(-2px)';
+          this.style.boxShadow = '0 4px 12px rgba(0, 53, 67, 0.08)';
+        });
+        
+        row.addEventListener('mouseleave', function() {
+          this.style.transform = 'translateY(0)';
+          this.style.boxShadow = 'none';
+        });
       });
       
-      el.addEventListener('mouseleave', () => {
-        cursor.style.transform = 'scale(1)';
-        cursorFollower.style.transform = 'scale(1)';
+      // Status badge hover
+      statusBadges.forEach(status => {
+        status.addEventListener('mouseenter', function() {
+          this.style.transform = 'translateY(-2px)';
+          this.style.boxShadow = '0 4px 12px rgba(0, 53, 67, 0.1)';
+        });
+        
+        status.addEventListener('mouseleave', function() {
+          this.style.transform = 'translateY(0)';
+          this.style.boxShadow = 'none';
+        });
+      });
+      
+      // Button click animation
+      const buttons = document.querySelectorAll('.btn-view, .btn-shop');
+      buttons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          // Prevent if href is #
+          if (this.getAttribute('href') === '#') {
+            e.preventDefault();
+          }
+          
+          // Add click animation
+          this.style.transform = 'scale(0.98)';
+          setTimeout(() => {
+            this.style.transform = '';
+          }, 150);
+        });
       });
     });
   </script>

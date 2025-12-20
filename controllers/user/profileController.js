@@ -8,6 +8,7 @@ const dotenv = require("dotenv").config();
 const Address = require("../../models/addressSchema");
 const path = require('path');
 const fs = require('fs');
+const Otp=require("../../models/otpSchema")
 
 
 /* =====================================================
@@ -48,6 +49,9 @@ const cleanupExpiredOtps = () => {
   if (cleanedCount > 0) {
     console.log(`Cleaned up ${cleanedCount} expired OTPs`);
   }
+};
+const hashOtp = async (otp) => {
+  return await bcrypt.hash(otp, 10);
 };
 
 // Run cleanup every 5 minutes
@@ -118,71 +122,51 @@ const sendOtp = async (req, res) => {
       return res.json({ success: false, message: "Email is required" });
     }
 
-    // 🔥 Delete OLD OTP so user CANNOT reuse old codes
-    otpStore.delete(email);
+    // 🔥 Remove old OTPs (prevents reuse)
+    await Otp.deleteMany({ email, purpose: type });
 
-    // Generate new OTP
     const otp = generateOtp();
 
-    // Save OTP into store with expiry time & type
-    otpStore.set(email, {
-      otp,
-      expires: Date.now() + 10 * 60 * 1000, // 10 min expiry
-      type,
-      lastSent: Date.now()
+    // Store hashed OTP in MongoDB
+    await Otp.create({
+      email,
+      otpHash: await hashOtp(otp),
+      purpose: type, // "email" | "password"
+      expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 mins
     });
 
-    console.log(`OTP for ${email}: ${otp}`); // Dev only
+    console.log(`OTP for ${email}: ${otp}`); // dev only
 
-    // Email subject & message styling
     const subject =
       type === "email"
         ? "Email Change Verification - ÉLÉGANCE"
         : "Password Change Verification - ÉLÉGANCE";
 
-    const purpose =
+    const purposeText =
       type === "email" ? "email address change" : "password change";
 
-    // EMAIL TEMPLATE
     const mailOptions = {
       from: {
         name: "ÉLÉGANCE",
         address: process.env.NODEMAILER_EMAIL,
       },
       to: email,
-      subject: subject,
+      subject,
       html: `
         <div style="font-family: Arial; max-width: 600px; margin: auto;">
           <h2 style="color:#d4af37;">Your OTP Code</h2>
-          <p>You are trying to complete a ${purpose}.</p>
-          <p>Your OTP:</p>
-          <div style="font-size:32px; font-weight:bold; background:#d4af37; color:#fff; padding:15px; text-align:center; border-radius:6px;">
+          <p>You are trying to complete a ${purposeText}.</p>
+          <div style="font-size:32px;font-weight:bold;background:#d4af37;color:#fff;padding:15px;text-align:center;border-radius:6px;">
             ${otp}
           </div>
           <p>This OTP is valid for 10 minutes.</p>
         </div>
-      `
+      `,
     };
 
-    // Send OTP email
-    try {
-      await transporter.sendMail(mailOptions);
-      console.log("OTP sent email:", email);
+    await transporter.sendMail(mailOptions);
 
-      return res.json({
-        success: true,
-        message: "OTP sent successfully"
-      });
-
-    } catch (emailErr) {
-      console.error("Email sending failed:", emailErr);
-
-      // during development accept even without email
-      return res.json({
-        success: true,
-        message: "OTP generated (check server console)"
-      });
-    }
+    return res.json({ success: true, message: "OTP sent successfully" });
 
   } catch (err) {
     console.error("Send OTP error:", err);
@@ -192,7 +176,6 @@ const sendOtp = async (req, res) => {
 
 // =====================================
 //  VERIFY OTP
-// =====================================
 const verifyOtp = async (req, res) => {
   try {
     const { otp, email } = req.body;
@@ -201,31 +184,27 @@ const verifyOtp = async (req, res) => {
       return res.json({ success: false, message: "OTP and Email required" });
     }
 
-    const otpData = otpStore.get(email);
+    const otpRecord = await Otp.findOne({ email });
 
-    if (!otpData) {
-      return res.json({ success: false, message: "OTP not found or expired" });
+    if (!otpRecord) {
+      return res.json({ success: false, message: "OTP expired or not found" });
     }
 
-    // Check expiration
-    if (Date.now() > otpData.expires) {
-      otpStore.delete(email);
-      return res.json({ success: false, message: "OTP expired" });
-    }
+    const isValid = await bcrypt.compare(otp, otpRecord.otpHash);
 
-    // Check OTP match
-    if (otpData.otp !== otp) {
+    if (!isValid) {
       return res.json({ success: false, message: "Invalid OTP" });
     }
 
-    // VALID → remove OTP immediately
-    const otpType = otpData.type;
-    otpStore.delete(email);
+    const otpType = otpRecord.purpose;
+
+    // 🔥 Remove OTP immediately after success
+    await Otp.deleteMany({ email });
 
     return res.json({
       success: true,
       message: "OTP verified successfully",
-      type: otpType
+      type: otpType,
     });
 
   } catch (err) {
@@ -233,6 +212,7 @@ const verifyOtp = async (req, res) => {
     return res.json({ success: false, message: "Failed to verify OTP" });
   }
 };
+
 /* =====================================================
    Profile Management
 ===================================================== */

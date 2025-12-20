@@ -49,7 +49,12 @@ const placeOrder = async (req, res) => {
     const discount = req.session.coupon ? req.session.coupon.discount : 0;
    const finalTotal = subtotal + tax + shippingCharge - discount;
 
-
+if (paymentMethod === "COD" && finalTotal > 1000) {
+  return res.json({
+    success: false,
+    message: "Cash on Delivery is not available for orders above ₹1000"
+  });
+}
     if (paymentMethod === "Razorpay") {
       return res.json({
         success: false,

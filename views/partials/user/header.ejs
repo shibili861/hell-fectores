@@ -1,262 +1,239 @@
 <!-- Navigation -->
 <style>
-  :root {
-    --gold: #d4af37;
-    --light-gold: #f9e79f;
-  }
+ @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Montserrat:wght@500;600;700&display=swap');
 
-  nav {
-    position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: 1000;
-    padding: 30px 80px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(10, 10, 10, 0.7);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  nav.scrolled {
-    padding: 20px 80px;
-    background: rgba(10, 10, 10, 0.95);
-  }
-
-  .logo {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 36px;
-    font-weight: 300;
-    letter-spacing: 6px;
-    background: linear-gradient(135deg, var(--gold) 0%, var(--light-gold) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    position: relative;
-  }
-
-  .logo::after {
-    content: '';
-    position: absolute;
-    bottom: -8px;
-    left: 0;
-    width: 60px;
-    height: 1px;
-    background: var(--gold);
-  }
-
-  .nav-links {
-    display: flex;
-    gap: 50px;
-    list-style: none;
-  }
-
-  .nav-links a {
-    color: #fff;
-    text-decoration: none;
-    font-size: 12px;
-    font-weight: 300;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    transition: all 0.4s ease;
-    position: relative;
-    padding: 5px 0;
-  }
-
-  .nav-links a::before {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    width: 0;
-    height: 1px;
-    background: var(--gold);
-    transition: all 0.4s ease;
-    transform: translateX(-50%);
-  }
-
-  .nav-links a:hover::before {
-    width: 100%;
-  }
-
-  .nav-links a:hover {
-    color: var(--gold);
-  }
-
-  .nav-icons {
-    display: flex;
-    gap: 20px;
-    align-items: center;
-    position: relative;
-  }
-
-  .icon-btn {
-    background: none;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #fff;
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 18px;
-    transition: all 0.4s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-  }
-
-  .icon-btn:hover {
-    border-color: var(--gold);
-    color: var(--gold);
-    transform: rotate(15deg) scale(1.1);
-    box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
-  }
-
-  .dropdown {
-    position: relative;
-    display: inline-block;
-  }
-.dropdown-content {
-  display: none;
-  position: absolute;
-  top: 100%;        /* attaches directly to bottom of button */
-  right: 0;
-  margin-top: 5px;  /* tiny space but no gap */
-  background-color: #111;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  min-width: 160px;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.3);
-  z-index: 1;
+:root {
+  --primary: #003543;
+  --secondary: #005566;
+  --white: #ffffff;
 }
 
-  .dropdown-content a {
-    color: #fff;
-    padding: 10px 15px;
-    text-decoration: none;
-    display: block;
-    font-size: 13px;
-  }
+/* ================= NAVBAR ================= */
 
-  .dropdown-user {
-    display: block;
-    padding: 10px 15px;
-    color: var(--gold);
-    font-weight: 500;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-  }
+nav {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
 
-  .dropdown-content a:hover {
-    background-color: rgba(212, 175, 55, 0.1);
-    color: var(--gold);
-  }
+  padding: 14px 56px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 
- .dropdown:hover .dropdown-content,
-.dropdown-content:hover {
-  display: block;
+  background: linear-gradient(135deg, #003543, #005566);
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+  transition: all 0.35s ease;
 }
 
-  .cart-icon {
+/* Scrolled state */
+nav.scrolled {
+  padding: 10px 56px;
+  background: linear-gradient(135deg, #002a35, #004a58);
+}
+
+/* ================= LOGO ================= */
+
+.logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  color: #ffffff;
   position: relative;
 }
 
-.cart-dot {
+.logo::after {
+  content: '';
   position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 10px;
-  height: 10px;
-  background: linear-gradient(135deg, #d4af37, #b8941f);
-  border-radius: 50%;
-  box-shadow: 0 0 8px rgba(212, 175, 55, 0.6);
-  animation: pulse 1.8s infinite ease-in-out;
-}
-nav {
-  position: fixed;
-  z-index: 1000;
+  bottom: -5px;
+  left: 0;
+  width: 38px;
+  height: 2px;
+  background: rgba(255,255,255,0.85);
 }
 
+/* ================= LINKS ================= */
+
+.nav-links {
+  display: flex;
+  gap: 30px;
+  list-style: none;
+}
+
+.nav-links a {
+  font-family: 'Montserrat', sans-serif;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  text-decoration: none;
+  position: relative;
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: #ffffff;
+  transform: translateX(-50%);
+  transition: width 0.3s ease;
+}
+
+.nav-links a:hover::after {
+  width: 100%;
+}
+
+/* ================= ICON BUTTONS ================= */
+
+.nav-icons {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.35);
+  background: rgba(255,255,255,0.12);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease;
+  font-size: 0; /* hide emoji */
+}
+
+.icon-btn::before {
+  content: '';
+  width: 14px;
+  height: 14px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  filter: invert(1);
+}
+
+.icon-btn:hover {
+  background: #ffffff;
+  transform: translateY(-2px) scale(1.06);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.35);
+}
+
+.icon-btn:hover::before {
+  filter: none;
+}
+
+/* USER ICON */
+.icon-btn[title="Account"]::before,
+.icon-btn[title="Login"]::before {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' stroke='%23003543' stroke-width='2' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='12' cy='8' r='4'/%3E%3Cpath d='M4 20c0-4 4-6 8-6s8 2 8 6'/%3E%3C/svg%3E");
+}
+
+/* CART ICON */
+.cart-icon::before {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' stroke='%23003543' stroke-width='2' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='9' cy='21' r='1'/%3E%3Ccircle cx='20' cy='21' r='1'/%3E%3Cpath d='M1 1h4l2.5 13h11l2-8H6'/%3E%3C/svg%3E");
+}
+
+/* WISHLIST ICON */
+.wishlist-icon::before {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' stroke='%23003543' stroke-width='2' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 21s-7-4.5-7-10a4 4 0 017-2 4 4 0 017 2c0 5.5-7 10-7 10z'/%3E%3C/svg%3E");
+}
+
+/* ================= NOTIFICATION DOTS ================= */
+
+.cart-dot,
 .wishlist-dot {
   position: absolute;
-  top: 2px;
-  right: 2px;
-  width: 8px;
-  height: 8px;
-  background: var(--gold);
+  top: 6px;
+  right: 6px;
+  width: 6px;
+  height: 6px;
+  background: #ffffff;
   border-radius: 50%;
-}
-/* -------- GLOBAL TOAST CSS -------- */
-.lux-toast {
-    position: fixed;
-    top: 30px;
-    right: 30px;
-    padding: 14px 22px;
-    border-radius: 8px;
-    background: linear-gradient(135deg, var(--gold), var(--dark-gold));
-    color: black;
-    font-weight: 600;
-    opacity: 0;
-    transform: translateY(-20px);
-    transition: all .35s ease;
-    z-index: 99999;
-    box-shadow: 0 10px 30px rgba(0,0,0,.3);
-}
-.lux-toast.error {
-    background: linear-gradient(135deg, #c41e3a, #ff4d6d);
-    color: white;
-}
-.lux-toast.show {
-    opacity: 1;
-    transform: translateY(0);
-}
-.toast-content { display: flex; align-items: center; gap: 12px; }
-.toast-icon { font-size: 16px; }
-
-
-/* --- GLOBAL TOAST STYLE --- */
-.lux-toast {
-    position: fixed;
-    top: 30px;
-    right: 30px;
-    padding: 14px 22px;
-    border-radius: 8px;
-    background: linear-gradient(135deg, var(--gold), var(--dark-gold));
-    color: black;
-    font-weight: 600;
-    opacity: 0;
-    transform: translateY(-20px);
-    transition: all .35s ease;
-    z-index: 99999;
-    box-shadow: 0 10px 30px rgba(0,0,0,.3);
-}
-.lux-toast.error {
-    background: linear-gradient(135deg, #c41e3a, #ff4d6d);
-    color: white;
-}
-.lux-toast.show {
-    opacity: 1;
-    transform: translateY(0);
-}
-.toast-content { display: flex; align-items: center; gap: 12px; }
-.toast-icon { font-size: 16px; }
-
-
-
-
-
-
-@keyframes pulse {
-  0% { transform: scale(0.9); opacity: 0.8; }
-  50% { transform: scale(1.3); opacity: 1; }
-  100% { transform: scale(0.9); opacity: 0.8; }
+  box-shadow: 0 0 8px rgba(255,255,255,0.9);
 }
 
+/* ================= DROPDOWN ================= */
 
-  @media (max-width: 768px) {
-    nav { padding: 20px 30px; flex-direction: column; gap: 10px; }
+.dropdown {
+  position: relative;
+}
+
+.dropdown-content {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 180px;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 8px 0;
+  box-shadow: 0 28px 55px rgba(0,0,0,0.35);
+
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: all 0.25s ease;
+  z-index: 9999;
+}
+
+.dropdown:hover .dropdown-content,
+.dropdown:focus-within .dropdown-content {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdown-user {
+  padding: 12px 18px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropdown-content a {
+  display: block;
+  padding: 12px 18px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.dropdown-content a:hover {
+  background: rgba(0,85,102,0.08);
+}
+
+/* ================= MOBILE ================= */
+
+@media (max-width: 768px) {
+  nav {
+    padding: 14px 24px;
+    flex-direction: column;
+    gap: 10px;
   }
+
+  .logo {
+    font-size: 22px;
+  }
+
+  .nav-links {
+    gap: 20px;
+  }
+}
+
 </style>
 
 <nav id="navbar">
@@ -270,7 +247,7 @@ nav {
   </ul>
 
   <div class="nav-icons">
-    <button class="icon-btn" title="Search">🔍</button>
+    
 <a href="/wishlist" class="icon-btn wishlist-icon" title="Wishlist" style="position: relative;">
   <span class="wishlist-heart"><%= wishlistCount > 0 ? "❤️" : "♡" %></span>
 

@@ -156,10 +156,20 @@ const validCoupons = coupons.filter(c => {
 
   <div class="payment-options">
 
-    <label class="payment-option">
-      <input type="radio" name="paymentMethod" value="COD" checked>
-      <span>💵 Cash on Delivery</span>
-    </label>
+    <label class="payment-option <%= finalTotal > 1000 ? 'disabled' : '' %>">
+  <input
+    type="radio"
+    name="paymentMethod"
+    value="COD"
+    <%= finalTotal > 1000 ? 'disabled' : 'checked' %>
+  >
+  <span>💵 Cash on Delivery</span>
+
+  <% if (finalTotal > 1000) { %>
+    <small>COD not available above ₹1000</small>
+  <% } %>
+</label>
+
 
     <label class="payment-option">
       <input type="radio" name="paymentMethod" value="Razorpay">
@@ -654,7 +664,7 @@ async function initiateRazorpayPayment() {
 
     const rzpFinal = new Razorpay(options);
 
-    // ✅ REAL FAILURE EVENT
+    // REAL FAILURE EVENT
     rzpFinal.on("payment.failed", async function (response) {
       await fetch("/mark-payment-failed", {
         method: "POST",

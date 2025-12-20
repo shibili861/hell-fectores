@@ -4,475 +4,724 @@
     <%- include('../partials/user/header') %>
   <meta charset="UTF-8" />
   <title>My Addresses</title>
-  <style>
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;600&family=Montserrat:wght@400;700&display=swap');
+      <style>
+/* =================== SUPER PREMIUM ADDRESSES PAGE =================== */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap');
 
 :root {
-  --gold: #d4af37;
-  --light-gold: #f4e4c1;
-  --brown: #8B7355;
-  --light-brown: #C4A57B;
-  --cream: #F5E6D3;
-  --white: #ffffff;
-  --dark: #0a0a0a;
-  --dark-gray: #1a1a1a;
-  --medium-gray: #cacaca;
+  --primary: #003543;
+  --primary-light: #005566;
+  --accent: #d4af37;
+  --accent-light: #f7ef8a;
+  --light: #f8fafc;
+  --dark: #1a1a1a;
+  --gray: #6f7f86;
+  --light-gray: #e8edef;
+  --border-color: rgba(0, 53, 67, 0.12);
+  --shadow-soft: 0 8px 30px rgba(0, 53, 67, 0.08);
+  --shadow-medium: 0 12px 35px rgba(0, 53, 67, 0.12);
+  --shadow-hover: 0 20px 50px rgba(0, 53, 67, 0.18);
+  --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --border-radius: 12px;
+  --border-radius-lg: 24px;
+  --gradient-primary: linear-gradient(135deg, #003543, #005566);
+  --gradient-accent: linear-gradient(135deg, #d4af37, #f7ef8a);
+  --gradient-light: linear-gradient(135deg, #ffffff, #f7f9fa);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
   font-family: 'Montserrat', sans-serif;
-  background: var(--white);
-  color: var(--dark-gray);
-  padding: 0;
-  margin: 0;
+  background: linear-gradient(135deg, #f5f7f6 0%, #eef0f2 100%);
+  color: var(--dark);
   min-height: 100vh;
+  padding: 30px;
+  overflow-x: hidden;
 }
 
-h1 {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 58px;
-  color: var(--gold);
-  text-align: center;
-  margin: 48px 0 35px 0;
-  letter-spacing: 6px;
-  font-weight: 300;
-  text-shadow: 0 1px 18px rgba(212,175,55,0.09);
+/* =================== MAIN CONTAINER =================== */
+.address-main {
+  max-width: 1400px;
+  margin: 50px auto;
+  padding: 50px;
+  background: white;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-soft);
+  position: relative;
+  overflow: hidden;
+  animation: fadeInUp 0.6s ease-out;
+  border: 1px solid var(--border-color);
 }
 
+.address-main::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: var(--gradient-accent);
+}
+
+.address-main::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(212, 175, 55, 0.2), transparent);
+  transform: translateY(-50%);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =================== HEADER SECTION =================== */
 .address-header {
-  width: 100%;
-  margin-bottom: 38px;
-}
-.address-subtitle {
-  color: var(--brown);
-  font-size: 22px;
   text-align: center;
+  margin-bottom: 60px;
+  padding-bottom: 40px;
+  position: relative;
+}
+
+.address-header h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 52px;
   font-weight: 400;
-  margin-bottom: 22px;
+  color: var(--primary);
+  margin-bottom: 15px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  position: relative;
+  display: inline-block;
+}
+
+.address-header h1::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 3px;
+  background: var(--gradient-accent);
+  border-radius: 3px;
+}
+
+.address-subtitle {
+  font-size: 16px;
+  color: var(--gray);
+  margin-bottom: 40px;
+  font-weight: 300;
   letter-spacing: 2px;
+  text-transform: uppercase;
+  max-width: 500px;
+  margin: 0 auto 40px;
+  line-height: 1.8;
+}
+
+/* =================== ADD BUTTON - PREMIUM =================== */
+.add {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 40px;
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  border-radius: 35px;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 53, 67, 0.2);
+}
+
+.add::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.7s ease;
+}
+
+.add:hover {
+  transform: translateY(-8px) scale(1.05);
+  box-shadow: 0 20px 50px rgba(0, 53, 67, 0.3);
+}
+
+.add:hover::before {
+  left: 100%;
+}
+
+.btn-icon {
+  font-size: 18px;
+  transition: transform 0.5s ease;
+}
+
+.add:hover .btn-icon {
+  transform: rotate(180deg) scale(1.3);
+}
+
+/* =================== ADDRESS LIST SECTION =================== */
+.address-list-section {
+  margin-top: 50px;
 }
 
 .section-heading {
   font-family: 'Cormorant Garamond', serif;
-  color: var(--gold);
-  text-align: left;
-  font-size: 2rem;
+  font-size: 32px;
+  font-weight: 400;
+  color: var(--primary);
+  margin-bottom: 40px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid var(--gradient-accent);
+  display: inline-block;
   letter-spacing: 2px;
-  margin: 20px 0 40px 0;
-  font-weight: 600;
 }
 
+/* =================== ADDRESS GRID LAYOUT =================== */
 .premium-address-list {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 38px;
-  margin: 0 auto;
-  width: 100%;
-  align-items: stretch;
-  justify-content: flex-start;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 30px;
+  margin-top: 30px;
 }
 
 .address-card {
-  background: linear-gradient(135deg, var(--white), var(--cream));
-  border-radius: 22px;
-  box-shadow: 0 8px 32px rgba(212,175,55,0.10), 0 2px 8px 0 var(--medium-gray);
-  border-left: 7px solid var(--gold);
-  border-top: 2.5px solid var(--light-brown);
-  padding: 41px 32px 28px 32px;
-  min-width: 310px;
-  max-width: 390px;
-  flex: 1 1 340px;
+  background: white;
+  border-radius: 20px;
+  padding: 35px 30px;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--border-color);
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+  animation: cardFloatIn 0.6s ease forwards;
+  opacity: 0;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  transition: box-shadow .33s, border-color .33s;
-  position: relative;
-  font-size: 1.3rem;
-  line-height: 1.8;
-  font-weight: 400;
+}
+
+.address-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 6px;
+  height: 100%;
+  background: var(--gradient-accent);
+  opacity: 0;
+  transition: opacity 0.4s ease;
 }
 
 .address-card:hover {
-  box-shadow: 0 14px 58px rgba(212,175,55,0.18);
-  border-left: 7px solid var(--gold);
-  z-index: 2;
-  border-top: 2.5px solid var(--gold);
-  background: linear-gradient(135deg, var(--light-gold), var(--white) 70%);
+  transform: translateY(-12px) scale(1.02);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--accent);
 }
 
-.address-card b {
-  color: var(--brown);
+.address-card:hover::before {
+  opacity: 1;
+}
+
+@keyframes cardFloatIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px) rotateX(10deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotateX(0);
+  }
+}
+
+.address-card:nth-child(1) { animation-delay: 0.1s; }
+.address-card:nth-child(2) { animation-delay: 0.2s; }
+.address-card:nth-child(3) { animation-delay: 0.3s; }
+.address-card:nth-child(4) { animation-delay: 0.4s; }
+.address-card:nth-child(5) { animation-delay: 0.5s; }
+
+/* =================== ADDRESS TYPE BADGE =================== */
+.address-card > b {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   font-family: 'Cormorant Garamond', serif;
-  font-size: 1.37em;
-  font-weight: 700;
-  margin-bottom: 11px;
-  letter-spacing: 1px;
-  display: block;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 25px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, rgba(0, 53, 67, 0.05), rgba(0, 85, 102, 0.03));
+  border-radius: 30px;
+  border: 1px solid rgba(0, 53, 67, 0.1);
+  width: fit-content;
+}
+
+.address-card > b::before {
+  font-size: 18px;
+}
+
+/* =================== ADDRESS CONTENT =================== */
+.address-card-content {
+  flex: 1;
+  margin-bottom: 30px;
 }
 
 .address-line {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 1.1em;
-  font-weight: 500;
-  letter-spacing: 0.4px;
-  color: var(--dark-gray);
-  word-break: break-all;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 15px;
+  color: var(--dark);
+  font-size: 15px;
+  line-height: 1.6;
+  padding-left: 10px;
+  position: relative;
 }
 
+.address-line::before {
+  content: '•';
+  color: var(--accent);
+  font-size: 20px;
+  position: absolute;
+  left: -10px;
+}
+
+.address-line strong {
+  color: var(--primary);
+  font-weight: 600;
+  min-width: 80px;
+}
+
+/* =================== ACTION BUTTONS =================== */
 .address-card .actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 18px;
-  margin-top: 18px;
+  gap: 15px;
+  margin-top: auto;
+  padding-top: 25px;
+  border-top: 1px solid rgba(0, 53, 67, 0.1);
 }
 
-.address-card .actions button {
-  margin: 0;
-}
-
-button {
-  padding: 13px 26px;
+.edit, .delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 24px;
   border: none;
-  border-radius: 10px;
-  font-family: 'Montserrat', sans-serif;
-  font-weight: 700;
-  font-size: 18px;
-  letter-spacing: 1.2px;
-  cursor: pointer;
-  transition: background .22s, color .22s, box-shadow .22s;
-  box-shadow: 0 2px 12px rgba(212,175,55,0.13);
-}
-
-button.add {
-  background: linear-gradient(135deg, var(--gold) 80%, var(--light-gold));
-  color: var(--white);
-  border: 2px solid var(--gold);
-  font-size: 20px;
-}
-button.add:hover {
-  background: linear-gradient(135deg, var(--gold), var(--cream));
-  color: var(--dark);
-  transform: translateY(-2px) scale(1.06);
-  box-shadow: 0 14px 38px rgba(212,175,55,0.15);
-}
-
-button.edit {
-  background: linear-gradient(135deg, var(--brown) 70%, var(--gold));
-  color: var(--white);
-  border: 2px solid var(--light-brown);
-  font-size: 18px;
-}
-button.edit:hover {
-  background: linear-gradient(135deg, var(--gold), var(--brown) 80%);
-  color: var(--dark);
-  box-shadow: 0 8px 24px rgba(212,175,55,0.12);
-}
-
-button.delete {
-  background: linear-gradient(135deg, #e74c3c 60%, var(--gold));
-  color: var(--white);
-  border: 2px solid #e74c3c;
-  font-size: 18px;
-}
-button.delete:hover {
-  background: linear-gradient(135deg, #c0392b, var(--gold) 90%);
-  color: var(--dark);
-  transform: scale(1.08);
-  box-shadow: 0 12px 30px rgba(212,175,55,0.12);
-}
-
-.cancel-btn {
-  background: linear-gradient(135deg, var(--medium-gray), var(--brown));
-  color: var(--dark-gray);
-  border: 2px solid var(--light-brown);
+  border-radius: 30px;
   font-weight: 600;
-}
-.cancel-btn:hover {
-  background: linear-gradient(135deg, var(--light-gold), var(--white));
-  color: var(--gold);
-}
-
-.btn-icon {
-  margin-right: 8px;
-  font-size: 1.22em;
-  vertical-align: middle;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: var(--transition);
+  flex: 1;
+  position: relative;
+  overflow: hidden;
 }
 
-.add-address-card {
+.edit {
+  background: linear-gradient(135deg, rgba(0, 53, 67, 0.1), rgba(0, 85, 102, 0.05));
+  color: var(--primary);
+  border: 2px solid rgba(0, 53, 67, 0.2);
+}
+
+.edit::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
   width: 100%;
-  max-width: 650px;
-  margin-bottom: 38px;
-  background: linear-gradient(135deg, var(--cream), var(--white) 70%);
-  border: 2.5px solid var(--gold);
-  box-shadow: 0 6px 30px rgba(212,175,55,0.07), 0 6px 15px rgb(160,130,80,0.12);
-  padding: 42px 26px 34px 32px;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 53, 67, 0.2), transparent);
+  transition: left 0.6s ease;
 }
 
-.premium-heading {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 36px;
-  color: var(--gold);
-  margin-bottom: 26px;
-  text-align: center;
-  font-weight: 700;
-  letter-spacing: 2.5px;
-  text-shadow: 0 1px 18px rgba(212,175,55,0.09);
+.edit:hover {
+  background: var(--gradient-primary);
+  color: white;
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 12px 30px rgba(0, 53, 67, 0.2);
+  border-color: transparent;
 }
 
-form input, form select {
-  font-family: 'Montserrat', sans-serif;
+.edit:hover::before {
+  left: 100%;
+}
+
+.delete {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
+  color: #dc3545;
+  border: 2px solid rgba(239, 68, 68, 0.2);
+}
+
+.delete::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
   width: 100%;
-  padding: 16px 18px;
-  margin: 14px 0;
-  border: 1.5px solid var(--light-brown);
-  border-radius: 13px;
-  background: rgba(245,230,211,0.21);
-  color: var(--brown);
-  outline: none;
-  font-size: 19px;
-  transition: border-color 0.20s, background 0.22s;
-  box-shadow: 0 2px 12px rgba(180,135,46,0.05);
-}
-form input:focus, form select:focus {
-  border-color: var(--gold);
-  background: var(--cream);
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.2), transparent);
+  transition: left 0.6s ease;
 }
 
-.modal-actions {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 24px;
+.delete:hover {
+  background: linear-gradient(135deg, #dc3545, #e6858d);
+  color: white;
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 12px 30px rgba(239, 68, 68, 0.2);
+  border-color: transparent;
 }
 
-#addModal,
-#editModal {
-  display: none;
+.delete:hover::before {
+  left: 100%;
+}
+
+/* =================== MODALS =================== */
+#addModal, #editModal {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(180,160,80,0.06);
-  justify-content: center;
+  background: rgba(0, 53, 67, 0.85);
+  display: flex;
   align-items: center;
-  z-index: 1000;
+  justify-content: center;
+  z-index: 10000;
+  padding: 30px;
+  backdrop-filter: blur(10px);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.4s ease;
 }
-#addModal[style*="flex"], #editModal[style*="flex"] {
-  display: flex !important;
+
+#addModal[style*="display: flex"],
+#editModal[style*="display: flex"] {
+  opacity: 1;
+  visibility: visible;
 }
-#addModal .modal-content, #editModal .modal-content {
-  background: var(--white);
-  border: 2.5px solid var(--gold);
-  border-radius: 18px;
-  box-shadow: 0 8px 45px rgba(139, 115, 85, 0.15);
-  width: 460px;
-  max-width: 98vw;
-  padding: 39px 34px 26px 38px;
+
+.modal-content {
+  background: white;
+  border-radius: 28px;
+  padding: 50px;
+  width: 100%;
+  max-width: 550px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-hover);
+  position: relative;
+  transform: translateY(30px) scale(0.95);
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 1px solid rgba(212, 175, 55, 0.1);
+}
+
+#addModal[style*="display: flex"] .modal-content,
+#editModal[style*="display: flex"] .modal-content {
+  transform: translateY(0) scale(1);
+}
+
+.modal-content h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 36px;
+  font-weight: 400;
+  color: var(--primary);
+  margin-bottom: 30px;
+  text-align: center;
+  padding-bottom: 20px;
+  border-bottom: 3px solid var(--gradient-accent);
+  letter-spacing: 2px;
+}
+
+/* =================== FORM STYLES =================== */
+#addForm, #editForm {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.form-group {
   position: relative;
 }
 
-#addModal h3, #editModal h3 {
-  font-family: 'Cormorant Garamond', serif;
-  color: var(--gold);
-  letter-spacing: 2.5px;
-  font-weight: 700;
-  text-align: center;
-  margin-bottom: 18px;
-  font-size: 1.39em;
-}
-
-.address-main {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 36px 8px 60px 8px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.add-address-card, .address-list-section {
+#addForm select,
+#addForm input,
+#editForm select,
+#editForm input {
   width: 100%;
-}
-
-::-webkit-scrollbar {
-  width: 7px;
-  background: var(--cream);
-}
-::-webkit-scrollbar-thumb {
-  background: var(--gold);
-  border-radius: 5px;
-}
-
-.address-card:focus-within {
-  box-shadow: 0 0 0 4px var(--gold), 0 8px 32px rgba(212,175,55,0.22);
-  z-index: 3;
-}
-.error-message {
-  color: #d32f2f;
-  background: none;
-  font-size: 0.86em;         /* Smaller than 1em */
+  padding: 18px 24px;
+  border: 2px solid rgba(0, 53, 67, 0.15);
+  border-radius: 15px;
+  font-size: 16px;
   font-family: 'Montserrat', sans-serif;
-  border-radius: 4px;
-  padding: 3px 0 0 2px;     /* Minimal padding, no box */
-  margin: 0 0 4px 0;        /* Tight spacing */
+  transition: var(--transition);
+  background: var(--light);
+  color: var(--dark);
+}
+
+#addForm select:focus,
+#addForm input:focus,
+#editForm select:focus,
+#editForm input:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: white;
+  box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.15);
+  transform: translateY(-2px);
+}
+
+#addForm select.error,
+#addForm input.error,
+#editForm select.error,
+#editForm input.error {
+  border-color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.05);
+  animation: shake 0.5s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.error-message {
+  color: #ff6b6b;
+  font-size: 13px;
+  margin-top: 8px;
   display: none;
-  line-height: 1.3;
   font-weight: 500;
-  letter-spacing: 0.2px;
-}
-input.error, select.error {
-  border-color: #d32f2f;
-  background: #fff8f5;
-}
-.form-error-box {
-  color: red;
-  font-size: 14px;
-  padding: 6px;
-  border-left: 3px solid red;
-  margin-top: 10px;
+  letter-spacing: 0.5px;
+  padding-left: 24px;
 }
 
+/* =================== MODAL BUTTONS =================== */
+.modal-actions {
+  display: flex;
+  gap: 20px;
+  margin-top: 40px;
+}
 
-/* Responsive adjustments */
+.modal-actions button {
+  flex: 1;
+}
+
+.cancel-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px 30px;
+  background: white;
+  border: 2px solid rgba(0, 53, 67, 0.2);
+  color: var(--primary);
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.cancel-btn:hover {
+  background: rgba(0, 53, 67, 0.05);
+  border-color: var(--primary);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 53, 67, 0.1);
+}
+
+/* =================== EMPTY STATE =================== */
+#addressList > p {
+  text-align: center;
+  font-size: 18px;
+  color: var(--gray);
+  padding: 80px 40px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(247, 249, 250, 0.8));
+  border-radius: var(--border-radius);
+  border: 2px dashed rgba(212, 175, 55, 0.3);
+  font-weight: 300;
+  letter-spacing: 1px;
+  position: relative;
+}
+
+#addressList > p::before {
+  content: '📍';
+  font-size: 60px;
+  display: block;
+  margin-bottom: 20px;
+  opacity: 0.5;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* =================== RESPONSIVE DESIGN =================== */
+@media (max-width: 1400px) {
+  .premium-address-list {
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  }
+}
+
 @media (max-width: 1200px) {
-  .premium-address-list {
-    justify-content: center;
-    gap: 19px;
-  }
-}
-@media (max-width: 900px) {
-  .premium-address-list {
-    flex-direction: column;
-    align-items: center;
-    gap: 18px;
-  }
-  .address-card {
-    min-width: 92vw;
-    max-width: 99vw;
-  }
-}
-@media (max-width: 700px) {
   .address-main {
-    padding: 12px 2vw 50px 2vw;
+    padding: 40px;
+    margin: 40px auto;
   }
-  .premium-heading { font-size: 26px; }
-  #addModal .modal-content, #editModal .modal-content {
-    padding: 17px 5vw 20px 5vw;
-    width: 98vw;
+  
+  .address-header h1 {
+    font-size: 44px;
   }
-}/* ==========================================================
-   PREMIUM SMALL MODALS — FULLY ADJUSTABLE VERSION
-   (You can modify padding, margin, spacing easily)
-========================================================== */
+}
 
-#addModal .modal-content,
-#editModal .modal-content {
-    width: 360px !important;      /* Change width here */
-    max-width: 95vw !important;
-    padding: 24px 22px !important; /* Change modal padding here */
-    border-radius: 18px !important;
-    border: 2px solid var(--gold) !important;
+@media (max-width: 992px) {
+  .premium-address-list {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+  
+  .modal-content {
+    padding: 40px;
+  }
+  
+  .address-header h1 {
+    font-size: 38px;
+  }
+}
 
-    background: linear-gradient(145deg, var(--white), var(--cream)) !important;
-    box-shadow: 0 10px 35px rgba(0,0,0,0.18) !important;
-
-    display: flex;
+@media (max-width: 768px) {
+  body {
+    padding: 20px;
+  }
+  
+  .address-main {
+    padding: 30px;
+    margin: 30px auto;
+  }
+  
+  .address-header h1 {
+    font-size: 32px;
+    letter-spacing: 2px;
+  }
+  
+  .section-heading {
+    font-size: 28px;
+  }
+  
+  .premium-address-list {
+    grid-template-columns: 1fr;
+  }
+  
+  .modal-actions {
     flex-direction: column;
-    gap: 14px;                      /* Spacing between elements */
-    max-height: 86vh !important;
-    overflow-y: auto !important;
-    box-sizing: border-box;
+  }
+  
+  .add, .edit, .delete, .cancel-btn {
+    padding: 14px 24px;
+    font-size: 12px;
+  }
 }
 
-/* Title adjustments */
-#addModal h3,
-#editModal h3 {
-    font-size: 1.25rem !important;
-    margin: 0 0 10px 0 !important;   /* Title spacing */
-    text-align: center;
+@media (max-width: 480px) {
+  .address-main {
+    padding: 25px;
+  }
+  
+  .address-header h1 {
+    font-size: 28px;
+  }
+  
+  .address-subtitle {
+    font-size: 14px;
+  }
+  
+  .modal-content {
+    padding: 30px 25px;
+  }
+  
+  #addForm, #editForm {
+    gap: 20px;
+  }
+  
+  #addForm select,
+  #addForm input,
+  #editForm select,
+  #editForm input {
+    padding: 16px 20px;
+    font-size: 15px;
+  }
 }
 
-/* Inputs (adjust spacing here) */
-#addModal input, #addModal select,
-#editModal input, #editModal select {
-    padding: 10px 12px !important;
-    margin-bottom: 12px !important;  /* Distance between inputs */
-    font-size: 15px !important;
-    border-radius: 10px !important;
-    width: 100% !important;
+/* =================== SELECT STYLING =================== */
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23003543' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 24px center;
+  background-size: 16px;
+  padding-right: 50px !important;
+  cursor: pointer;
 }
 
-/* Error messages */
-#addModal .error-message,
-#editModal .error-message {
-    font-size: 0.78rem !important;
-    margin-top: -6px !important;     /* Adjust error spacing here */
+/* =================== PULSE ANIMATION =================== */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 15px rgba(212, 175, 55, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0);
+  }
 }
 
-/* Buttons area */
-#addModal .modal-actions,
-#editModal .modal-actions {
-    display: flex;
-    justify-content: space-between;
-    gap: 8px;                         /* Space between buttons */
-    margin-top: 10px !important;      /* Space above buttons */
+.address-card:first-child {
+  animation: pulse 2.5s infinite 0.6s;
+}
+nav{
+  left: 0;
+}
+.address-card {
+  left:20;
 }
 
-/* Buttons size adjustments */
-#addModal .modal-actions button,
-#editModal .modal-actions button {
-    padding: 10px 16px !important;    /* Button padding */
-    font-size: 15px !important;
-    border-radius: 10px !important;
+/* =================== GLOW EFFECT =================== */
+.address-card:hover .edit,
+.address-card:hover .delete {
+  filter: brightness(1.1);
 }
-
-/* Center the modals */
-#addModal, #editModal {
-    display: none;
-    justify-content: center !important;
-    align-items: center !important;
-    padding: 10px;
-}
-
-/* Prevent horizontal scroll */
-body {
-    overflow-x: hidden !important;
-}
-/* 🔥 Perfect Centering for Add & Edit Modals (ignores navbar height) */
-#addModal .modal-content,
-#editModal .modal-content {
-    position: absolute !important;
-    top: 55% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    margin: 0 !important;
-}
-/* 🔥 Premium Small Scrollbar for Add/Edit Modals */
-#addModal .modal-content::-webkit-scrollbar,
-#editModal .modal-content::-webkit-scrollbar {
-    width: 5px;         /* Scrollbar thickness */
-}
-
-#addModal .modal-content::-webkit-scrollbar-track,
-#editModal .modal-content::-webkit-scrollbar-track {
-    background: #f6f1e8;    /* Light gold/cream track */
-    border-radius: 8px;
-}
-
-#addModal .modal-content::-webkit-scrollbar-thumb,
-#editModal .modal-content::-webkit-scrollbar-thumb {
-    background: var(--gold); /* Gold thumb */
-    border-radius: 8px;
-    border: 1px solid #f4e9d9;
-}
-
-#addModal .modal-content::-webkit-scrollbar-thumb:hover,
-#editModal .modal-content::-webkit-scrollbar-thumb:hover {
-    background: #b08c1a;     /* Darker gold on hover */
-}
-
   </style>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -551,8 +800,8 @@ body {
         <input id="editAltphone" name="altphone" placeholder="Alternate phone" />
          <div class="error-message"></div>
         <div class="modal-actions">
-          <button class="edit" type="submit"><span class="btn-icon">💾</span> Save</button>
-          <button class="cancel-btn" type="button" onclick="closeModal()"><span class="btn-icon">❌</span> Cancel</button>
+          <button class="edit" type="submit"><span class="btn-icon"></span> Save</button>
+          <button class="cancel-btn" type="button" onclick="closeModal()"><span class="btn-icon"></span> Cancel</button>
         </div>
       </form>
     </div>
@@ -700,8 +949,8 @@ async function loadAddresses() {
         Phone: ${addr.phone}
         ${addr.altphone ? "<br/>Alt: " + addr.altphone : ""}
         <div class="actions">
-          <button class="edit" data-id="${addr._id}">✏️ Edit</button>
-          <button class="delete" data-id="${addr._id}">🗑️ Delete</button>
+          <button class="edit" data-id="${addr._id}"> Edit</button>
+          <button class="delete" data-id="${addr._id}"> Delete</button>
         </div>
       `;
 

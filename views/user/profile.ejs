@@ -40,7 +40,7 @@
             
             <!-- Sidebar Navigation -->
             <aside class="profile-sidebar">
-                <nav>
+              
                     <ul class="sidebar-nav">
                         <li><a href="#profile" class="active"><span>👤</span> <span>My Profile</span></a></li>
                         <li><a href="/my-orders"><span>📦</span> <span>My Orders</span></a></li>
@@ -50,24 +50,9 @@
                         <li><a href="/addresses"><span>📍</span> <span>Addresses</span></a></li>
                         <li><a href="#settings"><span>⚙️</span> <span>Settings</span></a></li>
                     </ul>
-                </nav>
+               
                 
-                <div class="sidebar-divider"></div>
-                
-                <div class="sidebar-stats">
-                    <div class="stat-item">
-                        <div class="stat-value">12</div>
-                        <div class="stat-label">Total Orders</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value">8</div>
-                        <div class="stat-label">Wishlist Items</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value">₹45K</div>
-                        <div class="stat-label"></div>
-                    </div>
-                </div>
+              
                 
                 <form action="/logout" method="POST">
                     <button class="btn-logout" type="submit">
@@ -1382,6 +1367,55 @@ function showTempMessage(msg, type) {
   document.body.appendChild(div);
   setTimeout(() => div.remove(), 2500);
 }
+
+
+
+
+// Your JavaScript with ripple effect
+    document.addEventListener('click', function(e) {
+        if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+            const button = e.target.tagName === 'BUTTON' ? e.target : e.target.closest('button');
+            const ripple = document.createElement('span');
+            const rect = button.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+            
+            ripple.style.cssText = `
+                position: absolute;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.6);
+                transform: scale(0);
+                animation: ripple 0.6s linear;
+                width: ${size}px;
+                height: ${size}px;
+                left: ${x}px;
+                top: ${y}px;
+                pointer-events: none;
+            `;
+            
+            button.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        }
+    });
+    
+    // Add CSS for ripple animation if not already added
+    if (!document.querySelector('#ripple-styles')) {
+        const style = document.createElement('style');
+        style.id = 'ripple-styles';
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
             </script>
             </body>
             </html> `
