@@ -89,6 +89,8 @@ router.get("/collection/filter",checkUserStatus,userController.filterProducts);
 
 // product managemet
 router.get("/productsDetailes",checkUserStatus,productController.productDetails);
+// for related products
+
 
 
 

@@ -2,12 +2,17 @@
 <html lang="en">
 <head>
   <%- include('../partials/user/header') %>
-  <title>Checkout</title>
+ <title>Checkout | Premium Store</title>
+
       <link rel="stylesheet" href="/user/checkout.css">
       <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+   <!-- Premium Header -->
+ 
+  
+       
  <div class="checkout-container">
 
   <!-- LEFT SIDE -->
@@ -48,6 +53,7 @@
     <% } %>
 
     <!-- SAVED ADDRESSES -->
+     <div id="addressContainer">
 <h2 class="section-heading">🏠 Shipping Address</h2>
 
 <% if (address) { %>
@@ -69,6 +75,7 @@
   <p>No saved address found.</p>
   <button class="add" id="openAddModal"><span class="btn-icon">➕</span> Add Address</button>
 <% } %>
+</div>
 
 
   </section>
@@ -233,8 +240,8 @@ const validCoupons = coupons.filter(c => {
       <input name="altphone" placeholder="Alternate phone" />
       <div class="error-message"></div>
       <div class="modal-actions">
-        <button class="add" type="submit"><span class="btn-icon">➕</span> Add Address</button>
-        <button class="cancel-btn" type="button" onclick="closeAddModal()"><span class="btn-icon">❌</span> Cancel</button>
+        <button class="add" type="submit"><span class="btn-icon"></span> Add Address</button>
+        <button class="cancel-btn" type="button" onclick="closeAddModal()"><span class="btn-icon"></span> Cancel</button>
       </div>
     </form>
   </div>
@@ -270,7 +277,7 @@ const validCoupons = coupons.filter(c => {
          <div class="error-message"></div>
         <div class="modal-actions">
           <button class="edit" type="submit"><span class="btn-icon">💾</span> Save</button>
-          <button class="cancel-btn" type="button" onclick="closeModal()"><span class="btn-icon">❌</span> Cancel</button>
+          <button class="cancel-btn" type="button" onclick="closeModal()"><span class="btn-icon"></span> Cancel</button>
         </div>
       </form>
     </div>
@@ -279,7 +286,19 @@ const validCoupons = coupons.filter(c => {
 
  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
-
+/* 🔒 HARD FIX — runs BEFORE anything else */
+   // Add this at the beginning of your script
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize modals as hidden
+      document.getElementById('addModal').classList.add('hidden-modal');
+      document.getElementById('editModal').classList.add('hidden-modal');
+      
+      // Add click handler for add address button
+      const addBtn = document.getElementById('openAddModalBtn') || document.getElementById('openAddModal');
+      if (addBtn) {
+        addBtn.addEventListener('click', openAddModal);
+      }
+    });
 /* ============================================================
    FORM VALIDATION (Add & Edit)
 ============================================================ */
@@ -426,12 +445,15 @@ async function renderAddress() {
   try {
     const res = await fetch("/get-addresses");
     const data = await res.json();
-    const container = document.querySelector(".left-section");
-    const cartTable = container.querySelector(".cart-table");
+
+    const addressContainer = document.getElementById("addressContainer");
+    if (!addressContainer) return;
+
     let html = `<h2 class="section-heading">🏠 Shipping Address</h2>`;
 
     if (data.addresses && data.addresses.length > 0) {
       const latest = data.addresses[data.addresses.length - 1];
+
       html += `
         <div class="address-card">
           <input type="hidden" name="addressId" value="${latest._id}">
@@ -449,14 +471,16 @@ async function renderAddress() {
     } else {
       html += `
         <p>No saved address found.</p>
-        <button class="add" type="button" onclick="openAddModal()">➕ Add Address</button>`;
+        <button class="add" id="openAddModal">➕ Add Address</button>`;
     }
 
-    container.innerHTML = `
-      <h2 class="section-heading">🛒 Your Cart</h2>
-      ${cartTable ? cartTable.outerHTML : ""}
-      ${html}
-    `;
+    addressContainer.innerHTML = html;
+
+    // Re-bind Add button after DOM update
+    document
+      .getElementById("openAddModal")
+      ?.addEventListener("click", openAddModal);
+
   } catch (err) {
     showToast("⚠️ Failed to load address", "error");
   }
@@ -465,6 +489,9 @@ async function renderAddress() {
 /* =============================
    ➕ Add / ✏️ Edit / ❌ Delete
 ============================= */
+/* ============================================================
+   MODAL CONTROLS (UNCHANGED)
+============================================================ */
 function openAddModal() {
   document.getElementById("addModal").style.display = "flex";
 }
@@ -474,6 +501,7 @@ function closeAddModal() {
 function closeModal() {
   document.getElementById("editModal").style.display = "none";
 }
+
 
 function openEditModal(id) {
   fetch("/get-addresses")

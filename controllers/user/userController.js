@@ -8,6 +8,7 @@ const Category = require("../../models/categorySchema");
 const Product = require("../../models/productSchema");
 const Otp=require("../../models/otpSchema");
 
+const Wishlist = require("../../models/wishlistSchema"); // top of file
 
 
 
@@ -76,14 +77,10 @@ async function sendVerificationEmail(email, otp) {
 // /* =====================================================
 //Page Loads
 // ===================================================== */
-
-const pagenotfound = async (req, res) => {
-  try {
-    res.render("page-404");
-  } catch (error) {
-    res.redirect("/pagenotfound");
-  }
+const pagenotfound = (req, res) => {
+  res.status(404).render("user/page-404");
 };
+
 
 const loadSign = async (req, res) => {
   try {
@@ -451,36 +448,44 @@ const verifyForgotOtp = async (req, res) => {
     res.redirect("/pagenotfound");
   }
 };
-
-// Resend OTP for forgot password
 const resendForgotOtp = async (req, res) => {
   try {
     const email = req.session.forgotEmail;
+
     if (!email) {
       return res.status(400).json({
         success: false,
-        message: "Session expired. Please request forgot password again.",
+        message: "Session expired. Please try again.",
       });
     }
 
-    // Generate new OTP
     const otp = generateOtp();
     const emailSent = await sendVerificationEmail(email, otp);
 
     if (!emailSent) {
       return res.status(500).json({
         success: false,
-        message: "Failed to send OTP. Try again later.",
+        message: "Failed to send OTP",
       });
     }
 
-    // Save OTP in session
-    req.session.forgotOtp = otp;
-    req.session.otpExpires = Date.now() + 5 * 60 * 1000; // 5 minutes
+    // 🔥 Delete old OTPs
+    await Otp.deleteMany({ email, purpose: "forgot" });
 
-    console.log("Forgot Password OTP resent:", otp);
+    // ✅ Store NEW hashed OTP in MongoDB
+    await Otp.create({
+      email,
+      otpHash: await hashOtp(otp),
+      purpose: "forgot",
+      expiresAt: new Date(Date.now() + 5 * 60 * 1000),
+    });
 
-    return res.status(200).json({ success: true, message: "OTP resent successfully" });
+    console.log("Forgot password OTP resent:", otp);
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP resent successfully",
+    });
   } catch (error) {
     console.error("Resend forgot OTP error:", error);
     res.status(500).json({ success: false, message: "Server error" });
@@ -574,7 +579,17 @@ const loadcollectionpage = async (req, res) => {
       ...product,
       categoryName: product.category ? product.category.name : 'Uncategorized',
     }));
+//  Get wishlist product IDs
+let wishlistProductIds = [];
 
+if (userId) {
+  const wishlist = await Wishlist.findOne({ userId }).lean();
+  if (wishlist && wishlist.products.length > 0) {
+    wishlistProductIds = wishlist.products.map(p =>
+      p.productId.toString()
+    );
+  }
+}
     res.render('user/collection', {
       user: userData,
       products: productsWithCategory,
@@ -582,6 +597,7 @@ const loadcollectionpage = async (req, res) => {
       totalProducts,
       currentPage: page,
       totalPages,
+      wishlistProductIds
     });
   } catch (error) {
     console.error('Error loading collection page:', error);

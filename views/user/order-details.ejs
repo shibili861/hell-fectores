@@ -4,433 +4,1381 @@
   <title>Order Details - ÉLÉGANCE</title>
 
   <style>
-    body {
-      margin: 0;
-      font-family: 'Montserrat', sans-serif;
-      background: linear-gradient(135deg, #0a0a0a, #1a1410);
-      color: #fff;
-      padding: 40px;
-    }
+/* Premium Order Details - Complete CSS with Responsive */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-    .order-details-container {
-      max-width: 900px;
-      margin: auto;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(212,175,55,0.3);
-      border-radius: 16px;
-      padding: 40px 60px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.4);
-    }
-
-    .page-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 42px;
-      color: #d4af37;
-      margin-bottom: 10px;
-      text-align: center;
-    }
-
-    .order-id, .order-date {
-      text-align: center;
-      color: #aaa;
-      margin-bottom: 5px;
-    }
-
-    section { margin-top: 40px; }
-
-    h2 {
-      color: #d4af37;
-      font-family: 'Cormorant Garamond', serif;
-      border-bottom: 1px solid rgba(212,175,55,0.2);
-      padding-bottom: 8px;
-      margin-bottom: 20px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    th, td {
-      text-align: left;
-      padding: 10px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-
-    img {
-      width: 60px;
-      height: 60px;
-      border-radius: 6px;
-      object-fit: cover;
-    }
-
-    .summary-section p {
-      margin: 8px 0;
-      font-size: 16px;
-    }
-
-    .summary-section strong {
-      color: #f4e4c1;
-    }
-
-    .button-group {
-      text-align: center;
-      margin-top: 40px;
-    }
-
-    .btn {
-      padding: 12px 30px;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: 600;
-      letter-spacing: 1px;
-      transition: all 0.3s ease;
-    }
-
-    .btn-secondary {
-      border: 1px solid #d4af37;
-      color: #d4af37;
-    }
-
-    .btn-secondary:hover {
-      background: rgba(212,175,55,0.1);
-      transform: translateY(-2px);
-    }
-
-    .action-btn {
-      background: linear-gradient(135deg, #d4af37, #b8941f);
-      color: #0b0b0f;
-      border: none;
-      border-radius: 8px;
-      padding: 8px 12px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-right: 10px;
-      transition: 0.3s ease;
-    }
-
-    .action-btn:hover {
-      box-shadow: 0 0 12px rgba(212,175,55,0.6);
-      transform: translateY(-2px);
-    }
-
-    /* === Order Tracker === */
-    .order-tracker {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 30px;
-      position: relative;
-    }
-
-    .order-tracker::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 0;
-      width: 100%;
-      height: 3px;
-      background: rgba(255,255,255,0.1);
-      z-index: 1;
-    }
-
-    .tracker-step {
-      position: relative;
-      z-index: 2;
-      text-align: center;
-      flex: 1;
-    }
-
-    .tracker-circle {
-      width: 25px;
-      height: 25px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.1);
-      margin: auto;
-      margin-bottom: 6px;
-      border: 2px solid rgba(212,175,55,0.4);
-    }
-
-    .tracker-step.active .tracker-circle {
-      background: linear-gradient(135deg, #d4af37, #b8941f);
-      border-color: #d4af37;
-      box-shadow: 0 0 12px rgba(212,175,55,0.6);
-    }
-
-    .tracker-label {
-      font-size: 13px;
-      color: #f4e4c1;
-      opacity: 0.8;
-    }
-
-    /* === Modal === */
-    .modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.7);
-      backdrop-filter: blur(6px);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-    }
-
-    .modal-content {
-      background: #0b0b0f;
-      border: 1px solid rgba(212,175,55,0.4);
-      border-radius: 16px;
-      width: 90%;
-      max-width: 420px;
-      padding: 25px;
-      color: #fff;
-      text-align: center;
-      box-shadow: 0 0 25px rgba(212,175,55,0.3);
-      transform: scale(0.95);
-      opacity: 0;
-      transition: all 0.3s ease;
-    }
-
-    .modal.show .modal-content {
-      transform: scale(1);
-      opacity: 1;
-    }
-
-    select, textarea {
-      width: 100%;
-      margin: 10px 0;
-      border-radius: 10px;
-      border: 1px solid rgba(212,175,55,0.4);
-      padding: 10px;
-      background: rgba(255,255,255,0.05);
-      color: #fff;
-      font-size: 14px;
-    }
-
-    .modal-content button {
-      margin: 10px 8px;
-      padding: 10px 20px;
-      border-radius: 10px;
-      border: none;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.3s ease;
-    }
-
-    .confirm-btn {
-      background: linear-gradient(135deg, #d4af37, #b8941f);
-      color: #0b0b0f;
-    }
-
-    .close-btn {
-      border: 1px solid rgba(212,175,55,0.4);
-      background: transparent;
-      color: #d4af37;
-    }
-
-    .close-btn:hover {
-      background: rgba(212,175,55,0.1);
-    }
-    @media print {
-  body {
-    background: #fff;
-    color: #000;
-  }
-
-  .order-details-container {
-    box-shadow: none;
-    border: none;
-    background: #fff;
-    color: #000;
-  }
-
-  .btn, .action-btn, .modal, .button-group {
-    display: none !important;
-  }
-
-  .page-title {
-    color: #000;
-    font-size: 28px;
-  }
-
-  .order-tracker, .tracker-circle {
-    display: none !important;
-  }
-
-  h2 {
-    color: #000;
-    border-bottom: 1px solid #000;
-  }
-
-  table {
-    width: 100%;
-    border: 1px solid #000;
-  }
-
-  th, td {
-    border: 1px solid #000;
-    padding: 6px;
-    color: #000;
-  }
-
-  img {
-    border: 1px solid #000;
-  }
+:root {
+  --primary: #003543;
+  --primary-light: #005566;
+  --accent: #00b4d8;
+  --success: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --info: #3b82f6;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+  --white: #ffffff;
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.toast {
-    visibility: hidden;
-    min-width: 280px;
-    background: linear-gradient(135deg, #1a1a1a, #3d3d3d);
-    color: #f8d47b;
-    text-align: left;
-    border-left: 6px solid #f8d47b;
-    border-radius: 12px;
-    padding: 16px 20px;
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    font-size: 15px;
-    z-index: 99999;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  color: var(--gray-800);
+  line-height: 1.5;
+  padding: 16px;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Toast Notification */
+#toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: var(--white);
+  padding: 14px 24px;
+  border-radius: var(--radius-lg);
+  font-weight: 600;
+  font-size: 14px;
+  box-shadow: var(--shadow-xl);
+  transform: translateY(100px);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  z-index: 9999;
+  max-width: 350px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#toast.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Main Container */
+.order-details-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
     opacity: 0;
     transform: translateY(20px);
-    transition: opacity .35s ease, transform .35s ease;
-    box-shadow: 0 10px 28px rgba(0,0,0,0.3);
-    backdrop-filter: blur(6px);
-}
-
-.toast.show {
-    visibility: visible;
+  }
+  to {
     opacity: 1;
     transform: translateY(0);
+  }
 }
-/* -------- ORDER TRACKER (Amazon / Myntra Style) -------- */
 
-.order-tracker {
-  margin: 30px 0;
+/* Header Section */
+.page-title {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: var(--white);
+  padding: 32px 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+.page-title h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  letter-spacing: -0.5px;
+}
+
+.page-title h1::before {
+  content: '📋';
+  font-size: 24px;
+  opacity: 0.9;
+}
+
+.order-meta {
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.order-info {
+  flex: 1;
+  min-width: 250px;
+}
+
+.order-id, .order-date {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.order-id strong, .order-date strong {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+}
+
+/* Print Button */
+.header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: var(--transition);
+  text-decoration: none;
+  border: none;
+  outline: none;
   position: relative;
-  padding: 0 15px;
+  overflow: hidden;
+}
+
+.btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: 0.5s;
+}
+
+.btn:hover::after {
+  left: 100%;
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.15);
+    color: #080707;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(8px);
+}
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Order Tracker */
+.order-tracker {
+  padding: 40px;
+  background: var(--white);
+  border-bottom: 1px solid var(--gray-100);
+  position: relative;
 }
 
 .order-tracker::before {
-  content: "";
+  content: '';
   position: absolute;
-  top: 22px;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: #ddd;
+  top: 50%;
+  left: 60px;
+  right: 60px;
+  height: 3px;
+  background: var(--gray-200);
+  transform: translateY(-50%);
   z-index: 1;
-  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+.order-tracker {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0;
 }
 
 .tracker-step {
-  text-align: center;
-  width: 20%;
   position: relative;
   z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .tracker-circle {
-  width: 22px;
-  height: 22px;
-  background: #ccc;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
-  margin: 0 auto;
-  position: relative;
-  z-index: 3;
-  border: 3px solid #fff;
-  box-shadow: 0 0 5px #0002;
+  background: var(--gray-200);
+  border: 4px solid var(--white);
+  transition: var(--transition);
+  box-shadow: var(--shadow-sm);
+}
+
+.tracker-step.active .tracker-circle {
+  background: var(--success);
+  box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.2);
+}
+
+.tracker-step.active ~ .tracker-step .tracker-circle {
+  background: var(--gray-200);
 }
 
 .tracker-label {
-  margin-top: 8px;
   font-size: 13px;
-  font-weight: 600;
-  color: #666;
-}
-
-/* Active Step */
-.tracker-step.active .tracker-circle {
-  background: #28a745; /* Green like Amazon */
-  box-shadow: 0 0 6px #28a745;
+  font-weight: 500;
+  color: var(--gray-600);
+  margin-top: 10px;
+  text-align: center;
+  transition: var(--transition);
 }
 
 .tracker-step.active .tracker-label {
-  color: #28a745;
+  color: var(--success);
+  font-weight: 600;
 }
 
-/* Fill progress bar */
-.order-tracker .active ~ .tracker-step .tracker-circle {
-  background: #ccc !important;
-  box-shadow: none !important;
+/* Content Sections */
+section {
+  padding: 32px 40px;
+  border-bottom: 1px solid var(--gray-100);
 }
 
-.order-tracker .tracker-step.active ~ .tracker-step::before {
-  background: #28a745;
+section:last-of-type {
+  border-bottom: none;
 }
 
-.order-tracker::after {
-  content: "";
+section h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--gray-100);
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+section h2::after {
+  content: '';
   position: absolute;
-  top: 22px;
+  bottom: -2px;
   left: 0;
-  height: 4px;
-  width: calc(
-    (var(--active-step, 1) - 1) *
-    (100% / 4)
-  );
-  background: #28a745;
-  z-index: 1;
-  border-radius: 5px;
-}
-/* Hide elements during printing */
-.print-hide {
-    display: none !important;
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  border-radius: 1px;
 }
 
-/* Make invoice ALWAYS print on a single page */
+/* Address Section */
+.address-details {
+  background: var(--gray-50);
+  padding: 20px;
+  border-radius: var(--radius-lg);
+  margin-top: 12px;
+  border: 1px solid var(--gray-200);
+}
+
+.address-details p {
+  font-size: 14px;
+  color: var(--gray-700);
+  margin: 8px 0;
+  line-height: 1.6;
+}
+
+/* Rejected Returns */
+[style*="background:#efeaea"] {
+  background: rgba(239, 68, 68, 0.05) !important;
+  border: 1px solid rgba(239, 68, 68, 0.15) !important;
+  border-radius: var(--radius-lg) !important;
+  padding: 20px !important;
+  margin: 12px 0 !important;
+  transition: var(--transition);
+}
+
+[style*="background:#efeaea"]:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+[style*="color:#b40000"] {
+  color: var(--danger) !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+}
+
+/* Products Table */
+.table-container {
+  overflow-x: auto;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--gray-200);
+  margin-top: 16px;
+}
+
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 800px;
+  background: var(--white);
+}
+
+thead {
+  background: linear-gradient(135deg, var(--gray-50), var(--gray-100));
+}
+
+th {
+  padding: 16px 20px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--gray-700);
+  border-bottom: 1px solid var(--gray-200);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+th:first-child {
+  border-radius: var(--radius-lg) 0 0 0;
+}
+
+th:last-child {
+  border-radius: 0 var(--radius-lg) 0 0;
+}
+
+td {
+  padding: 20px;
+  border-bottom: 1px solid var(--gray-100);
+  vertical-align: middle;
+  font-size: 14px;
+  color: var(--gray-700);
+}
+
+tbody tr {
+  transition: var(--transition);
+}
+
+tbody tr:hover {
+  background: var(--gray-50);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+td img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--gray-200);
+  transition: var(--transition);
+}
+
+tbody tr:hover img {
+  border-color: var(--accent);
+  transform: scale(1.05);
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-delivered {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--success);
+}
+
+.status-processing {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--info);
+}
+
+.status-pending {
+  background: rgba(107, 114, 128, 0.1);
+  color: var(--gray-600);
+}
+
+.status-cancelled {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+}
+
+/* Action Buttons */
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  transition: var(--transition);
+  min-width: 80px;
+}
+
+.action-btn:hover {
+  background: linear-gradient(135deg, var(--primary-light), var(--accent));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 85, 102, 0.3);
+}
+
+.text-success, .text-warning, .text-danger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.text-success {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--success);
+}
+
+.text-warning {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--warning);
+}
+
+.text-danger {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+}
+
+/* Payment Summary */
+.summary-card {
+  background: var(--gray-50);
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--gray-200);
+  margin-top: 16px;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px dashed var(--gray-300);
+  font-size: 14px;
+  color: var(--gray-600);
+}
+
+.summary-item:last-child {
+  border-bottom: none;
+}
+
+.summary-item strong {
+  color: var(--gray-800);
+  font-weight: 600;
+}
+
+.summary-total {
+  border-top: 2px solid var(--gray-300);
+  margin-top: 8px;
+  padding-top: 16px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+/* Button Group */
+.button-group {
+  padding: 32px 40px;
+  background: var(--gray-50);
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--gray-100);
+}
+
+.continue-shopping {
+  background: var(--white);
+  color: var(--primary);
+  border: 2px solid var(--gray-200);
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: var(--transition);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.continue-shopping:hover {
+  background: var(--gray-50);
+  border-color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.cancel-order-btn {
+  background: var(--danger);
+  color: var(--white);
+  border: none;
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.cancel-order-btn:hover {
+  background: #dc2626;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+/* Retry Payment Button */
+.retry-payment-btn {
+  background: linear-gradient(135deg, var(--danger), #dc2626);
+  color: var(--white);
+  border: none;
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.retry-payment-btn:hover {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+}
+
+/* Modals */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.modal.show {
+  display: flex;
+  opacity: 1;
+}
+
+.modal-content {
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  padding: 32px;
+  width: 100%;
+  max-width: 450px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-xl);
+  transform: translateY(20px);
+  transition: transform 0.3s ease;
+}
+
+.modal.show .modal-content {
+  transform: translateY(0);
+}
+
+.modal-content h3 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: var(--primary);
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-700);
+  margin-bottom: 8px;
+}
+
+.form-select, textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  transition: var(--transition);
+  background: var(--white);
+}
+
+.form-select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.1);
+}
+
+textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.confirm-btn {
+  flex: 1;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.confirm-btn:hover {
+  background: linear-gradient(135deg, var(--primary-light), var(--accent));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 85, 102, 0.3);
+}
+
+.close-btn {
+  flex: 1;
+  padding: 14px;
+  background: var(--gray-100);
+  color: var(--gray-600);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.close-btn:hover {
+  background: var(--gray-200);
+  transform: translateY(-2px);
+}
+/* Fix for Modal Dropdowns and Select Issues */
+#cancelModal .modal-content,
+#returnModal .modal-content {
+  min-width: 400px;
+  max-width: 450px;
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  padding: 32px;
+  box-shadow: var(--shadow-xl);
+}
+
+/* Fix for Select Dropdowns */
+#cancelReasonSelect,
+#returnReasonSelect {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid var(--gray-300);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  color: var(--gray-800);
+  background: var(--white);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23005566' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 16px;
+  padding-right: 40px;
+  transition: var(--transition);
+}
+
+#cancelReasonSelect:focus,
+#returnReasonSelect:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.15);
+}
+
+/* Fix for Textareas */
+#cancelReasonText,
+#returnReasonText {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px 16px;
+  border: 2px solid var(--gray-300);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  color: var(--gray-800);
+  background: var(--white);
+  resize: vertical;
+  transition: var(--transition);
+  margin-top: 12px;
+}
+
+#cancelReasonText:focus,
+#returnReasonText:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.15);
+}
+
+/* Fix for Modal Labels */
+#cancelModal label,
+#returnModal label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-700);
+  margin-bottom: 8px;
+  margin-top: 16px;
+}
+
+#cancelModal label:first-of-type,
+#returnModal label:first-of-type {
+  margin-top: 0;
+}
+
+/* Fix for Modal Paragraph */
+#cancelModal p,
+#returnModal p {
+  color: var(--gray-600);
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+/* Fix for Modal Buttons Container */
+#cancelModal .modal-actions,
+#returnModal .modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+#cancelModal .confirm-btn,
+#returnModal .confirm-btn {
+  flex: 1;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+#cancelModal .confirm-btn:hover,
+#returnModal .confirm-btn:hover {
+  background: linear-gradient(135deg, var(--primary-light), var(--accent));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 85, 102, 0.3);
+}
+
+#cancelModal .close-btn,
+#returnModal .close-btn {
+  flex: 1;
+  padding: 14px;
+  background: var(--gray-100);
+  color: var(--gray-600);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+#cancelModal .close-btn:hover,
+#returnModal .close-btn:hover {
+  background: var(--gray-200);
+  transform: translateY(-2px);
+}
+
+/* Fix for Return Modal specific styling */
+#returnModal .modal-content {
+  max-width: 400px;
+}
+
+#returnModal .form-select {
+  margin-top: 5px;
+  margin-bottom: 12px;
+}
+
+/* Make sure textarea shows when "Other" is selected */
+#cancelReasonSelect[value="Other"] ~ #cancelReasonText,
+#returnReasonSelect[value="Other"] ~ #returnReasonText {
+  display: block !important;
+}
+
+/* Fix for Select Options */
+select option {
+  padding: 12px;
+  font-size: 14px;
+  background: var(--white);
+  color: var(--gray-800);
+}
+
+select option:hover {
+  background: var(--gray-100);
+}
+
+/* Fix for Select Dropdown Arrow Color */
+select::-ms-expand {
+  display: none;
+}
+
+/* Fix for Webkit dropdown styling */
+select::-webkit-select-placeholder {
+  color: var(--gray-400);
+}
+
+select::-moz-placeholder {
+  color: var(--gray-400);
+}
+
+select:-ms-input-placeholder {
+  color: var(--gray-400);
+}
+
+select::placeholder {
+  color: var(--gray-400);
+}
+
+/* Fix for Mobile dropdowns */
+@media (max-width: 768px) {
+  #cancelModal .modal-content,
+  #returnModal .modal-content {
+    min-width: unset;
+    width: 95%;
+    padding: 24px;
+  }
+  
+  #cancelReasonSelect,
+  #returnReasonSelect {
+    padding: 10px 14px;
+    font-size: 13px;
+    background-position: right 12px center;
+  }
+  
+  #cancelReasonText,
+  #returnReasonText {
+    padding: 10px 14px;
+    font-size: 13px;
+    min-height: 80px;
+  }
+  
+  #cancelModal .modal-actions,
+  #returnModal .modal-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  #cancelModal .confirm-btn,
+  #returnModal .confirm-btn,
+  #cancelModal .close-btn,
+  #returnModal .close-btn {
+    width: 100%;
+  }
+}
+
+/* Fix for the "Other" option display */
+#cancelReasonSelect:valid ~ #cancelReasonText,
+#returnReasonSelect:valid ~ #returnReasonText {
+  display: block;
+}
+
+/* JavaScript event will handle the display, but this ensures it's styled */
+#cancelReasonText[style*="display: block"],
+#returnReasonText[style*="display: block"] {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  height: auto !important;
+  margin-top: 12px !important;
+}
+
+/* Fix for modal backdrop click */
+.modal {
+  z-index: 9999;
+}
+
+.modal-content {
+  z-index: 10000;
+  position: relative;
+}
+
+/* Fix for error messages in modals */
+#cancelModal .error-message,
+#returnModal .error-message {
+  color: var(--danger);
+  font-size: 12px;
+  margin-top: 4px;
+  display: none;
+}
+
+#cancelModal .error-message.show,
+#returnModal .error-message.show {
+  display: block;
+}
+
+/* Fix for form validation states */
+#cancelReasonSelect.error,
+#returnReasonSelect.error,
+#cancelReasonText.error,
+#returnReasonText.error {
+  border-color: var(--danger);
+  background: rgba(239, 68, 68, 0.05);
+}
+
+/* Add focus styles for accessibility */
+#cancelReasonSelect:focus-visible,
+#returnReasonSelect:focus-visible,
+#cancelReasonText:focus-visible,
+#returnReasonText:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Fix for the confirm button IDs */
+#confirmCancelBtn,
+#confirmReturnBtn {
+  width: 100%;
+  margin-top: 20px;
+}
+
+/* Ensure the buttons are properly styled */
+#confirmCancelBtn {
+  background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
+}
+
+#confirmCancelBtn:hover {
+  background: linear-gradient(135deg, #b91c1c, #991b1b) !important;
+}
+
+#confirmReturnBtn {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light)) !important;
+}
+
+#confirmReturnBtn:hover {
+  background: linear-gradient(135deg, var(--primary-light), var(--accent)) !important;
+}
+
+/* Fix Toast z-index to appear above modals */
+#toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: var(--white);
+  padding: 14px 24px;
+  border-radius: var(--radius-lg);
+  font-weight: 600;
+  font-size: 14px;
+  box-shadow: var(--shadow-xl);
+  transform: translateY(100px);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  z-index: 10001; /* Increased from 9999 to 10001 */
+  max-width: 350px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  pointer-events: none; /* Prevent toast from blocking clicks */
+}
+
+#toast.show {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto; /* Allow interaction if needed */
+}
+
+/* Ensure modal backdrop has lower z-index than toast */
+.modal {
+  z-index: 10000; /* Toast is 10001, modal is 10000 */
+}
+
+.modal-content {
+  z-index: 10002; /* Modal content should be above toast */
+}
+
+/* Alternative solution: Move toast outside modal context */
+#toast {
+  /* ... existing styles ... */
+  z-index: 999999 !important; /* Extremely high z-index */
+}
+
+.modal {
+  z-index: 99999 !important; /* Slightly lower than toast */
+}
+
+.modal-content {
+  z-index: 100000 !important; /* Highest for modal content */
+}
+
+/* Best solution: Use portal-like positioning */
+#toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: var(--white);
+  padding: 14px 24px;
+  border-radius: var(--radius-lg);
+  font-weight: 600;
+  font-size: 14px;
+  box-shadow: var(--shadow-xl);
+  transform: translateY(100px);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  z-index: 2147483647 !important; /* Maximum z-index value */
+  max-width: 350px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  isolation: isolate; /* Creates new stacking context */
+}
+
+.modal {
+  z-index: 2147483646 !important; /* One less than max */
+}
+
+.modal-content {
+  z-index: 2147483648 !important; /* Higher than modal backdrop */
+}
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .order-details-container {
+    border-radius: var(--radius-lg);
+  }
+  
+  .page-title {
+    padding: 28px 32px;
+  }
+  
+  section, .button-group {
+    padding: 28px 32px;
+  }
+  
+  .order-tracker {
+    padding: 32px;
+  }
+  
+  .order-tracker::before {
+    left: 40px;
+    right: 40px;
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    padding: 12px;
+  }
+  
+  .order-details-container {
+    border-radius: 16px;
+  }
+  
+  .page-title {
+    padding: 24px;
+  }
+  
+  .page-title h1 {
+    font-size: 24px;
+  }
+  
+  .order-meta {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .order-info {
+    width: 100%;
+  }
+  
+  .header-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  
+  .btn {
+    padding: 10px 18px;
+    font-size: 13px;
+  }
+  
+  .order-tracker {
+    padding: 24px;
+    gap: 0;
+  }
+  
+  .order-tracker::before {
+    left: 32px;
+    right: 32px;
+  }
+  
+  .tracker-label {
+    font-size: 11px;
+    margin-top: 8px;
+  }
+  
+  section {
+    padding: 24px;
+  }
+  
+  section h2 {
+    font-size: 16px;
+  }
+  
+  .table-container {
+    margin: 0 -24px;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+  
+  table {
+    min-width: 700px;
+  }
+  
+  th, td {
+    padding: 14px 16px;
+    font-size: 13px;
+  }
+  
+  td img {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .button-group {
+    padding: 24px;
+    flex-direction: column;
+  }
+  
+  .continue-shopping, .cancel-order-btn, .retry-payment-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .modal-content {
+    padding: 24px;
+    width: 95%;
+  }
+}
+
+@media (max-width: 640px) {
+  .order-tracker {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  
+  .order-tracker::before {
+    top: 32px;
+    left: 50%;
+    width: 3px;
+    height: calc(100% - 64px);
+    transform: translateX(-50%);
+  }
+  
+  .tracker-step {
+    flex-direction: row;
+    gap: 16px;
+    align-items: center;
+  }
+  
+  .tracker-label {
+    margin-top: 0;
+    text-align: left;
+    flex: 1;
+  }
+  
+  .page-title h1::before {
+    display: none;
+  }
+  
+  .btn::before {
+    margin-right: 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-title {
+    padding: 20px;
+  }
+  
+  .page-title h1 {
+    font-size: 20px;
+  }
+  
+  .order-id strong, .order-date strong {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+  
+  section {
+    padding: 20px;
+  }
+  
+  .button-group {
+    padding: 20px;
+  }
+  
+  .modal-content {
+    padding: 20px;
+  }
+  
+  .form-select, textarea {
+    padding: 10px 14px;
+  }
+  
+  .confirm-btn, .close-btn {
+    padding: 12px;
+  }
+}
+
+/* Animation for table rows */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+tbody tr {
+  animation: slideIn 0.3s ease-out forwards;
+  opacity: 0;
+}
+
+tbody tr:nth-child(1) { animation-delay: 0.1s; }
+tbody tr:nth-child(2) { animation-delay: 0.2s; }
+tbody tr:nth-child(3) { animation-delay: 0.3s; }
+tbody tr:nth-child(4) { animation-delay: 0.4s; }
+tbody tr:nth-child(5) { animation-delay: 0.5s; }
+tbody tr:nth-child(6) { animation-delay: 0.6s; }
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--gray-100);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gray-400);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-500);
+}
+
+/* Print Styles */
 @media print {
-
-    /* Remove margins from browser */
-    @page {
-        size: A4;
-        margin: 0;
-    }
-
-    body {
-        margin: 0;
-        padding: 0;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
-
-    /* Ensure invoice wraps into ONE page */
-    .invoice-container {
-        page-break-before: auto;
-        page-break-after: auto;
-        page-break-inside: avoid;
-        width: 100%;
-        max-height: 100vh;
-        overflow: hidden !important;
-    }
-
-    /* Prevent page breaks inside tables */
-    table {
-        page-break-inside: avoid;
-    }
-
-    tr, td, th {
-        page-break-inside: avoid;
-        break-inside: avoid;
-    }
-
-    /* Remove any scrollbars */
-    html, body {
-        overflow: hidden !important;
-    }
+  .header-actions,
+  .button-group,
+  .action-btn,
+  .modal {
+    display: none !important;
+  }
+  
+  .order-details-container {
+    box-shadow: none;
+    border: 1px solid #ddd;
+  }
 }
-
-
   </style>
  
 
@@ -733,6 +1681,39 @@
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
  <script>
+
+  // Fix for dropdown visibility
+document.getElementById('cancelReasonSelect')?.addEventListener('change', function() {
+  const textArea = document.getElementById('cancelReasonText');
+  if (this.value === 'Other') {
+    textArea.style.display = 'block';
+    textArea.required = true;
+  } else {
+    textArea.style.display = 'none';
+    textArea.required = false;
+    textArea.value = '';
+  }
+});
+
+document.getElementById('returnReasonSelect')?.addEventListener('change', function() {
+  const textArea = document.getElementById('returnReasonText');
+  if (this.value === 'Other') {
+    textArea.style.display = 'block';
+    textArea.required = true;
+  } else {
+    textArea.style.display = 'none';
+    textArea.required = false;
+    textArea.value = '';
+  }
+});
+
+// Initialize textareas as hidden
+document.addEventListener('DOMContentLoaded', function() {
+  const cancelText = document.getElementById('cancelReasonText');
+  const returnText = document.getElementById('returnReasonText');
+  if (cancelText) cancelText.style.display = 'none';
+  if (returnText) returnText.style.display = 'none';
+});
     let currentOrderId = null;
     let currentItemId = null;
 

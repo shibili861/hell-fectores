@@ -465,6 +465,91 @@ body.product-details-page main {
     height: 300px !important;
   }
 }
+/* ================= WISHLIST BUTTON (BASE) ================= */
+.wishlist-btn {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 5;
+
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
+
+  color: var(--primary);
+  font-size: 18px;
+
+  cursor: pointer;
+
+  box-shadow: 0 6px 16px rgba(0, 53, 67, 0.22);
+  backdrop-filter: blur(6px);
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    color 0.2s ease;
+}
+.wishlist-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(0, 53, 67, 0.28);
+}
+/* ================= ADDED (MINIMAL & PREMIUM) ================= */
+.wishlist-btn.added {
+  background: #111;           /* or var(--text-dark) */
+  color: #fff;
+
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+}
+
+
+
+/* ================= GLASS OVERLAY (CLICK-SAFE) ================= */
+.related-product-quick-view {
+  position: absolute;
+  inset: 0;
+
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 22px;
+
+  background: linear-gradient(
+    to top,
+    rgba(0, 53, 67, 0.85),
+    rgba(0, 53, 67, 0.35),
+    transparent
+  );
+
+  opacity: 0;
+  transition: opacity 0.4s ease;
+
+  z-index: 2;
+
+  /* 🔑 CRITICAL */
+  pointer-events: none;
+}
+
+.related-product-card:hover .related-product-quick-view {
+  opacity: 1;
+}
+
+/* Allow ONLY the button to be clickable */
+.related-product-quick-view .quick-view-btn {
+  pointer-events: auto;
+}
+
+
+.related-product-card:hover .related-product-quick-view {
+  opacity: 1;
+}
 
 
 /* ================= RELATED PRODUCT CARD ================= */
@@ -477,6 +562,13 @@ body.product-details-page main {
   transition: all 0.4s ease;
   height: 100%; /* Add this */
 }
+
+
+.related-product-image img {
+  position: relative;
+  z-index: 1;
+}
+
 
 /* Make sure the card content fills properly */
 .related-product-card a {
@@ -579,47 +671,6 @@ body.product-details-page main {
   opacity: 1;
 }
 
-/* ================= OVERLAY BUTTONS ================= */
-.related-quick-view-btn {
-  width: 100%;
-  padding: 12px;
-  border-radius: 30px;
-  border: none;
-  background: rgba(255, 255, 255, 0.95);
-  color: var(--primary);
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.related-quick-view-btn:hover {
-  background: var(--primary);
-  color: #fff;
-}
-
-.related-quick-btns-row {
-  display: flex;
-  justify-content: center;
-}
-
-.related-quick-btn {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(255, 255, 255, 0.95);
-  color: var(--primary);
-  font-size: 18px;
-  cursor: pointer;
-  box-shadow: 0 8px 18px rgba(0,53,67,.18);
-  transition: all 0.3s ease;
-}
-
-.related-quick-btn:hover {
-  background: var(--primary);
-  color: #fff;
-}
-
 /* ================= PRODUCT INFO ================= */
 .related-product-info {
   padding: 20px;
@@ -673,6 +724,113 @@ body.product-details-page main {
     margin-bottom: 24px !important;
   }
 }
+/* ================= QUICK VIEW BUTTON ================= */
+.quick-view-btn {
+  appearance: none;
+  border: none;
+  outline: none;
+
+  padding: 12px 26px;
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--primary);
+
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 10px 25px rgba(0, 53, 67, 0.25),
+    inset 0 0 0 1px rgba(0, 53, 67, 0.08);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease,
+    color 0.25s ease;
+}
+
+/* ================= HOVER EFFECT ================= */
+.related-product-card:hover .quick-view-btn {
+  background: var(--primary);
+  color: #fff;
+
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 14px 30px rgba(0, 53, 67, 0.35),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+
+/* ================= WISHLIST BUTTON (PDP) ================= */
+.wishlist-btn {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 5;
+
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
+
+  color: var(--primary);
+  font-size: 18px;
+
+  cursor: pointer;
+
+  box-shadow: 0 6px 16px rgba(0, 53, 67, 0.22);
+  backdrop-filter: blur(6px);
+
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.wishlist-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(0, 53, 67, 0.28);
+}
+
+/* ================= ADDED (MINIMAL PREMIUM) ================= */
+.wishlist-btn.added {
+  background: #111;
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+}
+
+.wishlist-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+
+/* ================= ACTIVE (CLICK) ================= */
+.quick-view-btn:active {
+  transform: translateY(0);
+  box-shadow:
+    0 8px 18px rgba(0, 53, 67, 0.25);
+}
+.quick-view-btn {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.related-product-card:hover .quick-view-btn {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 
 /* ================= ANIMATION ================= */
 @keyframes fadeInUp {
@@ -740,6 +898,18 @@ body.product-details-page main {
         <div class="product-wrapper">
             <!-- Product Gallery -->
             <div class="product-gallery">
+                   <button
+  id="pdWishlistBtn"
+  class="wishlist-btn <%= isWishlisted ? 'added' : '' %>"
+  aria-pressed="<%= isWishlisted %>"
+  onclick="toggleWishlist('<%= product._id %>')">
+
+  <span class="heart-icon">
+    <%= isWishlisted ? '♥' : '♡' %>
+  </span>
+
+</button>
+
                 <div class="main-image" id="mainImageContainer">
                     <% if (product.productImage && product.productImage.length > 0) { %>
                         <img src="<%= product.productImage[0] %>" alt="<%= product.productName %>" id="mainImage">
@@ -900,52 +1070,65 @@ body.product-details-page main {
             </div>
         </div>
    </section>
-    <!-- Related Products Section -->
-    <section class="related-products">
-        <h2 class="related-section-title">More from this category</h2>
+  <section class="related-products">
+  <h2 class="related-section-title">More from this category</h2>
 
-        <div class="related-products-grid">
-            <% if (relatedProducts && relatedProducts.length > 0) { %>
-                <% relatedProducts.forEach(item => { %>
-                    <div class="related-product-card">
-                        <a href="/product/<%= item._id %>">
-                            <div class="related-product-image">
-                                <img 
-                                    src="<%= item.productImage && item.productImage.length > 0 
-                                    ? item.productImage[0] 
-                                    : '/images/no-image.jpg' %>" 
-                                    alt="<%= item.productName %>"
-                                >
-                                <div class="related-product-quick-view">
-                                    <button class="related-quick-view-btn">Quick View</button>
-                                    <div class="related-quick-btns-row">
-                                        <button class="related-quick-btn">♥</button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="related-product-info">
-                                <div class="related-product-category"><%= item.category?.name || 'Fashion' %></div>
-                                <h3 class="related-product-name"><%= item.productName %></h3>
-                                <div class="related-product-price">
-                                    <% if (item.salePrice && item.salePrice < item.regularPrice) { %>
-                                        <span class="related-price-sale">₹<%= item.salePrice %></span>
-                                        <span class="related-price-original">₹<%= item.regularPrice %></span>
-                                    <% } else { %>
-                                        <span class="related-price-sale">₹<%= item.regularPrice %></span>
-                                    <% } %>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                <% }) %>
-            <% } else { %>
-                <p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 40px;">
-                    No related products found.
-                </p>
-            <% } %>
+  <div class="related-products-grid">
+    <% if (relatedProducts && relatedProducts.length > 0) { %>
+
+      <% relatedProducts.forEach(item => { %>
+
+        <div class="related-product-card">
+          <a href="/productsDetailes?id=<%= item._id %>">
+
+            <div class="related-product-image">
+              <img 
+                src="<%= item.productImage?.[0] || '/images/no-image.jpg' %>" 
+                alt="<%= item.productName %>">
+
+              <div class="related-product-quick-view">
+                <button
+                  type="button"
+                  class="quick-view-btn"
+                  onclick="event.preventDefault(); viewProduct('<%= item._id %>')">
+                  Quick View
+                </button>
+              </div>
+            </div>
+
+            <div class="related-product-info">
+              <div class="related-product-category">
+                <%= item.category?.name || 'Fashion' %>
+              </div>
+
+              <h3 class="related-product-name">
+                <%= item.productName %>
+              </h3>
+
+              <div class="related-product-price">
+                <% if (item.salePrice && item.salePrice < item.regularPrice) { %>
+                  <span class="related-price-sale">₹<%= item.salePrice %></span>
+                  <span class="related-price-original">₹<%= item.regularPrice %></span>
+                <% } else { %>
+                  <span class="related-price-sale">₹<%= item.regularPrice %></span>
+                <% } %>
+              </div>
+            </div>
+
+          </a>
         </div>
-    </section>
- 
+
+      <% }) %>
+
+    <% } else { %>
+      <p style="grid-column: 1 / -1; text-align: center;">
+        No related products found.
+      </p>
+    <% } %>
+  </div>
+</section>
+
+
 
 </body>
 </html>
@@ -977,6 +1160,12 @@ function increaseQty() {
         showToast(`Maximum ${maxAllowed} items allowed for this size`);
     }
 }
+
+function viewProduct(productId) {
+  // Navigate to SAME product details page
+  window.location.href = `/productsDetailes?id=${productId}`;
+}
+
 
 function decreaseQty() {
     const qtyInput = document.getElementById('quantity');
@@ -1403,6 +1592,52 @@ document.getElementById('addToCartBtn').addEventListener('click', function() {
         }, 3000);
     }
 
+
+    async function toggleWishlist(productId) {
+  const btn = document.getElementById('pdWishlistBtn');
+  if (!btn) return;
+
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('/wishlist/add', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ productId })
+    });
+
+    const data = await res.json();
+
+    showToast(data.message, data.success ? 'success' : 'error');
+    updateWishlistNavbar();
+
+    if (data.success) {
+      const icon = btn.querySelector('.heart-icon');
+
+      if (data.added) {
+        btn.classList.add('added');
+        btn.setAttribute('aria-pressed', 'true');
+        if (icon) icon.textContent = '❤️';
+      }
+
+      if (data.removed) {
+        btn.classList.remove('added');
+        btn.setAttribute('aria-pressed', 'false');
+        if (icon) icon.textContent = '♡';
+      }
+    }
+
+  } catch (err) {
+    showToast('Network error. Try again.', 'error');
+  } finally {
+    setTimeout(() => btn.disabled = false, 400);
+  }
+}
+
+
+
+
+
     // Update cart count in navbar
     async function updateCartCount() {
         try {
@@ -1438,68 +1673,6 @@ document.getElementById('addToCartBtn').addEventListener('click', function() {
 
 
 
-
-async function toggleWishlist(productId) {
-  const btn = document.getElementById('pdWishlistBtn');
-  if (!btn) return;
-
-  // optimistic UI: lock button to avoid multi-clicks
-  btn.disabled = true;
-
-  try {
-    const res = await fetch('/wishlist/add', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ productId })
-    });
-
-    const data = await res.json();
-
-    // show toast using your global function
-    showToast(data.message, data.success ? 'success' : 'error');
-
-    // update navbar
-    updateWishlistNavbar();
-
-    // If backend says success, set added visual state
-   if (data.success) {
-  const icon = btn.querySelector('.heart-icon');
-
-  if (data.added) {
-    btn.classList.add('added');
-    btn.setAttribute('aria-pressed', 'true');
-    if (icon) icon.textContent = '❤️';
-  }
-
-  if (data.removed) {
-    btn.classList.remove('added');
-    btn.setAttribute('aria-pressed', 'false');
-    if (icon) icon.textContent = '♡';
-  }
-
-  btn.classList.add('pulse');
-  setTimeout(() => btn.classList.remove('pulse'), 400);
-}
- else {
-      // If action failed and backend indicates removal or false, remove visual
-      if (data.removed || data.alreadyRemoved) {
-        btn.classList.remove('added');
-        const icon = btn.querySelector('.heart-icon');
-        if (icon) icon.textContent = '♡';
-        btn.setAttribute('aria-pressed', 'false');
-      } else {
-        // keep current state but re-enable
-      }
-    }
-
-  } catch (err) {
-    console.error('Wishlist toggle error:', err);
-    showToast('Network error. Try again.', 'error');
-  } finally {
-    // re-enable after a small delay so user sees the effect
-    setTimeout(() => btn.disabled = false, 450);
-  }
-}
 
 
     </script>
