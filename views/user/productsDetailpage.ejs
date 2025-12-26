@@ -415,10 +415,13 @@ body.product-details-page main {
 .related-products-grid {
   max-width: 1200px;
   margin: 0 auto;
+
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0px; /* Reduced from 28px */
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 28px;
 }
+
+
 /* ===== SECTION SPACING FIX ===== */
 
 /* Reduce bottom space of product section */
@@ -552,6 +555,7 @@ body.product-details-page main {
 }
 
 
+
 /* ================= RELATED PRODUCT CARD ================= */
 .related-product-card {
   background: var(--white);
@@ -560,7 +564,7 @@ body.product-details-page main {
   box-shadow: var(--shadow);
   overflow: hidden;
   transition: all 0.4s ease;
-  height: 100%; /* Add this */
+ 
 }
 
 

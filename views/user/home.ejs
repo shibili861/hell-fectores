@@ -1035,7 +1035,10 @@ body {
 
     <div class="hero-buttons">
       <button class="cta-primary">Shop Collection</button>
-      <button class="cta-secondary">Explore More</button>
+  <button class="cta-secondary" onclick="window.location.href='/collections'">
+  Explore More
+</button>
+
     </div>
 
   </div>
@@ -1044,54 +1047,75 @@ body {
 
 
 
-    <!-- Collections -->
-    <section class="collections" id="collections">
-        <div class="section-header">
-            <p class="section-label">EXPLORE</p>
-            <h2 class="section-title">Our Collections</h2>
-        </div>
-        <div class="collection-grid">
-            <div class="collection-card">
-                <div class="collection-bg" style="background: linear-gradient(135deg, rgba(107, 68, 35, 0.9), rgba(74, 50, 25, 0.8)), url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%236B4423%22 width=%22100%22 height=%22100%22/></svg>');"></div>
-                <div class="collection-overlay"></div>
-                <div class="collection-content">
-                    <h3>Linen Shirts</h3>
-                    <p>BREATHABLE ELEGANCE</p>
-                    <a href="#" class="collection-link">Explore Now</a>
-                </div>
-            </div>
-            <div class="collection-card">
-                <div class="collection-bg" style="background: linear-gradient(135deg, rgba(139, 115, 85, 0.9), rgba(107, 89, 67, 0.8)), url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%238B7355%22 width=%22100%22 height=%22100%22/></svg>');"></div>
-                <div class="collection-overlay"></div>
-                <div class="collection-content">
-                    <h3>Linen Pants</h3>
-                    <p>EFFORTLESS STYLE</p>
-                    <a href="#" class="collection-link">Explore Now</a>
-                </div>
-            </div>
-            <div class="collection-card">
-                <div class="collection-bg" style="background: linear-gradient(135deg, rgba(44, 62, 80, 0.9), rgba(26, 37, 47, 0.8)), url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%232C3E50%22 width=%22100%22 height=%22100%22/></svg>');"></div>
-                <div class="collection-overlay"></div>
-                <div class="collection-content">
-                    <h3>Cotton Shirts</h3>
-                    <p>CLASSIC COMFORT</p>
-                    <a href="#" class="collection-link">Explore Now</a>
-                </div>
-            </div>
-            <div class="collection-card">
-                <div class="collection-bg" style="background: linear-gradient(135deg, rgba(52, 73, 94, 0.9), rgba(44, 62, 80, 0.8)), url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%2334495E%22 width=%22100%22 height=%22100%22/></svg>');"></div>
-                <div class="collection-overlay"></div>
-                <div class="collection-content">
-                    <h3>Cotton Pants</h3>
-                    <p>TIMELESS DESIGN</p>
-                    <a href="#" class="collection-link">Explore Now</a>
-                </div>
-            </div>
-        </div>
-    </section>
+ <!-- Collections -->
+<section class="collections" id="collections">
+  <div class="section-header">
+    <p class="section-label">EXPLORE</p>
+    <h2 class="section-title">Our Collections</h2>
+  </div>
 
+  <% if (categories && categories.length > 0) { %>
+
+    <!-- GRID STARTS ONCE -->
+    <div class="collection-grid">
+
+      <% categories.forEach(cat => { %>
+        <div class="collection-card">
+
+          <div class="collection-card">
+
+<div class="collection-bg"
+  style="
+    background-image:
+      linear-gradient(
+        135deg,
+        rgba(0, 0, 0, 0.15),
+        rgba(0, 0, 0, 0.35)
+      ),
+      url('<%= cat.previewImage %>');
+  ">
+</div>
+
+
+  <div class="collection-overlay"></div>
+
+  <div class="collection-content">
+    <h3><%= cat.name %></h3>
+    <p><%= cat.description %></p>
+
+    <a href="/collections?category=<%= cat._id %>" class="collection-link">
+      Explore Now
+    </a>
+  </div>
+</div>
+
+
+          <div class="collection-overlay"></div>
+
+          <div class="collection-content">
+            <h3><%= cat.name %></h3>
+            <p><%= cat.description %></p>
+
+            <!-- OPTION 2: PLURAL ROUTE -->
+            <a href="/collections?category=<%= cat._id %>" class="collection-link">
+              Explore Now
+            </a>
+          </div>
+
+        </div>
+      <% }) %>
+
+    </div>
+    <!-- GRID ENDS -->
+
+  <% } else { %>
+    <p style="text-align:center;">No collections available</p>
+  <% } %>
+</section>
+
+<!-- 
     <!-- Products -->
-    <section class="products">
+    <!-- <section class="products">
         <div class="section-header">
             <p class="section-label">CURATED SELECTION</p>
             <h2 class="section-title">Featured Pieces</h2>
@@ -1168,78 +1192,11 @@ body {
                     <div class="product-price">₹1,999</div>
                 </div>
             </div>
-            <div class="product-card">
-                <div class="product-image" style="background: 
-                    linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.4)),
-                    repeating-linear-gradient(0deg, #4A6FA5 0px, #4A6FA5 22px, #355682 22px, #355682 44px),
-                    repeating-linear-gradient(90deg, transparent 0px, transparent 18px, rgba(255,255,255,0.03) 18px, rgba(255,255,255,0.03) 36px);">
-                    <div class="product-badge">NEW</div>
-                    <div class="product-quick-view">
-                        <button class="quick-btn" title="Add to Wishlist">♡</button>
-                        <button class="quick-btn" title="Quick View">👁</button>
-                        <button class="quick-btn" title="Add to Cart">🛒</button>
-                    </div>
-                </div>
-                <div class="product-info">
-                    <div class="product-category">Premium Cotton</div>
-                    <div class="product-name">Navy Cotton Shirt</div>
-                    <div class="product-price">₹1,899</div>
-                </div>
-            </div>
-            <div class="product-card">
-                <div class="product-image" style="background: 
-                    linear-gradient(135deg, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.35)),
-                    repeating-linear-gradient(90deg, #556B7E 0px, #556B7E 20px, #3E4F5E 20px, #3E4F5E 40px),
-                    repeating-linear-gradient(0deg, transparent 0px, transparent 15px, rgba(255,255,255,0.02) 15px, rgba(255,255,255,0.02) 30px);">
-                    <div class="product-quick-view">
-                        <button class="quick-btn" title="Add to Wishlist">♡</button>
-                        <button class="quick-btn" title="Quick View">👁</button>
-                        <button class="quick-btn" title="Add to Cart">🛒</button>
-                    </div>
-                </div>
-                <div class="product-info">
-                    <div class="product-category">Cotton Twill</div>
-                    <div class="product-name">Slate Cotton Chinos</div>
-                    <div class="product-price">₹1,699</div>
-                </div>
-            </div>
-            <div class="product-card">
-                <div class="product-image" style="background: 
-                    linear-gradient(135deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.3)),
-                    repeating-linear-gradient(45deg, #E8D4B8 0px, #E8D4B8 16px, #D4A574 16px, #D4A574 32px),
-                    repeating-linear-gradient(-45deg, transparent 0px, transparent 10px, rgba(0,0,0,0.03) 10px, rgba(0,0,0,0.03) 20px);">
-                    <div class="product-badge">PREMIUM</div>
-                    <div class="product-quick-view">
-                        <button class="quick-btn" title="Add to Wishlist">♡</button>
-                        <button class="quick-btn" title="Quick View">👁</button>
-                        <button class="quick-btn" title="Add to Cart">🛒</button>
-                    </div>
-                </div>
-                <div class="product-info">
-                    <div class="product-category">Luxury Linen</div>
-                    <div class="product-name">Ivory Linen Shirt</div>
-                    <div class="product-price">₹2,899</div>
-                </div>
-            </div>
-            <div class="product-card">
-                <div class="product-image" style="background: 
-                    linear-gradient(135deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.3)),
-                    repeating-linear-gradient(0deg, #8B7355 0px, #8B7355 24px, #7a6348 24px, #7a6348 48px),
-                    repeating-linear-gradient(90deg, transparent 0px, transparent 16px, rgba(255,255,255,0.03) 16px, rgba(255,255,255,0.03) 32px);">
-                    <div class="product-quick-view">
-                        <button class="quick-btn" title="Add to Wishlist">♡</button>
-                        <button class="quick-btn" title="Quick View">👁</button>
-                        <button class="quick-btn" title="Add to Cart">🛒</button>
-                    </div>
-                </div>
-                <div class="product-info">
-                    <div class="product-category">Linen Classic</div>
-                    <div class="product-name">Brown Linen Pants</div>
-                    <div class="product-price">₹2,299</div>
-                </div>
-            </div>
-        </div>
-    </section>
+           
+           
+            
+        </div> 
+    </section> -->
 
     <!-- Testimonials -->
     <section class="testimonials">

@@ -170,38 +170,42 @@ return res.json({
 const getCart = async (req, res) => {
   try {
     const userId = req.session.userId;
-    if (!userId) return res.status(401).json({ success: false, message: "Not authenticated" });
+    if (!userId)
+      return res.status(401).json({ success: false, message: "Not authenticated" });
 
     const cart = await Cart.findOne({ userId }).populate("items.productId");
     const user = await User.findById(userId).select("name email");
 
     let totals = { subtotal: 0, shipping: 0, total: 0 };
 
-if (cart) {
-  cart.items.forEach(item => {
-    const product = item.productId;
+    if (cart) {
+      // ✅ REMOVE ITEMS WITH MISSING PRODUCTS
+      cart.items = cart.items.filter(item => item.productId);
 
-    // Always recompute latest price from product (after offer applied)
-    const newPrice = product.salePrice || product.regularPrice;
+      cart.items.forEach(item => {
+        const product = item.productId;
 
-    if (item.price !== newPrice) {
-      item.price = newPrice;
-      item.totalprice = newPrice * item.quantity;
+        const newPrice =
+          product.salePrice > 0
+            ? product.salePrice
+            : product.regularPrice;
+
+        if (item.price !== newPrice) {
+          item.price = newPrice;
+          item.totalprice = newPrice * item.quantity;
+        }
+      });
+
+      totals = calculateTotals(cart);
+      await cart.save();
     }
-  });
 
-  totals = calculateTotals(cart);
-  await cart.save();
-}
-
-
-res.json({
-  success: true,
-  cart: cart || { items: [] },
-  user: user || null,
-  totals
-});
-
+    res.json({
+      success: true,
+      cart: cart || { items: [] },
+      user: user || null,
+      totals
+    });
 
   } catch (error) {
     console.error("Get cart error:", error);

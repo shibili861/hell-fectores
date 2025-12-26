@@ -599,12 +599,16 @@ body {
       </div>
 
       <!-- Category Filter -->
-      <select class="filter-select" id="category-select">
-        <option value="all">All Categories</option>
-        <% for (let i = 0; i < category.length; i++) { %>
-          <option value="<%= category[i]._id %>"><%= category[i].name %></option>
-        <% } %>
-      </select>
+     <select class="filter-select" id="category-select">
+  <option value="all">All Categories</option>
+
+  <% if (categories && categories.length > 0) { %>
+    <% categories.forEach(cat => { %>
+      <option value="<%= cat._id %>"><%= cat.name %></option>
+    <% }) %>
+  <% } %>
+</select>
+
 
       <!-- Sort Filter -->
       <select class="filter-select" id="sort-select">
@@ -644,7 +648,8 @@ body {
     <% if (products && products.length > 0) { %>
       <% for (let i = 0; i < products.length; i++) { %>
         <div class="product-card">
-          <a href="/productsDetailes?id=<%=products[i].id%>">
+          <a href="/productsDetailes?id=<%= products[i]._id %>">
+
             <div class="product-image">
               <% if (products[i].productImage && products[i].productImage.length > 0) { %>
                 <img 
@@ -669,13 +674,14 @@ body {
             </button>
             
             <div class="quick-btns-row">
-       <button
-  class="quick-btn ${wishlistProductIds.includes(product._id) ? 'wishlisted' : ''}"
+      <button
+  class="quick-btn <%= wishlistProductIds.includes(products[i]._id.toString()) ? 'wishlisted' : '' %>"
   title="Add to Wishlist"
-  onclick="addToWishlist('${product._id}', this)">
+  onclick="addToWishlist('<%= products[i]._id %>', this)">
   
-  ${wishlistProductIds.includes(product._id) ? '♥' : '♡'}
+  <%= wishlistProductIds.includes(products[i]._id.toString()) ? '♥' : '♡' %>
 </button>
+
 
 
             </div>
@@ -697,25 +703,39 @@ body {
   </div>
 
   <!-- Pagination -->
-  <div class="pagination">
-    <% if (currentPage > 1) { %>
-      <a class="pagination-btn" href="/collection?page=<%= currentPage - 1 %>">Prev</a>
-    <% } %>
+ <div class="pagination">
+  <% if (currentPage > 1) { %>
+    <a class="pagination-btn" href="/collections?page=<%= currentPage - 1 %>">Prev</a>
+  <% } %>
 
-    <% for (let i = 1; i <= totalPages; i++) { %>
-      <a class="pagination-btn <%= currentPage === i ? 'active' : '' %>" href="/collection?page=<%= i %>">
-        <%= i %>
-      </a>
-    <% } %>
+  <% for (let i = 1; i <= totalPages; i++) { %>
+    <a class="pagination-btn <%= currentPage === i ? 'active' : '' %>"
+       href="/collections?page=<%= i %>">
+      <%= i %>
+    </a>
+  <% } %>
 
-    <% if (currentPage < totalPages) { %>
-      <a class="pagination-btn" href="/collection?page=<%= currentPage + 1 %>">Next</a>
-    <% } %>
-  </div>
+  <% if (currentPage < totalPages) { %>
+    <a class="pagination-btn" href="/collections?page=<%= currentPage + 1 %>">Next</a>
+  <% } %>
+</div>
+
   <div id="toast-root"></div>
 </section>
 
  <script>
+
+  document.addEventListener('DOMContentLoaded', function () {
+  const params = new URLSearchParams(window.location.search);
+  const categoryFromURL = params.get("category");
+
+  if (categoryFromURL && categorySelect) {
+    categorySelect.value = categoryFromURL;
+  }
+
+  fetchProducts();
+});
+
   // Custom Cursor
   const cursor = document.querySelector('.cursor');
   const follower = document.querySelector('.cursor-follower');
@@ -834,14 +854,15 @@ else {
 
 // Update the reset filters function to reset price range too
 resetFiltersBtn.addEventListener('click', function() {
-    categorySelect.value = 'all';
-    sortSelect.value = 'newest';
-    priceRangeSelect.value = 'all';
-    searchInput.value = '';
-    clearBtn.style.display = 'none';
-    currentPage = 1;
-    fetchProducts();
+  categorySelect.value = 'all';
+  sortSelect.value = 'newest';
+  priceRangeSelect.value = 'all';
+  searchInput.value = '';
+  clearBtn.style.display = 'none';
+  currentPage = 1;
+  fetchProducts();
 });
+
 
   // Show loading state
   function showLoading() {
@@ -952,10 +973,7 @@ resetFiltersBtn.addEventListener('click', function() {
     setTimeout(() => el.remove(), 3000);
   }
   
-  // Initial load
-  document.addEventListener('DOMContentLoaded', function() {
-    fetchProducts();
-  });
+ 
   function showToast(msg, type = 'info') {
   const root = document.getElementById('toast-root');
   if (!root) {

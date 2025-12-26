@@ -94,36 +94,56 @@ const loadHomePage = async (req, res) => {
   try {
     let showReferralModal = false;
 
+    // 1️⃣ Get categories
+    const categories = await Category.find({ isListed: true }).lean();
+
+    // 2️⃣ For each category, fetch ONE product image
+    const categoriesWithImage = await Promise.all(
+      categories.map(async (cat) => {
+        const product = await Product.findOne({
+          category: cat._id,
+          isBlocked: false,
+          quantity: { $gt: 0 }
+        })
+        .select("productImage")
+        .lean();
+
+        return {
+          ...cat,
+          previewImage: product?.productImage?.[0] || "/images/no-image.jpg"
+        };
+      })
+    );
+
+    let user = null;
+
     if (req.session.userId) {
-      const user = await User.findById(req.session.userId);
+      user = await User.findById(req.session.userId);
 
       if (!user) {
         req.session.destroy();
         return res.redirect("/login");
       }
 
-      //  SHOW REFERRAL MODAL ONLY ONCE
       if (user.redeemed === false && user.referralPromptShown === false) {
         showReferralModal = true;
-
-        //  mark as shown immediately
         user.referralPromptShown = true;
         await user.save();
       }
-
-      return res.render("user/home", {
-        user,
-        showReferralModal
-      });
     }
 
-    return res.render("user/home", { showReferralModal: false });
+    res.render("user/home", {
+      user,
+      showReferralModal,
+      categories: categoriesWithImage   // 👈 IMPORTANT
+    });
 
   } catch (error) {
     console.error("Home page error:", error);
-    return res.status(500).send("Server error");
+    res.status(500).send("Server error");
   }
 };
+
 
 
 /* =====================================================
@@ -546,27 +566,32 @@ const resetPassword = async (req, res) => {
  // collection page
 const loadcollectionpage = async (req, res) => {
   try {
-    const userId = req.session.userId; // 👈 Use consistent key
+    const userId = req.session.userId;
     let userData = null;
 
     if (userId) {
       userData = await User.findById(userId).lean();
     }
 
-    const categories = await Category.find({ isListed: true });
+    const categories = await Category.find({ isListed: true }).lean();
+    const selectedCategory = req.query.category || "all";
 
     const page = parseInt(req.query.page) || 1;
     const limit = 9;
     const skip = (page - 1) * limit;
 
-    const query = { isBlocked: false, quantity: { $gt: 0 } };
-    if (categories && categories.length > 0) {
-      const categoryIds = categories.map(cat => cat._id);
-      query.category = { $in: categoryIds };
+    const query = {
+      isBlocked: false,
+      quantity: { $gt: 0 }
+    };
+
+    // ✅ CRITICAL FIX
+    if (selectedCategory !== "all") {
+      query.category = new mongoose.Types.ObjectId(selectedCategory);
     }
 
     const products = await Product.find(query)
-      .populate('category', 'name')
+      .populate("category", "name categoryOffer")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
@@ -575,35 +600,33 @@ const loadcollectionpage = async (req, res) => {
     const totalProducts = await Product.countDocuments(query);
     const totalPages = Math.ceil(totalProducts / limit);
 
-    const productsWithCategory = products.map(product => ({
-      ...product,
-      categoryName: product.category ? product.category.name : 'Uncategorized',
-    }));
-//  Get wishlist product IDs
-let wishlistProductIds = [];
+    let wishlistProductIds = [];
+    if (userId) {
+      const wishlist = await Wishlist.findOne({ userId }).lean();
+      if (wishlist) {
+        wishlistProductIds = wishlist.products.map(p =>
+          p.productId.toString()
+        );
+      }
+    }
 
-if (userId) {
-  const wishlist = await Wishlist.findOne({ userId }).lean();
-  if (wishlist && wishlist.products.length > 0) {
-    wishlistProductIds = wishlist.products.map(p =>
-      p.productId.toString()
-    );
-  }
-}
-    res.render('user/collection', {
+    res.render("user/collection", {
       user: userData,
-      products: productsWithCategory,
-      category: categories,
+      products,
+      categories,
+      selectedCategory,
       totalProducts,
       currentPage: page,
       totalPages,
       wishlistProductIds
     });
+
   } catch (error) {
-    console.error('Error loading collection page:', error);
-    res.status(500).send('Internal Server Error');
+    console.error("Error loading collection page:", error);
+    res.status(500).send("Internal Server Error");
   }
 };
+
 
 /// Filter products
 const filterProducts = async (req, res) => {

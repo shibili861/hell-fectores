@@ -12,9 +12,9 @@ const mongoose = require("mongoose");
 const productDetails = async (req, res) => {
   try {
     const productId = req.query.id;
-console.log("Product ID:", req.query.id);
 
-    // 🔑 validate ObjectId
+
+    //  validate ObjectId
     if (!mongoose.Types.ObjectId.isValid(productId)) {
       return res.status(404).render("user/page-404");
     }
