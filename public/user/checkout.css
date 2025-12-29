@@ -36,6 +36,7 @@ body {
   min-height: 100vh;
   color: var(--dark-gray);
   line-height: 1.6;
+  padding-top: 30px;
 }
 
 /* Main Container */
@@ -552,22 +553,6 @@ button.delete:hover {
   transform: translateY(-1px);
 }
 
-/* Modals */
-#addModal,
-#editModal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(8px);
-   display: none;  
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  animation: modalFadeIn 0.3s ease;
-}
 
 @keyframes modalFadeIn {
   from { opacity: 0; }
@@ -863,3 +848,18 @@ button.delete:hover {
       font-size: 1.5rem;
       margin-right: 1rem;
     }
+#addModal,
+#editModal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;        /* ✅ ALWAYS FLEX */
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.hidden-modal {
+  display: none !important;
+}
+

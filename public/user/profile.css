@@ -143,6 +143,24 @@ body {
   opacity: 0.9;
   font-weight: 400;
 }
+.sidebar-nav a,
+.btn-logout {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sidebar-nav i,
+.btn-logout i {
+  width: 18px;
+  height: 18px;
+  display: inline-block;
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0.75;
+}
+
+
 
 /* =================== MAIN CONTAINER =================== */
 .profile-container {
@@ -1084,4 +1102,17 @@ button:active {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
+}
+
+.premium-toast {
+  border-radius: 14px;
+  padding: 14px 18px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.15);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+}
+
+/* 🔴 Error version */
+.premium-toast-error {
+  border-left: 4px solid #e53935;
 }

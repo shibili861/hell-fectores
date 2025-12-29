@@ -257,24 +257,45 @@ const updateProfile = async (req, res) => {
         });
       }
     }
+    // ✅ Check if phone already exists (exclude current user)
+    if (phone) {
+      const existingPhone = await User.findOne({
+        phone,
+        _id: { $ne: userId }
+      });
+
+      if (existingPhone) {
+        return res.json({
+          success: false,
+          errorCode: "PHONE_EXISTS",
+          message: "This phone number is already registered with another account."
+        });
+      }
+    }
 
 
     // Check if email exists
     if (email) {
       const existingUser = await User.findOne({ email, _id: { $ne: userId } });
       if (existingUser) {
-        return res.json({ success: false, message: "Email already exists" });
+       return res.json({
+  success: false,
+  errorCode: "EMAIL_EXISTS",
+  message: "This email is already registered with another account."
+});
+
       }
     }
 
-    const updateData = { name, phone };
-    if (email) updateData.email = email;
- 
-    const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
-      new: true,
-      runValidators: true
-     
-    });
+   const updateData = { name };
+if (phone) updateData.phone = phone;
+
+
+const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
+  new: true,
+  runValidators: true
+});
+
  
     if (!updatedUser) {
       return res.json({ success: false, message: "User not found" });
@@ -297,6 +318,40 @@ const updateProfile = async (req, res) => {
     }
 
     return res.json({ success: false, message: "Failed to update profile" });
+  }
+};
+
+
+const updateEmailAfterOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const userId = req.session.userId;
+
+    if (!userId) {
+      return res.json({ success: false, message: "Not authenticated" });
+    }
+
+    // Final safety check
+    const existingUser = await User.findOne({ email, _id: { $ne: userId } });
+    if (existingUser) {
+      return res.json({
+        success: false,
+        message: "Email already exists"
+      });
+    }
+
+    await User.findByIdAndUpdate(userId, { email });
+
+    req.session.userEmail = email;
+
+    return res.json({
+      success: true,
+      message: "Email updated successfully"
+    });
+
+  } catch (err) {
+    console.error(err);
+    return res.json({ success: false, message: "Failed to update email" });
   }
 };
 
@@ -590,6 +645,7 @@ module.exports = {
   verifyOtp,
 
   updateProfile,
+  updateEmailAfterOtp,
   updatePassword,
 
 

@@ -428,6 +428,33 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--primary-light);
 }
+/* ================= EMPTY STATE FIX ================= */
+
+.empty-state {
+  min-height: 360px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 22px;
+  margin-top: 20px;
+}
+
+.empty-message {
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--gray);
+  font-weight: 400;
+  max-width: 480px;
+}
+.empty-state::before {
+  content: '';
+  width: 60px;
+  height: 2px;
+  background: var(--accent);
+  margin-bottom: 10px;
+}
 
 /* =================== FOCUS STATES =================== */
 .btn-view:focus,
@@ -505,11 +532,18 @@ body {
         </tbody>
       </table>
     <% } else { %>
-      <p class="empty-message">Your order history is empty<br>Begin your luxury shopping experience</p>
-      <a href="/collections" class="btn-shop">
-        <i class="fas fa-gem"></i>
-        <span>Start Shopping</span>
-      </a>
+      <div class="empty-state">
+  <p class="empty-message">
+    Your order history is empty<br>
+    Begin your luxury shopping experience
+  </p>
+
+  <a href="/collections" class="btn-shop">
+    <i class="fas fa-gem"></i>
+    <span>Start Shopping</span>
+  </a>
+</div>
+
     <% } %>
   </div>
 

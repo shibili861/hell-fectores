@@ -39,27 +39,45 @@
         <div class="profile-grid">
             
             <!-- Sidebar Navigation -->
-            <aside class="profile-sidebar">
-              
-                    <ul class="sidebar-nav">
-                        <li><a href="#profile" class="active"><span>👤</span> <span>My Profile</span></a></li>
-                        <li><a href="/my-orders"><span>📦</span> <span>My Orders</span></a></li>
+          <aside class="profile-sidebar">
+  <ul class="sidebar-nav">
+    <li>
+      <a href="#profile" class="active">
+        <i class="icon-user"></i>
+        <span>My Profile</span>
+      </a>
+    </li>
 
-                       <li><a href="/wallet">👛 Wallet</a></li>
+    <li>
+      <a href="/my-orders">
+        <i class="icon-box"></i>
+        <span>My Orders</span>
+      </a>
+    </li>
 
-                        <li><a href="/addresses"><span>📍</span> <span>Addresses</span></a></li>
-                       
-                    </ul>
-               
-                
-              
-                
-                <form action="/logout" method="POST">
-                    <button class="btn-logout" type="submit">
-                        <span>🚪</span> <span>Logout</span>
-                    </button>
-                </form>
-            </aside>
+    <li>
+      <a href="/wallet">
+        <i class="icon-wallet"></i>
+        <span>Wallet</span>
+      </a>
+    </li>
+
+    <li>
+      <a href="/addresses">
+        <i class="icon-location"></i>
+        <span>Addresses</span>
+      </a>
+    </li>
+  </ul>
+
+  <form action="/logout" method="POST">
+    <button class="btn-logout" type="submit">
+      <i class="icon-logout"></i>
+      <span>Logout</span>
+    </button>
+  </form>
+</aside>
+
            
             <!-- Main Content Area -->
             <main class="profile-main" id="profile">
@@ -110,16 +128,7 @@
                     </div>
                 </section>
                 
-                <!-- Addresses Section -->
-                <!-- <section class="profile-section addresses-section">
-                    <div class="info-header">
-                        <h2 class="section-title">My Addresses</h2>
-                        <button class="btn-edit-profile" id="openAddressModalBtn">
-                            <span>📍</span> <span>Add New Address</span>
-                        </button>
-                    </div>
-                    <div id="addressesContainer"></div>
-                </section> -->
+               
                 
             </main>
         </div>
@@ -337,7 +346,34 @@
 </body>
 
                 <script>
-                    
+   const PremiumToast = Swal.mixin({
+  toast: true,
+  position: "top-right",
+  showConfirmButton: false,
+  timer: 2600,
+  timerProgressBar: true,
+  background: "#fff",
+  color: "var(--dark)",
+  customClass: {
+    popup: "premium-toast"
+  }
+});
+
+const PremiumErrorToast = Swal.mixin({
+  toast: true,
+  position: "top-right",
+  showConfirmButton: false,
+  timer: 3000,
+  timerProgressBar: true,
+  background: "#fff",
+  iconColor: "#e53935",   // 🔴 red icon
+  color: "#e53935",       // 🔴 red text
+  customClass: {
+    popup: "premium-toast premium-toast-error"
+  }
+});
+
+  
 
     const nameInput = document.getElementById("editName");
     const emailInput = document.getElementById("editEmail");
@@ -638,28 +674,58 @@ document.addEventListener("DOMContentLoaded", function () {
                 // Handle profile form submission
 
                 
-         editForm.addEventListener('submit', function (e) {
+      editForm.addEventListener('submit', async function (e) {
     e.preventDefault();
 
     const originalEmail = emailInput.dataset.original;
     const newEmail = emailInput.value.trim();
+    const phoneValue = phoneInput.value.trim(); //  CORRECT PLACE
 
     updatedData = {
         name: nameInput.value.trim(),
         email: newEmail,
-        phone: phoneInput.value.trim()
+        phone: phoneValue || undefined
     };
 
-    // ONLY email changed
     if (newEmail !== originalEmail) {
 
+        //  First check with backend
+        const checkResponse = await fetch('/update-profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name: nameInput.value.trim(),
+                email: newEmail,
+                phone: phoneValue || undefined //  FIXED
+            })
+        });
+
+        const checkResult = await checkResponse.json();
+
+        if (!checkResult.success && checkResult.errorCode === "EMAIL_EXISTS") {
+            PremiumErrorToast.fire({
+                icon: "error",
+                title: "Email already exists"
+            });
+            return;
+        }
+
+        if (!checkResult.success) {
+            PremiumErrorToast.fire({
+                icon: "error",
+                title: checkResult.message
+            });
+            return;
+        }
+
+        // Proceed with OTP
         isEmailChange = true;
         otpType = 'email';
         currentEmail = newEmail;
 
         showOtpModal();
         sendOtp(newEmail, 'email');
-        return;  // IMPORTANT!
+        return;
     }
 
     // No email change
@@ -770,35 +836,58 @@ document.addEventListener("DOMContentLoaded", function () {
                     });
                 });
                 
-                // Handle OTP form submission
-                otpForm.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    
-                    const otp = Array.from(otpInputs).map(input => input.value).join('');
-                    
-                    if (otp.length !== 6) {
-                        showMessage('Please enter the complete 6-digit OTP', 'error');
-                        return;
-                    }
-                    
-                    showMessage('Verifying OTP...', 'success');
-                    
-                    const isValid = await verifyOtp(otp, currentEmail);
-                    
-                    if (isValid) {
-                        showMessage('OTP verified successfully!', 'success');
-                        
-                        setTimeout(() => {
-                            if (otpType === 'email') {
-                                updatedData.email = currentEmail;  
-                                updateProfile(updatedData);
-                            } else if (otpType === 'password') {
-                                showPasswordChangeForm();
-                            }
-                            closeOtpModal();
-                        }, 1000);
-                    }
-                });
+              otpForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const otp = Array.from(otpInputs).map(input => input.value).join('');
+
+    if (otp.length !== 6) {
+        showMessage('Please enter the complete 6-digit OTP', 'error');
+        return;
+    }
+
+    showMessage('Verifying OTP...', 'success');
+
+    const isValid = await verifyOtp(otp, currentEmail);
+
+    if (!isValid) return;
+
+    showMessage('OTP verified successfully!', 'success');
+
+    //  EMAIL CHANGE FLOW
+    if (otpType === 'email') {
+
+        const response = await fetch('/update-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: currentEmail })
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            showMessage(result.message || 'Failed to update email', 'error');
+            return;
+        }
+
+        PremiumToast.fire({
+            icon: "success",
+            title: "Email updated successfully"
+        });
+
+        closeOtpModal();
+
+        setTimeout(() => location.reload(), 1500);
+        return;
+    }
+
+    // PASSWORD FLOW
+    if (otpType === 'password') {
+        closeOtpModal();
+        showPasswordChangeForm();
+    }
+});
+
                 
                 // Resend OTP
                 resendOtpBtn.addEventListener('click', async () => {
@@ -939,34 +1028,34 @@ if (newPassword !== confirmPassword) {
                         showMessage('Failed to send OTP. Please try again.', 'error');
                     }
                 }
-                
-                async function verifyOtp(otp, email) {
-                    try {
-                        const response = await fetch('/verify-otp', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({ otp, email })
-                        });
-                        
-                        const data = await response.json();
-                        
-                        if (data.success) {
-                            otpType = data.type || otpType;
-                            return true;
-                        } else {
-                            showMessage(data.message || 'Invalid OTP', 'error');
-                            return false;
-                        }
-                    } catch (error) {
-                        console.error('Error verifying OTP:', error);
-                        showMessage('Failed to verify OTP. Please try again.', 'error');
-                        return false;
-                    }
-                }
-                
 
+
+              async function verifyOtp(otp, email) {
+  try {
+    const response = await fetch('/verify-otp', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ otp, email })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      otpType = data.type || otpType;
+      return true;
+    } else {
+      showMessage(data.message || 'Invalid OTP', 'error');
+      return false;
+    }
+
+  } catch (error) {
+    console.error('Error verifying OTP:', error);
+    showMessage('Failed to verify OTP. Please try again.', 'error');
+    return false;
+  }
+}
 
 
                 
@@ -997,7 +1086,7 @@ if (newPassword !== confirmPassword) {
                 }
             });
 
-            // ✅ FIXED LOGIC
+           
             let changes = [];
 
             if (updatedData.name && updatedData.name !== "<%= user.name %>") {
@@ -1028,51 +1117,79 @@ if (newPassword !== confirmPassword) {
             setTimeout(() => {
                 location.reload();
             }, 2000);
-        } else {
-            showMessage(result.message || 'Failed to update profile', 'error');
-        }
+       } else {
+
+    // Phone already exists
+    if (result.errorCode === "PHONE_EXISTS") {
+        PremiumToast.fire({
+            icon: "error",
+            title: result.message || "Phone number already exists"
+        });
+        return;
+    }
+
+    // Email already exists
+    if (result.errorCode === "EMAIL_EXISTS") {
+        PremiumToast.fire({
+            icon: "error",
+            title: result.message || "Email already exists"
+        });
+        return;
+    }
+
+    //  Any other error
+    PremiumToast.fire({
+        icon: "error",
+        title: result.message || "Failed to update profile"
+    });
+}
+
     } catch (error) {
         console.error('Error updating profile:', error);
-        showMessage('Failed to update profile. Please try again.', 'error');
+       PremiumErrorToast.fire({
+    icon: "error",
+    title: "Failed to update profile. Please try again."
+});
+
     }
 }
 
-                
-                async function updatePassword(newPassword) {
-                    try {
-                        const response = await fetch('/update-password', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({ password: newPassword })
-                        });
-                        
-                        const result = await response.json();
-                        
-                       if (result.success) {
-    const Toast = Swal.mixin({
-        toast: true,
-        position: "top-right",
-        showConfirmButton: false,
-        timer: 2500
+
+async function updatePassword(newPassword) {
+  try {
+    const response = await fetch('/update-password', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ password: newPassword })
     });
 
-    Toast.fire({
+    const result = await response.json();
+
+    if (result.success) {
+      PremiumToast.fire({
         icon: "success",
         title: "Password updated successfully!"
+      });
+    } else {
+      PremiumErrorToast.fire({
+        icon: "error",
+        title: result.message || "Failed to update password"
+      });
+      showPasswordChangeForm();
+    }
+
+  } catch (error) {
+    console.error('Error updating password:', error);
+    PremiumErrorToast.fire({
+      icon: "error",
+      title: "Failed to update password"
     });
-}else {
-                            alert(result.message || 'Failed to update password. Please try again.');
-                            showPasswordChangeForm();
-                        }
-                    } catch (error) {
-                        console.error('Error updating password:', error);
-                        alert('Failed to update password. Please try again.');
-                        showPasswordChangeForm();
-                    }
-                }
-                
+    showPasswordChangeForm();
+  }
+}
+
                 // Close modals with Escape key
                 document.addEventListener('keydown', (e) => {
                     if (e.key === 'Escape') {

@@ -7,6 +7,10 @@
       <link rel="stylesheet" href="/user/checkout.css">
       <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+         <link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+/>
 </head>
 <body>
    <!-- Premium Header -->
@@ -83,7 +87,11 @@
   <!-- RIGHT SIDE -->
 <section class="right-section">
 
-  <h2 class="section-heading">💳 Order Summary</h2>
+ <h2 class="section-heading">
+  <i class="fa-solid fa-receipt"></i>
+  Order Summary
+</h2>
+
   <div class="order-summary">
   <p>Subtotal: <span>₹<%= subtotal.toLocaleString() %></span></p>
   <p>Tax (5%): <span>₹<%= tax.toLocaleString() %></span></p>
@@ -170,7 +178,11 @@ const validCoupons = coupons.filter(c => {
     value="COD"
     <%= finalTotal > 1000 ? 'disabled' : 'checked' %>
   >
-  <span>💵 Cash on Delivery</span>
+  <span>
+  <i class="fa-solid fa-money-bill-wave"></i>
+  Cash on Delivery
+</span>
+
 
   <% if (finalTotal > 1000) { %>
     <small>COD not available above ₹1000</small>
@@ -180,7 +192,11 @@ const validCoupons = coupons.filter(c => {
 
     <label class="payment-option">
       <input type="radio" name="paymentMethod" value="Razorpay">
-      <span>💳 Pay Online (Razorpay)</span>
+      <span>
+  <i class="fa-solid fa-credit-card"></i>
+  Pay Online (Razorpay)
+</span>
+
     </label>
 
     <label class="payment-option <%= !canUseWallet ? 'disabled' : '' %>">
@@ -190,10 +206,12 @@ const validCoupons = coupons.filter(c => {
         value="Wallet"
         <%= !canUseWallet ? 'disabled' : '' %>
       >
-      <span>
-        👛 Wallet 
-        (Balance: ₹<%= wallet.balance.toLocaleString() %>)
-      </span>
+    <span>
+  <i class="fa-solid fa-wallet"></i>
+  Wallet 
+  (Balance: ₹<%= wallet.balance.toLocaleString() %>)
+</span>
+
 
       <% if (!canUseWallet) { %>
         <small>Not enough balance</small>
@@ -216,7 +234,10 @@ const validCoupons = coupons.filter(c => {
 
 <!-- 🪄 ADD ADDRESS MODAL -->
  </main>
-<div id="addModal" style="display:none;" role="dialog" aria-modal="true">
+<!-- ✅ CORRECT -->
+<div id="addModal" class="hidden-modal" role="dialog" aria-modal="true">
+
+
   <div class="modal-content">
     <h3>Add New Address</h3>
     <form id="addForm" autocomplete="off">
@@ -240,7 +261,8 @@ const validCoupons = coupons.filter(c => {
       <input name="altphone" placeholder="Alternate phone" />
       <div class="error-message"></div>
       <div class="modal-actions">
-        <button class="add" type="submit"><span class="btn-icon"></span> Add Address</button>
+        <button class="add" type="submit">➕ Add Address</button>
+
         <button class="cancel-btn" type="button" onclick="closeAddModal()"><span class="btn-icon"></span> Cancel</button>
       </div>
     </form>
@@ -251,7 +273,8 @@ const validCoupons = coupons.filter(c => {
   <!-- Modal content here -->
 
       
-  <div id="editModal">
+  <div id="editModal" class="hidden-modal">
+
     <div class="modal-content">
       <h3>Edit Address</h3>
       <form id="editForm">
@@ -289,15 +312,10 @@ const validCoupons = coupons.filter(c => {
 /* 🔒 HARD FIX — runs BEFORE anything else */
    // Add this at the beginning of your script
     document.addEventListener('DOMContentLoaded', function() {
-      // Initialize modals as hidden
-      document.getElementById('addModal').classList.add('hidden-modal');
-      document.getElementById('editModal').classList.add('hidden-modal');
+      
       
       // Add click handler for add address button
-      const addBtn = document.getElementById('openAddModalBtn') || document.getElementById('openAddModal');
-      if (addBtn) {
-        addBtn.addEventListener('click', openAddModal);
-      }
+    
     });
 /* ============================================================
    FORM VALIDATION (Add & Edit)
@@ -449,7 +467,8 @@ async function renderAddress() {
     const addressContainer = document.getElementById("addressContainer");
     if (!addressContainer) return;
 
-    let html = `<h2 class="section-heading">🏠 Shipping Address</h2>`;
+    let html = `<h2 class="section-heading">Shipping Address</h2>`;
+
 
     if (data.addresses && data.addresses.length > 0) {
       const latest = data.addresses[data.addresses.length - 1];
@@ -464,17 +483,21 @@ async function renderAddress() {
             Phone: ${latest.phone}
           </div>
           <div class="actions" style="margin-top:10px;">
-            <button class="edit" type="button" onclick="openEditModal('${latest._id}')">✏️ Edit</button>
-            <button class="delete" type="button" onclick="deleteAddress('${latest._id}')">🗑️ Delete</button>
+          <button class="edit" type="button" onclick="openEditModal('${latest._id}')">Edit</button>
+<button class="delete" type="button" onclick="deleteAddress('${latest._id}')">Delete</button>
           </div>
         </div>`;
     } else {
       html += `
         <p>No saved address found.</p>
-        <button class="add" id="openAddModal">➕ Add Address</button>`;
+       <button class="add open-add-modal">Add Address</button>
+
+
+`;
     }
 
     addressContainer.innerHTML = html;
+
 
     // Re-bind Add button after DOM update
     document
@@ -493,37 +516,63 @@ async function renderAddress() {
    MODAL CONTROLS (UNCHANGED)
 ============================================================ */
 function openAddModal() {
-  document.getElementById("addModal").style.display = "flex";
+  console.log(" OPEN ADD MODAL");
+  const modal = document.getElementById("addModal");
+  modal.classList.remove("hidden-modal");
+  modal.style.display = "flex";
+  modal.style.zIndex = "9999";
 }
+
 function closeAddModal() {
-  document.getElementById("addModal").style.display = "none";
+  document.getElementById("addModal").classList.add("hidden-modal");
 }
+
 function closeModal() {
-  document.getElementById("editModal").style.display = "none";
+  const modal = document.getElementById("editModal");
+  modal.classList.add("hidden-modal");
+  modal.style.display = "none";
 }
 
 
-function openEditModal(id) {
-  fetch("/get-addresses")
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.addresses && data.addresses.length > 0) {
-        const addr = data.addresses.find((a) => a._id === id);
-        if (!addr) return showToast("Address not found", "error");
 
-        document.getElementById("editId").value = addr._id;
-        document.getElementById("editType").value = addr.addressType;
-        document.getElementById("editName").value = addr.name;
-        document.getElementById("editCity").value = addr.city;
-        document.getElementById("editLandmark").value = addr.landMark || "";
-        document.getElementById("editState").value = addr.state;
-        document.getElementById("editPincode").value = addr.pincode;
-        document.getElementById("editPhone").value = addr.phone;
-        document.getElementById("editAltphone").value = addr.altphone || "";
-        document.getElementById("editModal").style.display = "flex";
-      }
-    });
+async function openEditModal(id) {
+  console.log("🟢 Edit clicked:", id);
+
+  try {
+    const res = await fetch("/get-addresses");
+    const data = await res.json();
+
+    const addr = data.addresses.find(a => a._id === id);
+    if (!addr) {
+      showToast("Address not found", "error");
+      return;
+    }
+
+    // Fill form
+    editId.value = addr._id;
+    editType.value = addr.addressType;
+    editName.value = addr.name;
+    editCity.value = addr.city;
+    editLandmark.value = addr.landMark || "";
+    editState.value = addr.state;
+    editPincode.value = addr.pincode;
+    editPhone.value = addr.phone;
+    editAltphone.value = addr.altphone || "";
+
+    // ✅ OPEN MODAL PROPERLY
+    const modal = document.getElementById("editModal");
+    modal.classList.remove("hidden-modal");
+    modal.style.display = "flex";
+    modal.style.zIndex = "9999";
+
+    console.log("✅ Edit modal opened");
+
+  } catch (err) {
+    console.error("Edit modal error:", err);
+    showToast("Failed to load address", "error");
+  }
 }
+
 
 /* =============================
    📬 Add Address (AJAX)
@@ -862,6 +911,13 @@ async function placeWalletOrder() {
     showToast("Something went wrong. Try again.", "error");
   }
 }
+/* ✅ SINGLE SOURCE OF TRUTH — ADD ADDRESS */
+document.addEventListener("click", function (e) {
+  if (e.target.closest("#openAddModal") || e.target.closest(".open-add-modal")) {
+    console.log("🟢 Add Address button clicked");
+    openAddModal();
+  }
+});
 
 
 </script>

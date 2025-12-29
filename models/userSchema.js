@@ -11,13 +11,10 @@ const userSchema = new Schema({
     required: true,
     unique: true
   },
-  phone: {
-    type: String,
-    required: false,
-    unique: true,
-    sparse: true,
-    default: null
-  },
+ phone: {
+  type: String
+},
+
   googleId: {
     type: String,
     unique: true,
@@ -76,6 +73,16 @@ redeemedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'user' }],
     }
   }]
 });
+userSchema.index(
+  { phone: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      phone: { $exists: true, $ne: "" }
+    }
+  }
+);
+
 
 const User = mongoose.model("user", userSchema);
 module.exports = User;

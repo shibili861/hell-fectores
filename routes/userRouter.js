@@ -101,6 +101,8 @@ router.get('/userprofile',profileController.loadProfile);
 router.post('/send-otp', profileController.sendOtp);
 router.post('/verify-otp', profileController.verifyOtp);
 router.post('/update-profile', profileController.updateProfile);
+router.post('/update-email', profileController.updateEmailAfterOtp);
+
 router.post('/update-password', profileController.updatePassword);
 router.post("/logout", profileController.userLogout);
 

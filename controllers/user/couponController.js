@@ -87,8 +87,8 @@ const applyCoupon = async (req, res) => {
     //     DECREMENT COUPON STOCK & UPDATE USAGE
     // ---------------------------------------------------------
 
-    coupon.usedCount += 1;             // Increase usage count
-    coupon.usedUsers.push(userId);     // Mark user as used
+    coupon.usedCount += 1;            
+    coupon.usedUsers.push(userId);    
 
     // Auto-expire if stock finished
     if (coupon.usedCount >= coupon.maxUsage) {
