@@ -412,7 +412,7 @@ const requestReturn = async (req, res) => {
 };
 const createRazorpayOrder = async (req, res) => {
   try {
-    const userId = req.session.userId; // ✅ CORRECT
+    const userId = req.session.userId; 
 
     if (!userId) return res.json({ success: false, message: "Login required" });
 
@@ -482,12 +482,12 @@ const verifyRazorpayPayment = async (req, res) => {
       internalOrderId
     } = req.body;
 
-    // 1️⃣ Validate params
+    // 1️ Validate params
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !internalOrderId) {
       return res.json({ success: false });
     }
 
-    // 2️⃣ Verify signature
+    // 2️ Verify signature
     const expectedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
@@ -519,7 +519,7 @@ if (expectedSignature !== razorpay_signature) {
 }
 
 
-    // 3️⃣ 🔒 ATOMIC SUCCESS UPDATE
+    // ATOMIC SUCCESS UPDATE
     const result = await Order.updateOne(
       { orderId: internalOrderId, paymentStatus: "Pending" },
       {
@@ -537,7 +537,7 @@ if (expectedSignature !== razorpay_signature) {
       return res.json({ success: true, orderId: internalOrderId });
     }
 
-    // 4️⃣ Continue business logic ONLY ON FIRST SUCCESS
+    // 4️ Continue business logic ONLY ON FIRST SUCCESS
     const order = await Order.findOne({ orderId: internalOrderId });
     const userId = order.userId;
 
@@ -570,7 +570,7 @@ const markPaymentFailed = async (req, res) => {
     const order = await Order.findOne({ orderId: internalOrderId });
     if (!order) return res.json({ success: false });
 
-    // 🔒 ABSOLUTE RULE
+    //  ABSOLUTE RULE
     if (order.paymentStatus === "Paid") {
       return res.json({ success: true, ignored: true });
     }
@@ -604,11 +604,11 @@ const retryPayment = async (req, res) => {
       return res.json({ success: false, message: "Order id required" });
     }
 
-    // 🔒 ATOMIC CHECK + RESET
+    //  ATOMIC CHECK + RESET
     const order = await Order.findOneAndUpdate(
       {
         orderId: internalOrderId,
-        paymentStatus: "Failed"   // ✅ only failed orders can retry
+        paymentStatus: "Failed"   // only failed orders can retry
       },
       {
         $set: {

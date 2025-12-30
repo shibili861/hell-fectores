@@ -58,7 +58,7 @@ const applyCoupon = async (req, res) => {
         message: `Minimum purchase ₹${coupon.minPurchase} required`
       });
     }
-
+        
     // Calculate discount
     let discount = 0;
 

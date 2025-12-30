@@ -257,12 +257,12 @@ const approveReturn = async (req, res) => {
 
     order.status = "Returned";
 
-    // ✅ 1) calculate refund amount for THIS ITEM
+    //  calculate refund amount for THIS ITEM
     const refundAmount = item.price * item.quantity; // basic: price * qty
 
     await order.save();
 
-    // ✅ 2) credit to user's wallet
+    //  credit to user's wallet
     await creditWallet(
       order.userId,
       refundAmount,

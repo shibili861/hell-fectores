@@ -3,7 +3,7 @@ const Wallet = require("../models/walletSchema");
 async function creditWallet(userId, amount, reason, orderId = null) {
   let wallet = await Wallet.findOne({ userId });
 
-  // If wallet doesn't exist → create it
+  // If wallet doesn't exist  create it
   if (!wallet) {
     wallet = new Wallet({
       userId,
@@ -25,6 +25,8 @@ async function creditWallet(userId, amount, reason, orderId = null) {
   await wallet.save();
 }
 
+
+
 async function debitWallet(userId, amount, reason, orderId = null) {
   let wallet = await Wallet.findOne({ userId });
 
@@ -42,6 +44,9 @@ async function debitWallet(userId, amount, reason, orderId = null) {
 
   await wallet.save();
 }
+
+
+
 
 module.exports = {
   creditWallet,

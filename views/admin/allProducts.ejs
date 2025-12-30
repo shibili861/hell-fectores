@@ -999,19 +999,26 @@
                             </button>
                         </div>
 
-                        <select class="filter-select">
-                            <option>All Categories</option>
-                            <% if (cat && cat.length > 0) { %>
-                                <% cat.forEach(category => { %>
-                                    <option value="<%= category.name %>"><%= category.name %></option>
-                                <% }) %>
-                            <% } %>
-                        </select>
-                        <select class="filter-select">
-                            <option>All Status</option>
-                            <option>Active</option>
-                            <option>Blocked</option>
-                        </select>
+                       <select class="filter-select" id="categoryFilter" name="category">
+    <option value="">All Categories</option>
+    <% if (cat && cat.length > 0) { %>
+        <% cat.forEach(category => { %>
+            <option 
+              value="<%= category._id %>"
+              <%= category._id.toString() === selectedCategory ? "selected" : "" %>
+            >
+              <%= category.name %>
+            </option>
+        <% }) %>
+    <% } %>
+</select>
+
+                     <select class="filter-select" id="statusFilter" name="status">
+    <option value="">All Status</option>
+    <option value="active" <%= status === "active" ? "selected" : "" %>>Active</option>
+    <option value="blocked" <%= status === "blocked" ? "selected" : "" %>>Blocked</option>
+</select>
+
                     </div>
                 </div>
 
@@ -1721,6 +1728,25 @@
         });
     });
 });
+
+document.getElementById("searchBtn").addEventListener("click", applyFilters);
+document.getElementById("clearBtn").addEventListener("click", () => {
+    window.location.href = "/admin/allProducts";
+});
+
+function applyFilters() {
+    const search = document.getElementById("searchInput").value.trim();
+    const category = document.getElementById("categoryFilter").value;
+    const status = document.getElementById("statusFilter").value;
+
+    const params = new URLSearchParams();
+
+    if (search) params.append("search", search);
+    if (category) params.append("category", category);
+    if (status) params.append("status", status);
+
+    window.location.href = `/admin/allProducts?${params.toString()}`;
+}
 
     </script>
 </body>

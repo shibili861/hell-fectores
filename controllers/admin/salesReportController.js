@@ -59,9 +59,7 @@ function getDateRange(type, startDate, endDate) {
   return { start, end };
 }
 
-// =======================================
-// 1) JSON DATA FOR DASHBOARD (AJAX)
-// =======================================
+
   const getReportData = async (req, res) => {
   try {
     let { type = "daily", startDate, endDate } = req.query;
@@ -89,7 +87,7 @@ function getDateRange(type, startDate, endDate) {
             $sum: {
               $cond: [
                 { $ifNull: ["$couponCode", false] },   // coupon was used
-                "$discount",                           // treat discount as coupon discount
+                "$discount",                           
                 0
               ]
             }

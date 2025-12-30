@@ -191,53 +191,57 @@ const addProductsbutton = async (req, res) => {
     }
 };
 
-
 const getallproducts = async (req, res) => {
-    try {
-        const search = req.query.search || "";
-        const page = parseInt(req.query.page) || 1;
-        const limit = 8;
-       
-        let searchQuery = {};
-        if (search && search.trim() !== "") {
-            searchQuery = {
-                $or: [
-                    { productName: { $regex: new RegExp(".*" + search + ".*", "i") } }
-                ]
-            };
-        }
+  try {
+    const search = req.query.search || "";
+    const category = req.query.category || "";
+    const status = req.query.status || "";
+    const page = parseInt(req.query.page) || 1;
+    const limit = 8;
 
-        // Get products with pagination
-        const productData = await Product.find(searchQuery)
-           
-            .sort({ createdAt: -1 })  
-             .limit(limit)
-            .skip((page - 1) * limit)
-            .populate('category')
-            .exec();
-    
-       
-        const count = await Product.countDocuments(searchQuery);
-        
-        const category = await Category.find({ isListed: true });
-        
-        if (category) {
-            res.render("admin/allproducts", {
-                data: productData,
-                count: count,
-                currentPage: page,
-                totalPages: Math.ceil(count / limit),
-                cat: category,
-                search: search
-            });
-        } else {
-            res.status(404).render("page-not-found");
-        }
+    let query = {};
 
-    } catch (error) {
-        console.error('Error in getallproducts:', error);
-        res.redirect("/admin-error");
+    //  Search filter
+    if (search.trim()) {
+      query.productName = { $regex: search, $options: "i" };
     }
+
+    //  Category filter
+    if (category) {
+      query.category = category;
+    }
+
+    //  Status filter
+    if (status === "active") {
+      query.isBlocked = false;
+    } else if (status === "blocked") {
+      query.isBlocked = true;
+    }
+
+    const productData = await Product.find(query)
+      .populate("category")
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .skip((page - 1) * limit);
+
+    const count = await Product.countDocuments(query);
+    const categories = await Category.find({ isListed: true });
+
+    res.render("admin/allproducts", {
+      data: productData,
+      count,
+      currentPage: page,
+      totalPages: Math.ceil(count / limit),
+      cat: categories,
+      search,
+      selectedCategory: category,
+      status
+    });
+
+  } catch (error) {
+    console.error("Error in getallproducts:", error);
+    res.redirect("/admin-error");
+  }
 };
 
 // --- BLOCK PRODUCT ---
