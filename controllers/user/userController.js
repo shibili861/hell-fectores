@@ -721,7 +721,17 @@ const filterProducts = async (req, res) => {
     });
   }
 };
-
+// controllers/contactController.js
+loadContactPage = (req, res) => {
+  res.render("user/contact", {
+    title: "Contact Us"
+  });
+};
+loadAboutPage = (req, res) => {
+  res.render("user/ourstory", {
+    title: "About Us"
+  });
+};
 
 
 module.exports = {
@@ -733,6 +743,8 @@ module.exports = {
   loadlogin,
   login,
   userLogout,
+  loadContactPage,
+  loadAboutPage ,
   
 
 loadForgotPassword,

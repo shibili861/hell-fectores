@@ -211,6 +211,7 @@ router.post("/referral/skip", referralController.skipReferral);
 router.post("/referral/apply", referralController.applyReferralCode);
 
 
-
+router.get("/contact",userController. loadContactPage);
+router.get("/about",userController. loadAboutPage);
 
 module.exports=router;
