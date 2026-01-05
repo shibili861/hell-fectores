@@ -9,6 +9,12 @@
     <title>Premium Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+
+        html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
         * {
             
             margin: 0;
@@ -29,22 +35,23 @@
             --transition: all 0.3s ease;
         }
         
-        body {
-            background-color: #f8f5f2;
-            color: var(--text-dark);
-            min-height: 100vh;
-            display: flex;
-        }
+       body {
+    background-color: #f8f5f2;
+    color: var(--text-dark);
+    min-height: 100vh;
+}
+
         
        
         
         /* Main Content Styles */
-        .main-content {
-            flex: 1;
-            margin-left: 280px;
-            padding: 30px;
-            transition: var(--transition);
-        }
+     .main-content {
+    margin-left: 280px;
+    width: calc(100% - 280px);
+    padding: 30px;
+    transition: all 0.3s ease;
+}
+
         
         .header {
             display: flex;
@@ -212,14 +219,16 @@
         }
         
         /* Charts and Tables */
-        .chart-container {
-            background: var(--white);
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: var(--shadow);
-            border: 1px solid #e8e1d8;
-            margin-bottom: 30px;
-        }
+     .chart-container {
+    background: var(--white);
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: var(--shadow);
+    border: 1px solid #e8e1d8;
+    margin-bottom: 30px;
+    overflow: hidden;   /* 🔥 IMPORTANT */
+}
+
         
         .chart-header {
             display: flex;
@@ -339,8 +348,11 @@
 
 /* Ensure charts scale properly */
 canvas {
-    max-width: 100% !important;
+    width: 100% !important;
+    display: block;
 }
+
+
 
 /* Main content padding fix */
 @media (max-width: 1200px) {
@@ -353,79 +365,42 @@ canvas {
    TABLET VIEW (≤ 992px)
 ========================= */
 @media (max-width: 992px) {
-
     .dashboard-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 
-    /* Charts row stacking */
-    .chart-container > div[style*="grid-template-columns"] {
-        grid-template-columns: 1fr !important;
-    }
-
-    /* Reduce chart height slightly */
+    /* keep height ONLY for bar charts */
     #topProductsChart,
-    #topCategoriesChart,
-    #salesTrendChart,
-    #salesDistributionChart {
+    #topCategoriesChart {
         height: 260px !important;
     }
 }
+
 
 /* =========================
    MOBILE VIEW (≤ 768px)
 ========================= */
 @media (max-width: 768px) {
 
-    /* Cards stack */
     .dashboard-grid {
         grid-template-columns: 1fr;
     }
 
-    /* Header stacking */
-    .header {
-        flex-direction: column;
-        gap: 15px;
-        align-items: flex-start;
-    }
-
-    .header-actions {
-        width: 100%;
-        flex-wrap: wrap;
-        gap: 10px;
-    }
-
-    .search-box input {
-        width: 100%;
-    }
-
-    /* Filters wrap cleanly */
-    #salesFilterForm {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    #salesFilterForm > div {
-        width: 100%;
-    }
-
-    /* Charts full width */
     .chart-container {
         padding: 20px;
     }
 
+    /* keep height ONLY for bar charts */
     #topProductsChart,
-    #topCategoriesChart,
-    #salesTrendChart,
-    #salesDistributionChart {
+    #topCategoriesChart {
         height: 240px !important;
     }
 
-    /* Table horizontal scroll */
     table {
         min-width: 700px;
     }
 }
+
 
 /* =========================
    SMALL MOBILE (≤ 480px)
@@ -456,12 +431,26 @@ canvas {
 /* =========================
    Reduce Sales Overview chart size ONLY
 ========================= */
-/* 
-/* Desktop */
-#salesTrendChart,
-#salesDistributionChart {
-    height: 4020px !important;
-} 
+/* Sales Overview chart sizing */
+.sales-overview-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    gap: 25px;
+}
+
+
+.sales-chart-box {
+    position: relative;
+    height: 320px;
+}
+
+ @media (max-width: 992px) {
+    .sales-overview-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
 
 
     </style>
@@ -576,14 +565,15 @@ canvas {
             <div class="chart-header">
                 <h2 class="chart-title">Sales Overview</h2>
             </div>
-            <div style="display:grid; grid-template-columns: 1.2fr 1fr; gap:25px;">
-                <div>
-                    <canvas id="salesTrendChart"></canvas>
-                </div>
-                <div>
-                    <canvas id="salesDistributionChart"></canvas>
-                </div>
-            </div>
+          <div class="sales-overview-grid">
+    <div class="sales-chart-box">
+        <canvas id="salesTrendChart"></canvas>
+    </div>
+    <div class="sales-chart-box">
+        <canvas id="salesDistributionChart"></canvas>
+    </div>
+</div>
+
         </section>
 
         <!-- CHARTS ROW 2 -->
@@ -711,18 +701,37 @@ canvas {
                 const trendValues = (salesTrend || []).map(s => s.netSales);
 
                 const ctxTrend = document.getElementById('salesTrendChart').getContext('2d');
-                salesTrendChart = new Chart(ctxTrend, {
-                    type: 'line',
-                    data: {
-                        labels: trendLabels,
-                        datasets: [{
-                            label: 'Net Sales',
-                            data: trendValues,
-                            tension: 0.3,
-                            fill: true
-                        }]
-                    }
-                });
+         salesTrendChart = new Chart(ctxTrend, {
+    type: 'line',
+    data: {
+        labels: trendLabels,
+        datasets: [{
+            label: 'Net Sales',
+            data: trendValues,
+            tension: 0.3,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: {
+            padding: {
+                left: 10,
+                right: 10,
+                top: 10,
+                bottom: 10
+            }
+        },
+        plugins: {
+            legend: {
+                position: 'top'
+            }
+        }
+    }
+});
+
+
 
                 const gross = Number(summary.grossAmount || 0);
                 const totalDiscount = Number(summary.totalDiscount || 0);
@@ -731,15 +740,25 @@ canvas {
                 const net = Number(summary.netAmount || (gross - totalDiscount));
 
                 const ctxDist = document.getElementById('salesDistributionChart').getContext('2d');
-                salesDistributionChart = new Chart(ctxDist, {
-                    type: 'pie',
-                    data: {
-                        labels: ['Net Sales', 'Coupon Discount', 'Other Discount'],
-                        datasets: [{
-                            data: [net, couponDiscount, otherDiscount < 0 ? 0 : otherDiscount]
-                        }]
-                    }
-                });
+     salesDistributionChart = new Chart(ctxDist, {
+    type: 'pie',
+    data: {
+        labels: ['Net Sales', 'Coupon Discount', 'Other Discount'],
+        datasets: [{
+            data: [net, couponDiscount, otherDiscount < 0 ? 0 : otherDiscount]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'   // 🔥 IMPORTANT
+            }
+        }
+    }
+});
+
 
                 const prodLabels = (topProducts || []).map(p => p.name);
                 const prodValues = (topProducts || []).map(p => p.revenue);
@@ -837,6 +856,17 @@ document.getElementById("downloadExcelBtn").addEventListener("click", () => {
             // initial load
             loadSalesReport();
         });
+function resizeCharts() {
+    if (salesTrendChart) salesTrendChart.resize();
+    if (salesDistributionChart) salesDistributionChart.resize();
+}
+
+window.addEventListener("load", () => {
+    setTimeout(resizeCharts, 300);
+});
+
+window.addEventListener("resize", resizeCharts);
+
     </script>
 </body>
 </html>
