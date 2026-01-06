@@ -578,21 +578,22 @@
                                 </span>
                             <% } %>
                         </td>
-                        <td data-label="Action">
-                            <% if(data[i].isBlocked === false) { %>
-                                <a href="/admin/blockcustomer?id=<%= data[i]._id %>" 
-                                   class="btn-danger"
-                                   onclick="return confirm('Are you sure you want to block this user?');">
-                                   <i class="fas fa-user-slash"></i> Block
-                                </a>
-                            <% } else { %>
-                                <a href="/admin/unblockcustomer?id=<%= data[i]._id %>" 
-                                   class="btn-success"
-                                   onclick="return confirm('Are you sure you want to unblock this user?');">
-                                   <i class="fas fa-user-check"></i> Unblock
-                                </a>
-                            <% } %>
-                        </td>
+                       <td data-label="Action">
+    <% if(data[i].isBlocked === false) { %>
+        <a href="javascript:void(0);" 
+           class="btn-danger"
+           onclick="blockUser('<%= data[i]._id %>')">
+           <i class="fas fa-user-slash"></i> Block
+        </a>
+    <% } else { %>
+        <a href="javascript:void(0);" 
+           class="btn-success"
+           onclick="unblockUser('<%= data[i]._id %>')">
+           <i class="fas fa-user-check"></i> Unblock
+        </a>
+    <% } %>
+</td>
+
                     </tr>
                     <% } %>
                 </tbody>
@@ -609,6 +610,7 @@
             </ul>
         </div>
     </div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         // Add subtle animations to page elements
@@ -638,6 +640,38 @@
                 });
             });
         });
+
+        function blockUser(userId) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "This user will be blocked!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, block user'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = `/admin/blockcustomer?id=${userId}`;
+        }
+    });
+}
+
+function unblockUser(userId) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "This user will be unblocked!",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, unblock user'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = `/admin/unblockcustomer?id=${userId}`;
+        }
+    });
+}
         
     </script>
 </body>

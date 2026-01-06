@@ -699,9 +699,11 @@ canvas {
 
                 const trendLabels = (salesTrend || []).map(s => s._id);
                 const trendValues = (salesTrend || []).map(s => s.netSales);
+                
+           
 
                 const ctxTrend = document.getElementById('salesTrendChart').getContext('2d');
-         salesTrendChart = new Chart(ctxTrend, {
+        salesTrendChart = new Chart(ctxTrend, {
     type: 'line',
     data: {
         labels: trendLabels,
@@ -709,7 +711,12 @@ canvas {
             label: 'Net Sales',
             data: trendValues,
             tension: 0.3,
-            fill: true
+            fill: true,
+
+            // 🔥 FIX #2 — ADD THESE LINES
+            pointRadius: trendValues.length === 1 ? 6 : 3,
+            pointHoverRadius: 8,
+            borderWidth: 2
         }]
     },
     options: {
